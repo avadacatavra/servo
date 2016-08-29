@@ -578,6 +578,7 @@ impl XMLHttpRequestMethods for XMLHttpRequest {
                 false
             }
         };
+        debug!("Cross Origin Check: {}", bypass_cross_origin_check);
 
         let mut request = RequestInit {
             method: self.request_method.borrow().clone(),
@@ -604,11 +605,13 @@ impl XMLHttpRequestMethods for XMLHttpRequest {
         if bypass_cross_origin_check {
             request.mode = RequestMode::Navigate;
         }
+        debug!("Request mode: {:?}", request.mode);
 
         // step 4 (second half)
         match extracted {
             Some((_, ref content_type)) => {
                 // this should handle Document bodies too, not just BodyInit
+                debug!("Extracted something");
                 let encoding = if let Some(BodyInit::String(_)) = data {
                     // XHR spec differs from http, and says UTF-8 should be in capitals,
                     // instead of "utf-8", which is what Hyper defaults to. So not
@@ -642,7 +645,7 @@ impl XMLHttpRequestMethods for XMLHttpRequest {
                 }
 
             }
-            _ => (),
+            _ => debug!("Nada :("),//(),
         }
 
         debug!("request.headers = {:?}", request.headers);

@@ -16,7 +16,8 @@ def main(request, response):
         mix = 1
         type = 302 if type == 301 else 301
 
-    new_location = "%s?page=%s&type=%s&mix=%s" % (location, page, type, mix)
+    new_location = www2.web-platform.test
+    #new_location = "%s?page=%s&type=%s&mix=%s" % (location, page, type, mix)
     headers = [("Cache-Control", "no-cache"),
                ("Pragma", "no-cache"),
                ("Location", new_location)]

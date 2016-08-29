@@ -82,6 +82,7 @@ impl HTMLBodyElementMethods for HTMLBodyElement {
     window_event_handlers!(ForwardToWindow);
 }
 
+//avada are these the getters?
 pub trait HTMLBodyElementLayoutHelpers {
     fn get_background_color(&self) -> Option<RGBA>;
     fn get_color(&self) -> Option<RGBA>;

@@ -199,13 +199,15 @@ pub unsafe fn find_enum_string_index(cx: *mut JSContext,
 /// Returns wether `obj` is a platform object
 /// https://heycam.github.io/webidl/#dfn-platform-object
 pub fn is_platform_object(obj: *mut JSObject) -> bool {
+    debug!("is platform obj"); //FIXME
     unsafe {
         // Fast-path the common case
         let mut clasp = JS_GetClass(obj);
         if is_dom_class(&*clasp) {
             return true;
         }
-        // Now for simplicity check for security wrappers before anything else
+        // Now for simplicity check for security wrappers before anything else -- avada is this the
+        // perform-a-security-check
         if IsWrapper(obj) {
             let unwrapped_obj = UnwrapObject(obj, /* stopAtWindowProxy = */ 0);
             if unwrapped_obj.is_null() {
@@ -376,7 +378,7 @@ unsafe extern "C" fn wrap(cx: *mut JSContext,
                           _existing: HandleObject,
                           obj: HandleObject)
                           -> *mut JSObject {
-    // FIXME terrible idea. need security wrappers
+    // FIXME avadacatavra terrible idea. need security wrappers
     // https://github.com/servo/servo/issues/2382
     WrapperNew(cx, obj, GetCrossCompartmentWrapper(), ptr::null(), false)
 }
