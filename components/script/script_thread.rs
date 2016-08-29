@@ -1783,6 +1783,7 @@ impl ScriptThread {
         self.notify_devtools(document.Title(), final_url.clone(), (browsing_context.pipeline_id(), None));
 
         let is_javascript = incomplete.url.scheme() == "javascript";
+        debug!("You haz javascript!");
         let parse_input = if is_javascript {
             use url::percent_encoding::percent_decode;
 
@@ -2125,6 +2126,7 @@ impl ScriptThread {
         };
 
         if load_data.url.scheme() == "javascript" {
+            debug!("ScriptThread about blank");
             load_data.url = Url::parse("about:blank").unwrap();
         }
 

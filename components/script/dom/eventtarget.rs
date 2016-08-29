@@ -422,6 +422,7 @@ impl EventTarget {
                             handler.handle_mut())
         };
         if !rv || handler.get().is_null() {
+            debug!("Error: or here?");
             // Step 1.8.2
             unsafe {
                 let _ac = JSAutoCompartment::new(cx, self.reflector().get_jsobject().get());

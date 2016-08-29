@@ -314,6 +314,7 @@ pub unsafe fn define_guarded_properties(
 pub unsafe fn is_exposed_in(object: HandleObject, globals: Globals) -> bool {
     let unwrapped = UncheckedUnwrapObject(object.get(), /* stopAtWindowProxy = */ 0);
     let dom_class = get_dom_class(unwrapped).unwrap();
+    debug!("dom_class.global: {:?}", dom_class.global);     //avada what calls is_exposed_in
     globals.contains(dom_class.global)
 }
 

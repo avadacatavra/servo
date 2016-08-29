@@ -259,10 +259,13 @@ impl HttpRequestFactory for NetworkHttpRequestFactory {
 
     fn create(&self, url: Url, method: Method, headers: Headers)
               -> Result<WrappedHttpRequest, LoadError> {
+        debug!("Creating HttpRequestFactory");
         let connection = Request::with_connector(method, url.clone(), &*self.connector);
 
+        debug!("connection!");
         if let Err(HttpError::Ssl(ref error)) = connection {
             let error: &(Error + Send + 'static) = &**error;
+            debug!("Error: {:?}", error);
             if let Some(&SslError::OpenSslErrors(ref errors)) = error.downcast_ref::<SslError>() {
                 if errors.iter().any(is_cert_verify_error) {
                     let mut error_report = vec![format!("ssl error ({}):", openssl::version::version())];
@@ -279,6 +282,7 @@ impl HttpRequestFactory for NetworkHttpRequestFactory {
                     }
 
                     let error_report = error_report.join("<br>\n");
+                    debug!("Error report\n{}", error_report);
                     return Err(LoadError::new(url, LoadErrorType::Ssl { reason: error_report }));
                 }
             }
@@ -289,6 +293,8 @@ impl HttpRequestFactory for NetworkHttpRequestFactory {
             Err(e) => return Err(
                 LoadError::new(url, LoadErrorType::Connection { reason: e.description().to_owned() })),
         };
+        debug!("headers: {:?}", headers.clone());
+        
         *request.headers_mut() = headers;
 
         Ok(WrappedHttpRequest { request: request })
@@ -310,6 +316,7 @@ impl HttpRequest for WrappedHttpRequest {
 
     fn send(self, body: &Option<Vec<u8>>) -> Result<WrappedHttpResponse, LoadError> {
         let url = self.request.url.clone();
+        debug!("Sending URL {:?}", url);
         let mut request_writer = match self.request.start() {
             Ok(streaming) => streaming,
             Err(e) => return Err(LoadError::new(url, LoadErrorType::Connection { reason: e.description().to_owned() })),
@@ -330,6 +337,7 @@ impl HttpRequest for WrappedHttpRequest {
             Err(e) => return Err(LoadError::new(url, LoadErrorType::Connection { reason: e.description().to_owned() })),
         };
 
+        debug!("response: {:?}", response);
         Ok(WrappedHttpResponse { response: response })
     }
 }
@@ -754,6 +762,7 @@ pub fn obtain_response<A>(request_factory: &HttpRequestFactory<R=A>,
     let connection_url = replace_hosts(&url);
     let mut msg;
 
+    debug!("obtain_response");
 
     // loop trying connections in connection pool
     // they may have grown stale (disconnected), in which case we'll get
@@ -793,8 +802,10 @@ pub fn obtain_response<A>(request_factory: &HttpRequestFactory<R=A>,
 
         let connect_start = precise_time_ms();
 
+        debug!("Connecting...");    //avadacatavra -- it doesn't connect!
         let req = try!(request_factory.create(connection_url.clone(), method.clone(),
                                               headers.clone()));
+        debug!("Done connecting!");
 
         let connect_end = precise_time_ms();
 

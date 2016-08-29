@@ -52,7 +52,7 @@ pub enum Referrer {
 }
 
 /// A [request mode](https://fetch.spec.whatwg.org/#concept-request-mode)
-#[derive(Copy, Clone, PartialEq, Serialize, Deserialize, HeapSizeOf)]
+#[derive(Copy, Clone, PartialEq, Debug, Serialize, Deserialize, HeapSizeOf)]
 pub enum RequestMode {
     Navigate,
     SameOrigin,
