@@ -895,7 +895,7 @@ impl<'a, T: Reflectable> ScriptHelpers for &'a T {
             iframe: TimerMetadataFrameType::RootWindow,
             incremental: TimerMetadataReflowType::FirstReflow,
         };
-        debug!("Error metadata {:?}", metadata);
+        //avada debug!("Error metadata {:?}", metadata);
         profile(
             ProfilerCategory::ScriptEvaluate,
             Some(metadata),
@@ -908,7 +908,7 @@ impl<'a, T: Reflectable> ScriptHelpers for &'a T {
 
                 let _ac = JSAutoCompartment::new(cx, globalhandle.get());
                 let options = CompileOptionsWrapper::new(cx, filename.as_ptr(), 1);
-                debug!("Error called from here?");
+                //avada debug!("Error called from here?");
                 unsafe {
                     if !Evaluate2(cx, options.ptr, code.as_ptr(),
                                   code.len() as libc::size_t,
