@@ -62,7 +62,12 @@ impl PromiseHelper for Rc<Promise> {
 impl Drop for Promise {
     #[allow(unsafe_code)]
     fn drop(&mut self) {
+<<<<<<< 07128d8a58bf9e78f55343648eb7da7ecc1c83ba
         let cx = self.global().get_cx();
+=======
+        debug!("avada drop promise");
+        let cx = self.global().r().get_cx();
+>>>>>>> not getting promises debug
         unsafe {
             RemoveRawValueRoot(cx, self.permanent_js_root.get_unsafe());
         }
@@ -82,7 +87,12 @@ impl Promise {
 
     #[allow(unsafe_code, unrooted_must_root)]
     pub fn duplicate(&self) -> Rc<Promise> {
+<<<<<<< 07128d8a58bf9e78f55343648eb7da7ecc1c83ba
         let cx = self.global().get_cx();
+=======
+        debug!("avada dup promise");
+        let cx = self.global().r().get_cx();
+>>>>>>> not getting promises debug
         unsafe {
             Promise::new_with_js_promise(self.reflector().get_jsobject(), cx)
         }
@@ -90,6 +100,8 @@ impl Promise {
 
     #[allow(unsafe_code, unrooted_must_root)]
     unsafe fn new_with_js_promise(obj: HandleObject, cx: *mut JSContext) -> Rc<Promise> {
+        debug!("avada new with js promise");
+        
         assert!(IsPromiseObject(obj));
         let mut promise = Promise {
             reflector: Reflector::new(),
@@ -103,6 +115,7 @@ impl Promise {
 
     #[allow(unsafe_code)]
     unsafe fn create_js_promise(cx: *mut JSContext, proto: HandleObject, obj: MutableHandleObject) {
+        debug!("avada create js promise");
         let do_nothing_func = JS_NewFunction(cx, Some(do_nothing_promise_executor), /* nargs = */ 2,
                                              /* flags = */ 0, ptr::null());
         assert!(!do_nothing_func.is_null());
@@ -141,6 +154,8 @@ impl Promise {
 
     #[allow(unsafe_code)]
     pub fn resolve_native<T>(&self, cx: *mut JSContext, val: &T) where T: ToJSValConvertible {
+    debug!("avada native resolve");
+        
         rooted!(in(cx) let mut v = UndefinedValue());
         unsafe {
             val.to_jsval(cx, v.handle_mut());
@@ -150,6 +165,8 @@ impl Promise {
 
     #[allow(unrooted_must_root, unsafe_code)]
     pub fn resolve(&self, cx: *mut JSContext, value: HandleValue) {
+    debug!("avada resolve");
+        
         unsafe {
             if !ResolvePromise(cx, self.promise_obj(), value) {
                 JS_ClearPendingException(cx);
@@ -159,6 +176,8 @@ impl Promise {
 
     #[allow(unsafe_code)]
     pub fn reject_native<T>(&self, cx: *mut JSContext, val: &T) where T: ToJSValConvertible {
+    debug!("avada reject native");
+        
         rooted!(in(cx) let mut v = UndefinedValue());
         unsafe {
             val.to_jsval(cx, v.handle_mut());
@@ -168,6 +187,8 @@ impl Promise {
 
     #[allow(unsafe_code)]
     pub fn reject_error(&self, cx: *mut JSContext, error: Error) {
+    debug!("avada reject error");
+        
         rooted!(in(cx) let mut v = UndefinedValue());
         unsafe {
             error.to_jsval(cx, &self.global(), v.handle_mut());
@@ -179,6 +200,8 @@ impl Promise {
     pub fn reject(&self,
                         cx: *mut JSContext,
                         value: HandleValue) {
+        debug!("avada reject");
+        
         unsafe {
             if !RejectPromise(cx, self.promise_obj(), value) {
                 JS_ClearPendingException(cx);
@@ -207,6 +230,8 @@ impl Promise {
 
     #[allow(unsafe_code)]
     fn promise_obj(&self) -> HandleObject {
+        debug!("avada promise obj");
+        
         let obj = self.reflector().get_jsobject();
         unsafe {
             assert!(IsPromiseObject(obj));
@@ -239,6 +264,8 @@ impl Promise {
 
 #[allow(unsafe_code)]
 unsafe extern fn do_nothing_promise_executor(_cx: *mut JSContext, argc: u32, vp: *mut JSVal) -> bool {
+    debug!("avada do nothing");
+    
     let args = CallArgs::from_vp(vp, argc);
     *args.rval() = UndefinedValue();
     true
@@ -255,6 +282,7 @@ enum NativeHandlerTask {
 
 #[allow(unsafe_code)]
 unsafe extern fn native_handler_callback(cx: *mut JSContext, argc: u32, vp: *mut JSVal) -> bool {
+    debug!("avada native callback");
     let args = CallArgs::from_vp(vp, argc);
     rooted!(in(cx) let v = *GetFunctionNativeReserved(args.callee(), SLOT_NATIVEHANDLER));
     assert!(v.get().is_object());
@@ -276,6 +304,8 @@ unsafe extern fn native_handler_callback(cx: *mut JSContext, argc: u32, vp: *mut
 fn create_native_handler_function(cx: *mut JSContext,
                                   holder: HandleObject,
                                   task: NativeHandlerTask) -> *mut JSObject {
+    debug!("avada create native");
+    
     unsafe {
         let func = NewFunctionWithReserved(cx, Some(native_handler_callback), 1, 0, ptr::null());
         assert!(!func.is_null());
