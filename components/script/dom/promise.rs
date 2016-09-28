@@ -50,6 +50,7 @@ trait PromiseHelper {
 impl PromiseHelper for Rc<Promise> {
     #[allow(unsafe_code)]
     unsafe fn initialize(&self, cx: *mut JSContext) {
+        debug!("avada initialize promise");
         let obj = self.reflector().get_jsobject();
         self.permanent_js_root.set(ObjectValue(&**obj));
         assert!(AddRawValueRoot(cx,
@@ -115,6 +116,8 @@ impl Promise {
     pub fn Resolve(global: &GlobalScope,
                    cx: *mut JSContext,
                    value: HandleValue) -> Fallible<Rc<Promise>> {
+        debug!("avada resolve promise");
+        
         let _ac = JSAutoCompartment::new(cx, global.reflector().get_jsobject().get());
         rooted!(in(cx) let p = unsafe { CallOriginalPromiseResolve(cx, value) });
         assert!(!p.handle().is_null());
@@ -127,6 +130,7 @@ impl Promise {
     pub fn Reject(global: &GlobalScope,
                   cx: *mut JSContext,
                   value: HandleValue) -> Fallible<Rc<Promise>> {
+        debug!("avada reject promise");
         let _ac = JSAutoCompartment::new(cx, global.reflector().get_jsobject().get());
         rooted!(in(cx) let p = unsafe { CallOriginalPromiseReject(cx, value) });
         assert!(!p.handle().is_null());
@@ -189,6 +193,8 @@ impl Promise {
                 cb_resolve: AnyCallback,
                 cb_reject: AnyCallback,
                 result: MutableHandleObject) {
+        debug!("avada then promise");
+        
         let promise = self.promise_obj();
         rooted!(in(cx) let resolve = cb_resolve.callback());
         rooted!(in(cx) let reject = cb_reject.callback());
