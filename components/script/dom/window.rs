@@ -865,58 +865,6 @@ impl WindowMethods for Window {
             Err(e) => Err(Error::Type(format!("Couldn't open URL: {}", e))),
         }
     }
-<<<<<<< 6f8bf29eaf3c495cd1c0a4d3bfcccd3c50938541
-=======
-}
-
-pub trait ScriptHelpers {
-    fn evaluate_js_on_global_with_result(self, code: &str,
-                                         rval: MutableHandleValue);
-    fn evaluate_script_on_global_with_result(self, code: &str, filename: &str,
-                                             rval: MutableHandleValue);
-}
-
-impl<'a, T: Reflectable> ScriptHelpers for &'a T {
-    fn evaluate_js_on_global_with_result(self, code: &str,
-                                         rval: MutableHandleValue) {
-        self.evaluate_script_on_global_with_result(code, "", rval)
-    }
-
-    #[allow(unsafe_code)]
-    fn evaluate_script_on_global_with_result(self, code: &str, filename: &str,
-                                             rval: MutableHandleValue) {
-        let global = self.global();
-        let metadata = TimerMetadata {
-            url: if filename.is_empty() {
-                global.r().get_url().as_str().into()
-            } else {
-                filename.into()
-            },
-            iframe: TimerMetadataFrameType::RootWindow,
-            incremental: TimerMetadataReflowType::FirstReflow,
-        };
-        //avada debug!("Error metadata {:?}", metadata);
-        profile(
-            ProfilerCategory::ScriptEvaluate,
-            Some(metadata),
-            global.r().time_profiler_chan().clone(),
-            || {
-                let cx = global.r().get_cx();
-                let globalhandle = global.r().reflector().get_jsobject();
-                let code: Vec<u16> = code.encode_utf16().collect();
-                let filename = CString::new(filename).unwrap();
-
-                let _ac = JSAutoCompartment::new(cx, globalhandle.get());
-                let options = CompileOptionsWrapper::new(cx, filename.as_ptr(), 1);
-                //avada debug!("Error called from here?");
-                unsafe {
-                    if !Evaluate2(cx, options.ptr, code.as_ptr(),
-                                  code.len() as libc::size_t,
-                                  rval) {
-                        debug!("error evaluating JS string");
-                        report_pending_exception(cx, true);
-                    }
-                }
 
     // https://drafts.csswg.org/cssom-view/#dom-window-matchmedia
     fn MatchMedia(&self, query: DOMString) -> Root<MediaQueryList> {
