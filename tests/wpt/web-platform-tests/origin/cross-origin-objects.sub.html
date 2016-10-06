@@ -20,57 +20,47 @@
 setup({explicit_done: true});
 path = location.pathname.substring(0, location.pathname.lastIndexOf('/')) + '/frame.html';
 
+var x = new Promise(function(){});
+
 var B = document.getElementById('B');//.contentWindow;
 var bPromise = new Promise(function(resolve, reject) {
     console.log("bpromise");
+    console.log(B);
+
     B = B.contentWindow;
+    console.log("content window acquired");
+    console.log(C);
+
+
     B.async = true;
     B.src = path;
     B.frameElement.uriToLoad = path;
-    B.onload = resolve;
-    B.onerror = reject; 
+    console.log(B);
+    B.onload = resolve();
+    B.onerror = reject(); 
+    console.log("never gets here");
 });
 
-/*B.addEventListener('load', function() {
-    B = B.contentWindow;
-    B.frameElement.uriToLoad = path;
-    console.log("in event listener B");
-    console.log(B);
-});*/
 var C = document.getElementById('C'); //doing this messes with the location checks
 var cPromise = new Promise(function(resolve, reject) {
     console.log("cpromise");
+    console.log(C);
+    
     C = C.contentWindow;
-    C.async = true;
+    console.log("content window acquired");
+    console.log(C);
+
+    //C.async = true;
     C.frameElement.uriToLoad = '//{{domains[www1]}}:' + location.port + path;
-    C.onload = resolve;
-    C.onerror = reject; 
+    console.log(C)
+    C.onload = resolve();
+    C.onerror = reject();
+    console.log("never gets here"); 
 });
 
-//C.addEventListener('load', function() {
-//    C = C.contentWindow;
-//    C.frameElement.uriToLoad = '//{{domains[www1]}}:' + location.port + path;
-//});
 console.log("wtf do i have");
 console.log(B);
 console.log(C);
-
-/*function loadScript(url) {
-  return new Promise(function(resolve, reject) {
-    var script = document.createElement('script');
-
-    script.async = true;
-    script.src = url;
-
-    // trigger fulfilled state when script is ready
-    script.onload = resolve;
-
-    // trigger rejected state when script is not found
-    script.onerror = reject;
-
-    document.head.appendChild(script);   
-  });
-}*/
 
 function reloadSubframes(cb) {
   console.log("in reload");
@@ -141,7 +131,10 @@ function runNextTest() {
     doDocumentDomainTest(done); // Asynchronous.
 }
 console.log("before reload");
-//reloadSubframes(runNextTest);
-Promise.all([bPromise, cPromise]).then(function() { reloadSubframes(runNextTest) });
+Promise.all([bPromise, cPromise]).then(function() { console.log("promise all"); reloadSubframes(runNextTest) });
+console.log("the end");
+console.log(B);
+console.log(bPromise);
+console.log(C);
 
 </script>
