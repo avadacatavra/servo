@@ -20,8 +20,6 @@
 setup({explicit_done: true});
 path = location.pathname.substring(0, location.pathname.lastIndexOf('/')) + '/frame.html';
 
-var x = new Promise(function(){});
-
 var B = document.getElementById('B');//.contentWindow;
 var bPromise = new Promise(function(resolve, reject) {
     console.log("bpromise");
