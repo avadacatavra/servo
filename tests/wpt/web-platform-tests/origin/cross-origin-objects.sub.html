@@ -8,23 +8,17 @@
 <script src="/resources/testharness_xow.js"></script>
 <script src="/resources/testharnessreport_xow.js"></script>
 <div id=log></div>
-<iframe id="B" src="blank.html"></iframe>
-<iframe id="C" src="blank.html"></iframe>
+<iframe id="B" src="frame.html"></iframe>
+<iframe id="C" src="frame.html"></iframe>
 <script>
 
 function reloadSubframes(cb) {
-  console.log("in reload");
-  console.log(B);
-  console.log(C);
   var iframes = document.getElementsByTagName('iframe');
   iframes.forEach = Array.prototype.forEach;
   var count = 0;
   function frameLoaded() {
-    //console.log(this);
-    //console.log(this.onload);
     this.onload = null;
     if (++count == iframes.length){
-      console.log("all iframes are loaded");
       cb();
     }
   }
@@ -39,19 +33,12 @@ function isObject(x) { return Object(x) === x; }
  */
 //do the iframes reload. for each frame, set onload to function like frameloaded that incs and when all frames are loaded, do alladatest stuff
 function reloadSubframes(cb) {
-  console.log("in reload");
-  console.log(B);
-  console.log(C);
   var iframes = document.getElementsByTagName('iframe');
   iframes.forEach = Array.prototype.forEach;
   var count = 0;
   function frameLoaded() {
-    console.log("frameloaded");
-    console.log(this);
-    console.log(this.onload);
     this.onload = null;
     if (++count == iframes.length){
-      console.log("all frames loaded");
       cb();
     }
   }
@@ -72,13 +59,8 @@ function isObject(x) { return Object(x) === x; }
  */
 setup({explicit_done: true});
 path = location.pathname.substring(0, location.pathname.lastIndexOf('/')) + '/frame.html';
-console.log("death");
 var B = document.getElementById('B');//.contentWindow;
-console.log("meow");
-console.log("B");
-console.log(B);
 var C = document.getElementById('C');//.contentWindow;
-console.log("urgh");
 
 var testList = [];
 function addTest(fun, desc) { testList.push([fun, desc]); }
@@ -87,63 +69,33 @@ function addTest(fun, desc) { testList.push([fun, desc]); }
 var iframes = document.getElementsByTagName('iframe');
 iframes.forEach = Array.prototype.forEach;
 var count = 0;
-console.log(iframes.length);
-console.log("B");
-console.log(B);
 function frameloaded() {
-  console.log("frameloaded2");
-  console.log(count);
   if (++count == iframes.length){
-    console.log("all dat shit is loaded");
-    
-    console.log("B");
-    console.log(B);
-    console.log(B.contentWindow);
     Bw = B.contentWindow;
     Cw = C.contentWindow;
 
     Bw.frameElement.uriToLoad = path;  //still nulling out
-    console.log("srsly");
     Cw.frameElement.uriToLoad = '//{{domains[www1]}}:' + location.port + path;
-    console.log("bro");
-
-    
+    C.src =  '//{{domains[www1]}}:' + location.port + path;
 
     /*
      * Basic sanity testing.
      */
 
     addTest(function() {
-      console.log("basic sanity checking");
       assert_equals(location.host, '{{domains[]}}:{{location[port]}}', 'Need to run the top-level test from {{domains[]}}:{{location[port]}}');
-      console.log("0");
       assert_equals(Bw.parent, window, "window.parent works same-origin");
-      console.log("1");
-      console.log(Bw.parent==window);
       assert_equals(Cw.parent, window, "window.parent works cross-origin");
-      console.log("2");
-      console.log(Cw.parent, window);
-      //assert_equals(Bw.location.pathname, path, "location.href works same-origin");
-      console.log("3");
-      console.log(Bw.location.pathname==path);  //FIXME false --> and this is failing silently
-      //assert_throws(null, function() { Cw.location.pathname; }, "location.pathname throws cross-origin");
-      console.log(Cw.location.pathname);    //FIXME this returns /origin/blank.html
-      console.log("4");
-      //assert_equals(Bw.frames, 'override', "Overrides visible in the same-origin case");
-      console.log("5");
-      console.log(Bw.frames);
-      //assert_equals(Cw.frames, Cw, "Overrides invisible in the cross-origin case");
-      console.log("6");
-      console.log(Cw.frames);
+      assert_equals(Bw.location.pathname, path, "location.href works same-origin");
+      assert_throws(null, function() { Cw.location.pathname; }, "location.pathname throws cross-origin");   //FIXME fail
+      assert_equals(Bw.frames, 'override', "Overrides visible in the same-origin case");
+      assert_equals(Cw.frames, Cw, "Overrides invisible in the cross-origin case");     //FIXME fail
     }, "Basic sanity-checking");
 
-    console.log("before reload");
     reloadSubframes(runNextTest);
-    console.log("after reload");
   }
-  console.log("ergh");
 }
-iframes.forEach(function(ifr) { console.log("ifr"); console.log(ifr); ifr.onload = function(){console.log("sigh"); frameloaded();}});
+iframes.forEach(function(ifr) { ifr.onload = function(){ frameloaded();}});
 
 // cross origin object identity preserved across document.domain
 /*function doDocumentDomainTest(cb) {
