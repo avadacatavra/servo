@@ -62,15 +62,7 @@ impl PromiseHelper for Rc<Promise> {
 impl Drop for Promise {
     #[allow(unsafe_code)]
     fn drop(&mut self) {
-<<<<<<< 99b9083e9e4652a73aa17694a533897f08ac095b
-<<<<<<< 07128d8a58bf9e78f55343648eb7da7ecc1c83ba
         let cx = self.global().get_cx();
-=======
-        debug!("avada drop promise");
-=======
->>>>>>> Revert "not getting promises debug"
-        let cx = self.global().r().get_cx();
->>>>>>> not getting promises debug
         unsafe {
             RemoveRawValueRoot(cx, self.permanent_js_root.get_unsafe());
         }
@@ -90,15 +82,7 @@ impl Promise {
 
     #[allow(unsafe_code, unrooted_must_root)]
     pub fn duplicate(&self) -> Rc<Promise> {
-<<<<<<< 99b9083e9e4652a73aa17694a533897f08ac095b
-<<<<<<< 07128d8a58bf9e78f55343648eb7da7ecc1c83ba
         let cx = self.global().get_cx();
-=======
-        debug!("avada dup promise");
-=======
->>>>>>> Revert "not getting promises debug"
-        let cx = self.global().r().get_cx();
->>>>>>> not getting promises debug
         unsafe {
             Promise::new_with_js_promise(self.reflector().get_jsobject(), cx)
         }
