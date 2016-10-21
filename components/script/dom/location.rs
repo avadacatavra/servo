@@ -11,18 +11,21 @@ use dom::bindings::str::{DOMString, USVString};
 use dom::urlhelper::UrlHelper;
 use dom::window::Window;
 use url::Url;
+use dom::crossoriginobject::CrossOrigin;
 
 #[dom_struct]
 pub struct Location {
     reflector_: Reflector,
     window: JS<Window>,
+    xow: CrossOrigin,
 }
 
 impl Location {
     fn new_inherited(window: &Window) -> Location {
         Location {
             reflector_: Reflector::new(),
-            window: JS::from_ref(window)
+            window: JS::from_ref(window),
+            xow: CrossOrigin::new(),
         }
     }
 
@@ -115,6 +118,8 @@ impl LocationMethods for Location {
 
     // https://html.spec.whatwg.org/multipage/#dom-location-pathname
     fn Pathname(&self) -> USVString {
+        debug!("pathnaaaame");
+        self.xow.crossOriginProperties();
         UrlHelper::Pathname(&self.get_url())
     }
 
