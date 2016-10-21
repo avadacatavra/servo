@@ -33,13 +33,13 @@ impl CrossOriginProperty {
     }
 }
 
-trait CrossOriginProperties {
-    fn new(&self) -> Vec<CrossOriginProperty>;
+pub trait CrossOriginProperties {
+    fn get_properties(&self) -> Vec<CrossOriginProperty>;
 }
 
 impl CrossOrigin {
-    pub fn new(&self) -> CrossOrigin{
-        self.propertyMap = HashMap::new();
+    pub fn new() -> CrossOrigin{
+        propertyMap = HashMap::new();
     }
 
 
@@ -54,14 +54,15 @@ impl CrossOrigin {
     pub fn crossOriginOwnPropertyKeys(){}
 }
 
-impl CrossOriginProperties for Location {
-    fn new(&self)-> Vec<CrossOriginProperty> {  //pass in an object instead? do window and location share a superclass? ...a trait should do it...
+/*impl CrossOriginProperties for Location {
+    fn get_properties(&self)-> Vec<CrossOriginProperty> {  
+        //pass in an object instead? do window and location share a superclass? ...a trait should do it...
         vec!(CrossOriginProperty::new("href".to_string(), Some(false), Some(true)), CrossOriginProperty::new("replace".to_string(), None, None)) 
     }
 }
 
-impl CrossOriginProperties for Window {
-    fn new(&self) -> Vec<CrossOriginProperty> {
+/*impl CrossOriginProperties for Window {
+    fn get_properties(&self) -> Vec<CrossOriginProperty> {
         vec!(CrossOriginProperty::new("window".to_string(), Some(true), Some(false)),
          CrossOriginProperty::new("self".to_string(), Some(true), Some(false)),
          CrossOriginProperty::new("location".to_string(), Some(true), Some(true)),
@@ -76,8 +77,8 @@ impl CrossOriginProperties for Window {
          CrossOriginProperty::new("parent".to_string(), Some(true), Some(false)),
          CrossOriginProperty::new("postMessage".to_string(), None, None))
 
-    //repeat for each e that is an element of O's document-tree child browsing contest name
+    //TODO repeat for each e that is an element of O's document-tree child browsing contest name
     //property set. Add {[[Property]], e} as the last element of crossOriginProperties and return
     }
-}
+}*/
 
