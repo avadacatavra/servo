@@ -11,7 +11,8 @@ use dom::bindings::str::{DOMString, USVString};
 use dom::urlhelper::UrlHelper;
 use dom::window::Window;
 use url::Url;
-use dom::crossoriginobject::CrossOrigin;
+use dom::crossoriginobject::{CrossOrigin, CrossOriginProperty};
+use dom::crossoriginobject::CrossOriginProperties;
 
 #[dom_struct]
 pub struct Location {
@@ -44,6 +45,13 @@ impl Location {
         let mut url = self.window.get_url();
         setter(&mut url, value);
         self.window.load_url(url, false, None);
+    }
+}
+
+impl CrossOriginProperties for Location {
+    fn get_properties(&self)-> Vec<CrossOriginProperty> {  
+        //pass in an object instead? do window and location share a superclass? ...a trait should do it...
+        vec!(CrossOriginProperty::new("href".to_string(), Some(false), Some(true)), CrossOriginProperty::new("replace".to_string(), None, None)) 
     }
 }
 
@@ -119,7 +127,7 @@ impl LocationMethods for Location {
     // https://html.spec.whatwg.org/multipage/#dom-location-pathname
     fn Pathname(&self) -> USVString {
         debug!("pathnaaaame");
-        self.xow.crossOriginProperties();
+        self.get_properties(); 
         UrlHelper::Pathname(&self.get_url())
     }
 
