@@ -240,6 +240,7 @@ pub mod client;
 pub mod closeevent;
 pub mod comment;
 pub mod console;
+pub mod crossoriginobject;
 pub mod crypto;
 pub mod css;
 pub mod cssstyledeclaration;
