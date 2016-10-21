@@ -39,7 +39,7 @@ pub trait CrossOriginProperties {
 
 impl CrossOrigin {
     pub fn new() -> CrossOrigin{
-        propertyMap = HashMap::new();
+        CrossOrigin {propertyMap: HashMap::new() }
     }
 
 
@@ -59,7 +59,7 @@ impl CrossOrigin {
         //pass in an object instead? do window and location share a superclass? ...a trait should do it...
         vec!(CrossOriginProperty::new("href".to_string(), Some(false), Some(true)), CrossOriginProperty::new("replace".to_string(), None, None)) 
     }
-}
+}*/
 
 /*impl CrossOriginProperties for Window {
     fn get_properties(&self) -> Vec<CrossOriginProperty> {
