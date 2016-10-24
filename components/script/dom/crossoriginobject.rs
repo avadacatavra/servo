@@ -4,9 +4,12 @@
 
 use std::collections::HashMap;
 use dom::bindings::str::{DOMString, USVString};
-use dom::location::Location;
-use dom::window::Window;
+use heapsize::HeapSizeOf;
+use dom::bindings::trace::JSTraceable;
 
+//#[dom_struct]
+#[cfg_attr(feature = "servo", derive(HeapSizeOf))]
+#[derive(JSTraceable)]
 pub struct CrossOrigin {
     propertyMap: HashMap<(String, String, String), PropertyDescriptor>   //key: (currentOrigin, objOrigin, propertyKey), value: propery descriptors
 }
@@ -17,6 +20,8 @@ pub struct CrossOriginProperty {    //TODO maybe make this an enum
     needsSet: Option<bool>,
 }
 
+#[cfg_attr(feature = "servo", derive(HeapSizeOf))]
+#[derive(JSTraceable)]
 pub struct PropertyDescriptor {
     value: String,
     writeable: bool,
@@ -52,6 +57,12 @@ impl CrossOrigin {
     pub fn crossOriginSet(){}
 
     pub fn crossOriginOwnPropertyKeys(){}
+}
+
+impl HeapSizeOf for CrossOrigin {
+    fn heap_size_of_children(&self) -> usize {
+        0   //FIXME
+    }
 }
 
 /*impl CrossOriginProperties for Location {
