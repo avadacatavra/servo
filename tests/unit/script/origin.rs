@@ -27,6 +27,38 @@ fn cross_origin() {
 }
 
 #[test]
+fn opaque_same_origin_domain() {
+    let a = Origin::opaque_identifier();
+    let b = a.alias();
+    println!("{:?}, {:?}", a, b);
+    assert!(a.same_origin_domain(&b));
+}
+
+#[test]
+fn same_origin_domain() {
+    let mut a = Origin::new(&Url::parse("http://example.com").unwrap());
+    let mut b = Origin::new(&Url::parse("http://example.com").unwrap());
+    println!("{:?}, {:?}", a, b);
+    assert!(a.same_origin_domain(&b));
+
+    a = Origin::new(&Url::parse("http://example.com:412").unwrap());
+    b = Origin::new(&Url::parse("http://example.com:317").unwrap());
+    assert!(a.same_origin_domain(&b));
+
+    //TODO same_origin_domain is false when a.domain == null and b.domain == example.org
+    /*a = Origin::new(&Url::parse("http://example.com").unwrap());    //domain null
+    b = Origin::new(&Url::parse("http://example.com").unwrap());    //domain example.org
+    assert_eq!(a.same_origin_domain(&b), false);*/
+
+    a = Origin::new(&Url::parse("https://example.com").unwrap());
+    b = Origin::new(&Url::parse("http://example.com").unwrap());
+    assert_eq!(a.same_origin_domain(&b), false);
+
+}
+
+
+
+#[test]
 fn alias_same_origin() {
     let a = Origin::new(&Url::parse("http://example.com/a.html").unwrap());
     let b = Origin::new(&Url::parse("http://example.com/b.html").unwrap());

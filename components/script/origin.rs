@@ -7,7 +7,7 @@ use url::{Host, Url};
 use url::Origin as UrlOrigin;
 
 /// A representation of an [origin](https://html.spec.whatwg.org/multipage/#origin-2).
-#[derive(HeapSizeOf, JSTraceable)]
+#[derive(HeapSizeOf, JSTraceable, Debug)]
 pub struct Origin {
     #[ignore_heap_size_of = "Arc<T> has unclear ownership semantics"]
     inner: Arc<UrlOrigin>,
@@ -44,6 +44,29 @@ impl Origin {
     /// https://html.spec.whatwg.org/multipage/#same-origin
     pub fn same_origin(&self, other: &Origin) -> bool {
         self.inner == other.inner
+    }
+
+    //TODO how the hell do i get all of this out of other...
+    pub fn same_origin_domain(&self, other: &Origin) -> bool {
+        match *self.inner {
+            UrlOrigin::Opaque(_) => self.inner == other.inner,
+            UrlOrigin::Tuple(ref scheme, ref host, _) => {
+                let b = match *other.inner {
+                    UrlOrigin::Tuple(ref other_scheme, ref other_host, _) => {
+                        println!("{} == {}", scheme, other_scheme);
+                        println!("{} == {}", host, other_host);
+
+                        scheme == other_scheme && host == other_host
+                    },
+                    _ => false,
+                };
+                b
+
+                //let host = match *host {
+                //    Host::Domain(ref domain) => {
+                //}
+            },
+        }
     }
 
     pub fn copy(&self) -> Origin {
