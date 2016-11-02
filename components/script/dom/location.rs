@@ -26,7 +26,7 @@ impl Location {
         Location {
             reflector_: Reflector::new(),
             window: JS::from_ref(window),
-            xow: CrossOrigin::new(),
+            xow: CrossOrigin::new(window.browsing_context().active_document().origin()),
         }
     }
 

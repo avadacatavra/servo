@@ -46,7 +46,7 @@ impl Origin {
         self.inner == other.inner
     }
 
-    //TODO how the hell do i get all of this out of other...
+    //https://html.spec.whatwg.org/multipage/browsers.html#same-origin-domain
     pub fn same_origin_domain(&self, other: &Origin) -> bool {
         match *self.inner {
             UrlOrigin::Opaque(_) => self.inner == other.inner,
@@ -61,10 +61,6 @@ impl Origin {
                     _ => false,
                 };
                 b
-
-                //let host = match *host {
-                //    Host::Domain(ref domain) => {
-                //}
             },
         }
     }
