@@ -6,12 +6,16 @@ use std::collections::HashMap;
 use dom::bindings::str::{DOMString, USVString};
 use heapsize::HeapSizeOf;
 use dom::bindings::trace::JSTraceable;
+use origin::{Origin};
+use url::Url;
+use js::jsapi::JSObject;
 
 //#[dom_struct]
 #[cfg_attr(feature = "servo", derive(HeapSizeOf))]
 #[derive(JSTraceable)]
 pub struct CrossOrigin {
-    propertyMap: HashMap<(String, String, String), PropertyDescriptor>   //key: (currentOrigin, objOrigin, propertyKey), value: propery descriptors
+    propertyMap: HashMap<(String, String, String), PropertyDescriptor>,   //key: (currentOrigin, objOrigin, propertyKey), value: propery descriptors
+    origin: Origin
 }
 
 pub struct CrossOriginProperty {    //TODO maybe make this an enum
@@ -43,12 +47,14 @@ pub trait CrossOriginProperties {
 }
 
 impl CrossOrigin {
-    pub fn new() -> CrossOrigin{
-        CrossOrigin {propertyMap: HashMap::new() }
+    pub fn new(origin: &Origin) -> CrossOrigin{
+        CrossOrigin {propertyMap: HashMap::new(), origin: origin.copy() }
     }
 
-
-    pub fn isPlatformObjectSameOrigin(){}
+    //TODO needs to take a platform obj not Origin
+    pub fn isPlatformObjectSameOrigin(&self, obj: &Origin ) -> bool {
+        self.origin.same_origin_domain(obj)
+    }
 
     pub fn crossOriginGetOwnPropertyHelper(){}
 
