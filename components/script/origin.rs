@@ -7,7 +7,7 @@ use url::{Host, Url};
 use url::Origin as UrlOrigin;
 
 /// A representation of an [origin](https://html.spec.whatwg.org/multipage/#origin-2).
-#[derive(HeapSizeOf, JSTraceable, Debug)]
+#[derive(HeapSizeOf, JSTraceable, Debug, Hash, PartialEq, Eq)]
 pub struct Origin {
     #[ignore_heap_size_of = "Arc<T> has unclear ownership semantics"]
     inner: Arc<UrlOrigin>,

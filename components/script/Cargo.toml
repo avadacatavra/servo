@@ -69,7 +69,7 @@ smallvec = "0.1"
 string_cache = {version = "0.2.26", features = ["heap_size", "unstable"]}
 style = {path = "../style"}
 time = "0.1.12"
-url = {version = "1.2", features = ["heap_size", "query_encoding"]}
+url = {features = ["heap_size", "query_encoding"], git = "https://github.com/avadacatavra/rust-url"}
 util = {path = "../util"}
 uuid = {version = "0.3.1", features = ["v4"]}
 websocket = "0.17"

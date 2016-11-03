@@ -14,14 +14,27 @@ use js::jsapi::JSObject;
 #[cfg_attr(feature = "servo", derive(HeapSizeOf))]
 #[derive(JSTraceable)]
 pub struct CrossOrigin {
-    propertyMap: HashMap<(String, String, String), PropertyDescriptor>,   //key: (currentOrigin, objOrigin, propertyKey), value: propery descriptors
-    origin: Origin
+    propertyMap: HashMap<CrossOriginKey, PropertyDescriptor>,   //key: (currentOrigin, objOrigin, propertyKey), value: propery descriptors
+    origin: Origin,
+}
+
+#[derive(PartialEq, Eq, Hash, JSTraceable)]
+struct CrossOriginKey {
+    curr_origin: Origin,
+    obj_origin: Origin,
+    prop_key: String,
 }
 
 pub struct CrossOriginProperty {    //TODO maybe make this an enum
     name: String,                   //FIXME String or &str?
     needsGet: Option<bool>,         //FIXME do these need to be options or can i just assume true/false if None
     needsSet: Option<bool>,
+}
+
+impl PartialEq for CrossOriginProperty {
+    fn eq(&self, other: &CrossOriginProperty) -> bool {
+        self.name == other.name
+    }
 }
 
 #[cfg_attr(feature = "servo", derive(HeapSizeOf))]
@@ -43,7 +56,7 @@ impl CrossOriginProperty {
 }
 
 pub trait CrossOriginProperties {
-    fn get_properties(&self) -> Vec<CrossOriginProperty>;
+    fn get_properties(&self) -> Vec<CrossOriginProperty>; 
 }
 
 impl CrossOrigin {
@@ -56,13 +69,40 @@ impl CrossOrigin {
         self.origin.same_origin_domain(obj)
     }
 
-    pub fn crossOriginGetOwnPropertyHelper(){}
+    pub fn crossOriginGetOwnPropertyHelper(&self, 
+                                           property_name: String) 
+                                           -> Option<PropertyDescriptor> {
+       None 
+    }
 
-    pub fn crossOriginGet(){}
+    pub fn crossOriginGet(&self,
+                          property_name: String,
+                          receiver: Option<JSObject>)   //TODO
+                          -> Option<PropertyDescriptor> {
+        None
+    }
 
-    pub fn crossOriginSet(){}
+    pub fn crossOriginSet(&self,
+                          property_name: String,
+                          receiver: Option<JSObject>)   //TODO
+                          -> bool {
+        false
+    }
 
-    pub fn crossOriginOwnPropertyKeys(){}
+    pub fn crossOriginOwnPropertyKeys(&self) -> Vec<String> {    //TODO check for rust-> js list
+        let mut key_list = Vec::with_capacity(self.propertyMap.len());
+        for (key, _) in self.propertyMap {
+            key_list.push(key.prop_key);
+        }
+        key_list
+    }
+}
+
+//FIXME default behavior for testing
+impl CrossOriginProperties for CrossOrigin {
+    fn get_properties(&self) -> Vec<CrossOriginProperty> {
+        vec!(CrossOriginProperty::new("href".to_string(), Some(false), Some(true)), CrossOriginProperty::new("replace".to_string(), None, None))
+    }
 }
 
 impl HeapSizeOf for CrossOrigin {
