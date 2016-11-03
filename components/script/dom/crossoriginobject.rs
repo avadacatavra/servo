@@ -14,7 +14,7 @@ use js::jsapi::JSObject;
 #[cfg_attr(feature = "servo", derive(HeapSizeOf))]
 #[derive(JSTraceable)]
 pub struct CrossOrigin {
-    propertyMap: HashMap<(String, String, String), PropertyDescriptor>,   //key: (currentOrigin, objOrigin, propertyKey), value: propery descriptors
+    propertyMap: HashMap<CrossOriginKey, PropertyDescriptor>,   //key: (currentOrigin, objOrigin, propertyKey), value: propery descriptors
     origin: Origin
 }
 
@@ -24,12 +24,25 @@ pub struct CrossOriginProperty {    //TODO maybe make this an enum
     needsSet: Option<bool>,
 }
 
+#[derive(JSTraceable, PartialEq, Eq, Hash)]
+struct CrossOriginKey {
+    curr_origin: Origin,
+    obj_origin: Origin,
+    prop_key: String,    
+}
+
 #[cfg_attr(feature = "servo", derive(HeapSizeOf))]
 #[derive(JSTraceable)]
 pub struct PropertyDescriptor {
     value: String,
     writeable: bool,
     enumerable: bool,
+}
+
+impl PartialEq for CrossOriginProperty {
+    fn eq(&self, other: &CrossOriginProperty) -> bool {
+        self.name == other.name
+    }
 }
 
 impl CrossOriginProperty {
@@ -56,13 +69,33 @@ impl CrossOrigin {
         self.origin.same_origin_domain(obj)
     }
 
-    pub fn crossOriginGetOwnPropertyHelper(){}
+    pub fn crossOriginGetOwnPropertyHelper(&self, 
+                                           property_name: String) 
+                                         -> Option<PropertyDescriptor> {
+        None
+    }
 
-    pub fn crossOriginGet(){}
+    pub fn crossOriginGet(&self,
+                            property_name: String,
+                            receiver: Option<JSObject>) //TODO
+                            -> Option<PropertyDescriptor> {
+        None
+    }
 
-    pub fn crossOriginSet(){}
+    pub fn crossOriginSet(&self,
+                            property_name: String,
+                            receiver: Option<JSObject>) //TODO
+                            -> bool {
+        false
+    }
 
-    pub fn crossOriginOwnPropertyKeys(){}
+    pub fn crossOriginOwnPropertyKeys(&self) -> Vec<String> {   //TODO check for rust-> js list
+        let mut key_list = Vec::with_capacity(self.propertyMap.len());
+        for (key, _) in self.propertyMap {
+            key_list.push(key.prop_key);
+        }
+        key_list
+    }
 }
 
 impl HeapSizeOf for CrossOrigin {
