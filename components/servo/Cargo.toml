@@ -52,6 +52,7 @@ browserhtml = {git = "https://github.com/browserhtml/browserhtml", branch = "cra
 canvas = {path = "../canvas"}
 canvas_traits = {path = "../canvas_traits"}
 compositing = {path = "../compositing"}
+
 constellation = {path = "../constellation"}
 debugger = {path = "../debugger"}
 devtools = {path = "../devtools"}

@@ -83,3 +83,7 @@ xml5ever = {version = "0.2", features = ["unstable"]}
 git = "https://github.com/servo/webrender"
 default_features = false
 features = ["nightly", "serde_derive"]
+
+[replace]
+"url:1.2.0" = { path = '/Users/ddh/mozilla/servo/rust-url' }
+
