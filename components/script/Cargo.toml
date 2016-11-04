@@ -70,7 +70,7 @@ string_cache = {version = "0.2.26", features = ["heap_size", "unstable"]}
 style = {path = "../style"}
 style_traits = {path = "../style_traits"}
 time = "0.1.12"
-url = {version = "1.2", features = ["heap_size", "query_encoding"]}
+url = {features = ["heap_size", "query_encoding", "serde"], git = "https://github.com/servo/rust-url"}
 util = {path = "../util"}
 uuid = {version = "0.3.1", features = ["v4"]}
 websocket = "0.17"
