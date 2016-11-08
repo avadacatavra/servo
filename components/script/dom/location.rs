@@ -11,18 +11,21 @@ use dom::bindings::str::{DOMString, USVString};
 use dom::urlhelper::UrlHelper;
 use dom::window::Window;
 use url::Url;
+use dom::crossoriginobject::{CrossOrigin, CrossOriginProperty, CrossOriginProperties};
 
 #[dom_struct]
 pub struct Location {
     reflector_: Reflector,
     window: JS<Window>,
+    xow: CrossOrigin,
 }
 
 impl Location {
     fn new_inherited(window: &Window) -> Location {
         Location {
             reflector_: Reflector::new(),
-            window: JS::from_ref(window)
+            window: JS::from_ref(window),
+            xow: CrossOrigin::new(window.browsing_context().active_document().origin()),
         }
     }
 
