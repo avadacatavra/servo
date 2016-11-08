@@ -18,7 +18,7 @@ pub struct CrossOrigin {
     origin: Origin,
 }
 
-#[derive(PartialEq, Eq, Hash, JSTraceable)]
+#[derive(PartialEq, Eq, Hash, JSTraceable, Debug, Clone)]
 struct CrossOriginKey {
     curr_origin: Origin,
     obj_origin: Origin,
@@ -89,10 +89,11 @@ impl CrossOrigin {
         false
     }
 
-    pub fn crossOriginOwnPropertyKeys(&self) -> Vec<String> {    //TODO check for rust-> js list
-        let mut key_list = Vec::with_capacity(self.propertyMap.len());
-        for (key, _) in self.propertyMap {
-            key_list.push(key.prop_key);
+    pub fn crossOriginOwnPropertyKeys(&mut self) -> Vec<String> {    //TODO check for rust-> js list
+        let map_len = self.propertyMap.len();
+        let mut key_list = Vec::with_capacity(map_len);
+        for (ref key, _) in self.propertyMap.iter_mut() {
+            key_list.push(key.prop_key.clone());
         }
         key_list
     }
