@@ -43,6 +43,11 @@ url = {version = "1.2", features = ["heap_size", "rustc-serialize"]}
 util = {path = "../util"}
 uuid = {version = "0.3.1", features = ["v4"]}
 websocket = {git = "https://github.com/dten/rust-websocket.git", branch = "openssl_0.9.1" }
+webpki = "0.8.0"
+antidote = "1.0.0"
+untrusted = "0.3.1"
+rustls = "*"
+
 
 [dependencies.webrender_traits]
 git = "https://github.com/servo/webrender"

@@ -4,3 +4,6 @@ members = [
     "ports/geckolib",
     "ports/servo",
 ]
+
+[replace]
+"hyper-openssl:0.1.0" = {path= "/Users/ddh/mozilla/servo/rust-hyper-openssl"}
