@@ -19,31 +19,23 @@ use openssl::ssl::{SslConnector, SslConnectorBuilder};
 use openssl::error::ErrorStack;
 use std::sync::Arc;
 use util::resource_files::resources_dir_path;
-use webpki::*;
 use std::fmt::Debug;
 use antidote::Mutex;
 //use std::result::Result;
 use hyper::Result;
 
+use rustls;
+
+use untrusted;
 use untrusted::Input;
-use webpki::trust_anchor_util;
 use rustls::internal::pemfile;
+use rustls::RootCertStore;
 use std::io::{BufReader};
 use std::fs::File;
 use time;
 use openssl::hash::MessageDigest;
 
-static ALL_SIGALGS: &'static [&'static SignatureAlgorithm] = &[
-    &ECDSA_P256_SHA256,
-    &ECDSA_P256_SHA384,
-    &ECDSA_P384_SHA256,
-    &ECDSA_P384_SHA384,
-    &RSA_PKCS1_2048_8192_SHA1,
-    &RSA_PKCS1_2048_8192_SHA256,
-    &RSA_PKCS1_2048_8192_SHA384,
-    &RSA_PKCS1_2048_8192_SHA512,
-    &RSA_PKCS1_3072_8192_SHA384
-];
+use std::fmt::Write as plz;
 
 pub type Connector = HttpsConnector<ServoSslClient>;
 //pub struct HttpsConnector<S: SslClient, C: NetworkConnector = HttpConnector>
@@ -127,63 +119,70 @@ impl ServoSslConnector {
     }
 }
 
-fn rustls_verify (domain: &str,
+/*
+    Now the plan is to use the rustls representations, stick them in those, then use those to pass shit to webpki
+    untrusted::Input borrows its backing buffer instead of owning it
+     x509.to_der().unwrap() returns a Vec, which actually owns its contents.
+ */
+fn webpki_verify (domain: &str,
                 preverify_ok: bool,
                 x509_ctx: &X509StoreContextRef) -> bool {
-    true
-}
 
-// ok. let's try a new approach. instead of this, why don't you use the shit that rustls did
-/*fn webpki_verify (domain: &str,
-                  preverify_ok: bool,
-                  x509_ctx: &X509StoreContextRef) -> bool {
-    //not sure if i need  preverify_ok
-
-    debug!("verifying");
-
+    // create a rustls root store 
+    let mut roots = RootCertStore::empty();
     let ca_file = &resources_dir_path()
             .expect("Need certificate file to make network requests")
             .join("certs");
-    //let ca_pem = include_bytes!("../../resources/certs");   //argument must be string literal
     let ca_pem = File::open(ca_file).unwrap();
     let mut ca_pem = BufReader::new(ca_pem);
-    let ref ca = pemfile::certs(&mut ca_pem).unwrap()[0];  //FIXME there are a lot of certs in certs, so you're probs only getting one right now
-    let anchors = vec![
-        trust_anchor_util::cert_der_as_trust_anchor (   //resources/certs is a PEM
-            Input::from(&ca)
-        ).unwrap()
-    ];
-    match x509_ctx.current_cert() {
-        Some(x509) => {//{webpki::EndEntityCert::from(untrusted::Input::from(x509));},//webpki verify everything--just do it serially first,
-                        //step 1: create a webpki cert
-                        debug!("fingerprint: {:?}",
-                            x509.fingerprint(MessageDigest::sha256()));
-                        let der = x509.to_der().unwrap();
-                        let cert = EndEntityCert::from(Input::from(&der)).unwrap();
+    let r = roots.add_pem_file(&mut ca_pem);
+    debug!("Result of adding certs: {:?}", r);  // 153
 
-                        //step 2: verify is valid tls cert
-                        //FIXME not sure what inter_vec shoule be here
-                        let inter_vec = get_inter_vec(x509_ctx);   //should probably be x509.chain()
-                        let chain: Vec<Input> = inter_vec.iter()
-                            .map(|c| Input::from(&c.clone().to_der().unwrap()))
-                            .collect();
-                        match cert.verify_is_valid_tls_server_cert(ALL_SIGALGS, &anchors, &chain, time::get_time()) {
-                            Ok(_) => {debug!("valid tls cert");},
-                            Err(err) => {debug!("not valid tls cert: {:?}", err); return false;},
-                        };
+    //get vector of webpki trustanchors FIXME not necessary
+    //let trust_roots = roots.get_roots_as_trust_anchor();
 
-                        //step 3: verify is valid for dns name
-                        match cert.verify_is_valid_for_dns_name(Input::from(domain.as_bytes())) {
-                            Ok(_) => {debug!("valid for domain");},
-                            Err(err) => {debug!("not valid for domain: {:?}", err); return false;},
-                        };
-                        //step 4: verify_signature TODO
-                    },
-        None => ( return false ),
+    // get intermediate cert chain
+    let chain = get_inter_vec(x509_ctx);
+    debug!("chain length: {}", chain.len());
+
+    let cert = match x509_ctx.current_cert() {
+        Some(x509) => { let der = x509.to_der().unwrap();
+                        debug!("cert extracted");
+                        rustls::Certificate(der) },
+        None => return false,
     };
+    //let mut cert_chain = vec!(cert);
+    let mut cert_chain = Vec::new();
+    cert_chain.push(cert);
+    for c in chain {
+        cert_chain.push(rustls::Certificate(c.to_der().unwrap()));
+    }
 
-    true
-}*/
+    debug!("presented certs: {}", cert_chain.len());
+
+    //TODO let's take a closer look at the certs here
+
+    //ok these certs look right, but they aren't being passed properly somehow
+    for c in cert_chain.clone() {
+        let mut bytes = String::new();
+        for b in c.0 {
+            write!(&mut bytes, "{:02X}", b);
+        }
+
+     
+        debug!("certificate in connector: \n{}", bytes)
+    }
+
+    // there's an error in build_chain called from verify_is_valid_tls_cert
+
+    match rustls::verify_server_cert(&roots,
+                               &cert_chain,
+                               domain) {
+        Ok(_) => true,
+        Err(err) => {debug!("{:?}", err); false}
+    }
+
+}
 
 fn get_inter_vec(x509_ctx: &X509StoreContextRef) -> Vec<&X509Ref> {
     let mut inter_vec = vec!();

@@ -19,7 +19,7 @@ flate2 = "0.2.0"
 hyper = {version = "0.9.9", default-features = false}
 hyper-openssl = "0.1"
 # hyper_serde = {version = "0.1.4", default-features = false}
-hyper_serde = {git = "https://github.com/frewsxcv/hyper_serde.git", branch = "bump-cookie"}
+hyper_serde = {git = "https://github.com/nox/hyper_serde"} 
 immeta = "0.3.1"
 ipc-channel = "0.5"
 lazy_static = "0.2"
@@ -43,10 +43,10 @@ url = {version = "1.2", features = ["heap_size", "rustc-serialize"]}
 util = {path = "../util"}
 uuid = {version = "0.3.1", features = ["v4"]}
 websocket = {git = "https://github.com/dten/rust-websocket.git", branch = "openssl_0.9.1" }
-webpki = "0.8.0"
 antidote = "1.0.0"
 untrusted = "0.3.1"
-rustls = "*"
+rustls = "0.5.2"
+webpki = "0.8.0"
 
 
 [dependencies.webrender_traits]
@@ -56,3 +56,5 @@ features = ["serde_derive", "ipc"]
 
 [target.'cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))'.dependencies]
 tinyfiledialogs = {git = "https://github.com/jdm/tinyfiledialogs"}
+
+
