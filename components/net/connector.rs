@@ -4,7 +4,7 @@
 
 use hyper::client::Pool;
 use hyper::net::HttpsConnector;
-use hyper_openssl::OpensslClient
+use hyper_openssl::OpensslClient;
 use openssl::ssl::{SSL_OP_NO_COMPRESSION, SSL_OP_NO_SSLV2, SSL_OP_NO_SSLV3, SSL_VERIFY_PEER};
 use openssl::ssl::{SslConnectorBuilder, SslMethod};
 use servo_config::resource_files::resources_dir_path;
