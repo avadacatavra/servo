@@ -353,11 +353,7 @@ pub enum CoreResourceMsg {
     /// Try to make a websocket connection to a URL.
     WebsocketConnect(WebSocketCommunicate, WebSocketConnectData),
     /// Store a cookie for a given originating URL
-    SetCookieForUrl(ServoUrl,
-                    #[serde(deserialize_with = "::hyper_serde::deserialize",
-                            serialize_with = "::hyper_serde::serialize")]
-                    Cookie,
-                    CookieSource),
+    SetCookiesForUrlWithData(ServoUrl, Cookie, CookieSource),
     /// Store cookies for a given originating URL
     SetCookiesForUrl(ServoUrl, Vec<Serde<Cookie>>, CookieSource),
     /// Retrieve the stored cookies for a given URL

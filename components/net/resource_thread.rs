@@ -310,7 +310,7 @@ impl CoreResourceManager {
 
     fn set_cookie_for_url(&mut self, request: &ServoUrl, cookie: cookie_rs::Cookie, source: CookieSource,
                           resource_group: &ResourceGroup) {
-        if let Some(cookie) = cookie::Cookie::new_wrapped(cookie, &request, source) {
+        if let Some(cookie) = cookie::Cookie::new_wrapped_hyper(cookie, &request, source) {
             let mut cookie_jar = resource_group.cookie_jar.write().unwrap();
             cookie_jar.push(cookie, request, source)
         }
