@@ -98,6 +98,7 @@ use js::jsapi::{JSContext, JSObject, JSRuntime};
 use js::jsapi::JS_GetRuntime;
 use msg::constellation_msg::{ALT, CONTROL, SHIFT, SUPER};
 use msg::constellation_msg::{FrameId, Key, KeyModifiers, KeyState};
+use net::cookie;
 use net_traits::{FetchResponseMsg, IpcSend, ReferrerPolicy};
 use net_traits::CookieSource::NonHTTP;
 use net_traits::CoreResourceMsg::{GetCookiesForUrl, SetCookiesForUrl};
@@ -2964,14 +2965,10 @@ impl DocumentMethods for Document {
             return Err(Error::Security);
         }
 
-        let header = Header::parse_header(&[cookie.into()]);
-        if let Ok(SetCookie(cookies)) = header {
-            let cookies = cookies.into_iter().map(Serde).collect();
-            let _ = self.window
-                        .upcast::<GlobalScope>()
-                        .resource_threads()
-                        .send(SetCookiesForUrl(self.url(), cookies, NonHTTP));
-        }
+        let _ = self.window
+                    .upcast::<GlobalScope>()
+                    .resource_threads()
+                    .send(SetCookiesForUrl(self.url(), String::from(cookie), NonHTTP));
 
         Ok(())
     }

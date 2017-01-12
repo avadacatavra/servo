@@ -352,14 +352,15 @@ pub enum CoreResourceMsg {
     Fetch(RequestInit, IpcSender<FetchResponseMsg>),
     /// Try to make a websocket connection to a URL.
     WebsocketConnect(WebSocketCommunicate, WebSocketConnectData),
-    /// Store a cookie for a given originating URL
+    /// Store a set of cookies for a given originating URL
+    SetCookiesForUrl(ServoUrl, String, CookieSource),
+    /// Store a set of cookies for a given originating URL
     SetCookiesForUrlWithData(ServoUrl, Cookie, CookieSource),
-    /// Store cookies for a given originating URL
-    SetCookiesForUrl(ServoUrl, Vec<Serde<Cookie>>, CookieSource),
     /// Retrieve the stored cookies for a given URL
     GetCookiesForUrl(ServoUrl, IpcSender<Option<String>>, CookieSource),
     /// Get a cookie by name for a given originating URL
     GetCookiesDataForUrl(ServoUrl, IpcSender<Vec<Serde<Cookie>>>, CookieSource),
+     /// Store a cookie for a given originating URL
     /// Cancel a network request corresponding to a given `ResourceId`
     Cancel(ResourceId),
     /// Synchronization message solely for knowing the state of the ResourceChannelManager loop
@@ -369,7 +370,7 @@ pub enum CoreResourceMsg {
     /// Message forwarded to file manager's handler
     ToFileManager(FileManagerThreadMsg),
     /// Break the load handler loop, send a reply when done cleaning up local resources
-    /// and exit
+    //  and exit
     Exit(IpcSender<()>),
 }
 
