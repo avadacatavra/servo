@@ -183,7 +183,7 @@ impl NetworkHttpRequestFactory {
 
         Ok(request)
     }
-        
+
 }
 
 #[derive(Debug)]
@@ -568,14 +568,14 @@ fn is_cert_verify_error(error: &OpensslError) -> bool {
 fn is_unknown_message_digest_err(error: &OpensslError) -> bool {
     error.library() == Some("asn1 encoding routines") &&
     error.function().map(|s| s.to_uppercase()) == Some("ASN1_item_verify".into()) &&
-    error.reason() == Some("unknown message digest algorithm") 
+    error.reason() == Some("unknown message digest algorithm")
 }
 
 fn format_ssl_error(error: &OpensslError) -> String {
      format!("{}: {} - {}",
         error.library().unwrap_or("<unknown library>"),
         error.function().unwrap_or("<unknown function>"),
-        error.reason().unwrap_or("<unknown reason>")) 
+        error.reason().unwrap_or("<unknown reason>"))
 }
 
 /// [HTTP fetch](https://fetch.spec.whatwg.org#http-fetch)

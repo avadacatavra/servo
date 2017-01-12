@@ -498,7 +498,7 @@ impl Runnable for ConnectionEstablishedTask {
         };
 
         // Step 5: Cookies.
-        if let Some(cookies) =  self.headers.get::<hyper::header::SetCookie>(){
+        if let Some(cookies) =  self.headers.get::<hyper::header::SetCookie>() {
             let mut v = String::new();
             for cookie in cookies.iter() {
                 v.push_str(&cookie.to_string());
