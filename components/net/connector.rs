@@ -3,14 +3,38 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use hyper::client::Pool;
-use hyper::net::HttpsConnector;
-use hyper_openssl::OpensslClient;
-use openssl::ssl::{SSL_OP_NO_COMPRESSION, SSL_OP_NO_SSLV2, SSL_OP_NO_SSLV3, SSL_VERIFY_PEER};
-use openssl::ssl::{SslConnectorBuilder, SslMethod};
-use servo_config::resource_files::resources_dir_path;
-use std::sync::Arc;
+use hyper::net::{HttpsConnector};
+//use hyper_openssl::OpensslClient;       //just use hypers client not hyper_openssl
+use hyper::net::{SslClient, SslServer, NetworkStream, HttpStream};
+use openssl::x509::{X509StoreContextRef, X509, X509Ref};
+use hyper;
+//use openssl::ssl::SslStream as OpensslStream;
+use openssl;
+use std::io::{Read, Write};
 
-pub type Connector = HttpsConnector<OpensslClient>;
+use hyper_openssl;
+
+use openssl::ssl::{SSL_OP_NO_COMPRESSION, SSL_OP_NO_SSLV2, SSL_OP_NO_SSLV3, SSL_VERIFY_PEER};
+use servo_config::resource_files::resources_dir_path;
+use openssl::ssl::{Ssl, SslContext, SslContextBuilder, SslMethod};
+use openssl::error::ErrorStack;
+use std::sync::Arc;
+use webpki::*;
+use std::fmt::Debug;
+use antidote::Mutex;
+//use std::result::Result;
+use hyper::Result;
+
+use untrusted::Input;
+use webpki::trust_anchor_util;
+use rustls::internal::pemfile;
+use rustls::RootCertStore;
+use std::io::{BufReader};
+use std::fs::File;
+use time;
+use openssl::hash::MessageDigest;
+
+pub type Connector = HttpsConnector<ServoSslClient>;
 
 // The basic logic here is to prefer ciphers with ECDSA certificates, Forward
 // Secrecy, AES GCM ciphers, AES ciphers, and finally 3DES ciphers.
@@ -28,18 +52,124 @@ const DEFAULT_CIPHERS: &'static str = concat!(
     "AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA"
 );
 
+static ALL_SIGALGS: &'static [&'static SignatureAlgorithm] = &[
+    &ECDSA_P256_SHA256,
+    &ECDSA_P256_SHA384,
+    &ECDSA_P384_SHA256,
+    &ECDSA_P384_SHA384,
+    &RSA_PKCS1_2048_8192_SHA1,
+    &RSA_PKCS1_2048_8192_SHA256,
+    &RSA_PKCS1_2048_8192_SHA384,
+    &RSA_PKCS1_2048_8192_SHA512,
+    &RSA_PKCS1_3072_8192_SHA384
+];
+
 pub fn create_http_connector(certificate_file: &str) -> Arc<Pool<Connector>> {
-    let ca_file = &resources_dir_path()
-        .expect("Need certificate file to make network requests")
-        .join("certs");
-    let mut ssl_connector_builder = SslConnectorBuilder::new(SslMethod::tls()).unwrap();
-    {
-        let ssl_context_builder = ssl_connector_builder.builder_mut();
-        ssl_context_builder.set_ca_file(ca_file).expect("could not set CA file");
-        ssl_context_builder.set_cipher_list(DEFAULT_CIPHERS).expect("could not set ciphers");
+    debug!("{}", certificate_file);
+    let mut context = SslContextBuilder::new(SslMethod::tls()).unwrap();
+    context.set_ca_file(certificate_file);
+    context.set_cipher_list(DEFAULT_CIPHERS).unwrap();
+    context.set_options(SSL_OP_NO_SSLV2 | SSL_OP_NO_SSLV3 | SSL_OP_NO_COMPRESSION);
+
+    //create the rustls root cert store
+    let ca_pem = File::open(certificate_file).unwrap();
+    let mut ca_pem = BufReader::new(ca_pem);
+    let mut root_store = RootCertStore::empty();
+    let num_added = root_store.add_pem_file(&mut ca_pem).unwrap().0;
+    debug!("{} roots added to root store", num_added);
+    debug!("length: {}", root_store.len()); 
+
+    let servo_connector = ServoSslConnector { 
+        context: Arc::new(context.build()),
+        roots: Arc::new(root_store),
+    };
+
+    let connector = HttpsConnector::new(ServoSslClient {
+        //context: Arc::new(context)
+        connector: Arc::new(servo_connector),
+    });
+
+    
+    Arc::new(Pool::with_connector(Default::default(), connector))
+}
+
+#[derive(Clone)]
+pub struct ServoSslClient{
+    //context: Arc<SslContextBuilder>,
+    connector: Arc<ServoSslConnector>,
+}
+
+impl SslClient for ServoSslClient {
+    type Stream = hyper_openssl::SslStream<HttpStream>;
+
+    fn wrap_client(&self, stream: HttpStream, host: &str) -> Result<Self::Stream> {
+        debug!("wrapping client");
+        match self.connector.connect(host, stream){
+            Ok(stream) => Ok(hyper_openssl::SslStream(Arc::new(Mutex::new(stream)))),
+            Err(err) => Err(err)
+        }
     }
-    let ssl_connector = ssl_connector_builder.build();
-    let ssl_client = OpensslClient::from(ssl_connector);
-    let https_connector = HttpsConnector::new(ssl_client);
-    Arc::new(Pool::with_connector(Default::default(), https_connector))
+}
+
+#[derive(Clone)]
+pub struct ServoSslConnector {
+    context: Arc<SslContext>,
+    roots: Arc<RootCertStore>,
+}
+
+impl ServoSslConnector {
+    pub fn connect(&self, domain: &str, stream: HttpStream) -> Result<openssl::ssl::SslStream<HttpStream>>
+        //where S: Read + Write + Sync + Send + Debug
+    {
+        let mut ssl = Ssl::new(&self.context).unwrap();
+        ssl.set_hostname(domain).unwrap();
+        let domain = domain.to_owned();
+
+        //get the certificate store
+        //can call context.cert_store, which returns an x509storebuilderref, whats the difference btw that and the store context
+        // x509_ctx.current_cert()
+        // x509 ctx also has a chain, does that have the roots?
+
+        ssl.set_verify_callback(SSL_VERIFY_PEER, move |p, x| {
+            //::openssl_verify::verify_callback(&host, p, x)        //private module
+            rustls_verify(&domain, p, x)
+        });
+
+        debug!("connecting");
+
+        match ssl.connect(stream) {
+            Ok(stream) => Ok(stream),
+            Err(err) => Err(hyper::Error::Ssl(Box::new(err))),
+        }
+    }
+}
+
+//ok so i need to create an OpensslClient from a custom sslconnector
+//i MUST have the custom sslconnector. so. let's make it happen.
+
+fn rustls_verify (domain: &str,
+                preverify_ok: bool,
+                x509_ctx: &X509StoreContextRef) -> bool {
+
+    //ca file is in the context of the connector
+
+    // step 1: add pemfile
+
+
+    // step 2: create certificate chain
+
+    //step 3: verify certificate
+    //verify_server_cert(roots, presented_certs, &domain)
+
+    true
+}
+
+fn get_inter_vec(x509_ctx: &X509StoreContextRef) -> Vec<&X509Ref> {
+    let mut inter_vec = vec!();
+    match x509_ctx.chain() {
+        //Some(chain) => vec!(),//.extend(chain),
+        Some(chain) => inter_vec.extend(chain),
+        None => (),
+    };
+    inter_vec
 }
