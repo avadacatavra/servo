@@ -33,6 +33,7 @@ use std::io::{BufReader};
 use std::fs::File;
 use time;
 use openssl::hash::MessageDigest;
+use rustls;
 
 pub type Connector = HttpsConnector<ServoSslClient>;
 
@@ -124,15 +125,11 @@ impl ServoSslConnector {
         let mut ssl = Ssl::new(&self.context).unwrap();
         ssl.set_hostname(domain).unwrap();
         let domain = domain.to_owned();
-
-        //get the certificate store
-        //can call context.cert_store, which returns an x509storebuilderref, whats the difference btw that and the store context
-        // x509_ctx.current_cert()
-        // x509 ctx also has a chain, does that have the roots?
+        let roots = self.roots.clone();
 
         ssl.set_verify_callback(SSL_VERIFY_PEER, move |p, x| {
-            //::openssl_verify::verify_callback(&host, p, x)        //private module
-            rustls_verify(&domain, p, x)
+            //::openssl_verify::verify_callback(&host, p, x)
+            rustls_verify(&domain, &roots, p, x)
         });
 
         debug!("connecting");
@@ -148,21 +145,45 @@ impl ServoSslConnector {
 //i MUST have the custom sslconnector. so. let's make it happen.
 
 fn rustls_verify (domain: &str,
+                roots: &RootCertStore,
                 preverify_ok: bool,
                 x509_ctx: &X509StoreContextRef) -> bool {
 
-    //ca file is in the context of the connector
+    // step 1: create presented certs
+    // certs.0 must be end entity cert
+    // presented certs is a vec<asn1cert>
+    let mut presented_certs = vec!();
+    match x509_ctx.current_cert() {
+        Some(x509) => {
+            let der = x509.to_der().unwrap();
+            let cert = rustls::Certificate(der);
+            presented_certs.push(cert);
+        },
+        None => (return false),
+    };
 
-    // step 1: add pemfile
+    match x509_ctx.chain() {
+        Some(mut chain) => {        //can do a .fingerprint() on the x509ref
+            for cert in chain {
+                //debug!("{:?}", cert.fingerprint(MessageDigest::sha1()));
+                presented_certs.push(rustls::Certificate(cert.to_der().unwrap()));
+            }
+        },
+        None => (),
+    };
 
-
-    // step 2: create certificate chain
+    debug!("length of presented certs: {}", presented_certs.len());
 
     //step 3: verify certificate
-    //verify_server_cert(roots, presented_certs, &domain)
+    // not totally sure how to get the roots from the connector now. having a lifetime issue with the closure. figure that out later
+    match rustls::verify_server_cert(&roots, &presented_certs, &domain) {
+        Ok(_) => true,
+        Err(error) => {debug!("Verification error: {:?}", error);
+                      false },
+    }
 
-    true
 }
+
 
 fn get_inter_vec(x509_ctx: &X509StoreContextRef) -> Vec<&X509Ref> {
     let mut inter_vec = vec!();
