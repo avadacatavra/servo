@@ -101,6 +101,8 @@ fn create_resource_groups(config_dir: Option<&Path>)
     let mut hsts_list = HstsList::from_servo_preload();
     let mut auth_cache = AuthCache::new();
     let mut cookie_jar = CookieStorage::new(150);
+    let certificate_file = "./resources/certs";
+
     if let Some(config_dir) = config_dir {
         read_json_from_file(&mut auth_cache, config_dir, "auth_cache.json");
         read_json_from_file(&mut hsts_list, config_dir, "hsts_list.json");
@@ -110,13 +112,13 @@ fn create_resource_groups(config_dir: Option<&Path>)
         cookie_jar: Arc::new(RwLock::new(cookie_jar)),
         auth_cache: Arc::new(RwLock::new(auth_cache)),
         hsts_list: Arc::new(RwLock::new(hsts_list.clone())),
-        connector: create_http_connector("certs"),
+        connector: create_http_connector(&certificate_file),
     };
     let private_resource_group = ResourceGroup {
         cookie_jar: Arc::new(RwLock::new(CookieStorage::new(150))),
         auth_cache: Arc::new(RwLock::new(AuthCache::new())),
         hsts_list: Arc::new(RwLock::new(HstsList::new())),
-        connector: create_http_connector("certs"),
+        connector: create_http_connector(&certificate_file),
     };
     (resource_group, private_resource_group)
 }
