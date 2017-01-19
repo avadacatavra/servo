@@ -25,7 +25,6 @@ use hyper::header::{IfUnmodifiedSince, IfModifiedSince, IfNoneMatch, Location, P
 use hyper::header::{QualityItem, Referer, SetCookie, UserAgent, qitem};
 use hyper::method::Method;
 use hyper::net::Fresh;
-use hyper::net::HttpStream;
 use hyper::status::StatusCode;
 use hyper_serde::Serde;
 use log;
@@ -35,9 +34,6 @@ use net_traits::hosts::replace_hosts;
 use net_traits::request::{CacheMode, CredentialsMode, Destination, Origin};
 use net_traits::request::{RedirectMode, Referrer, Request, RequestMode, ResponseTainting};
 use net_traits::response::{HttpsState, Response, ResponseBody, ResponseType};
-use openssl;
-use openssl::error::Error as OpensslError;
-use openssl::ssl::SslStream;
 use resource_thread::AuthCache;
 use servo_url::ServoUrl;
 use std::collections::HashSet;
@@ -556,26 +552,6 @@ fn obtain_response(request_factory: &NetworkHttpRequestFactory,
 
         return Ok((WrappedHttpResponse { response: response }, msg));
     }
-}
-
-// FIXME: This incredibly hacky. Make it more robust, and at least test it.
-fn is_cert_verify_error(error: &OpensslError) -> bool {
-    error.library() == Some("SSL routines") &&
-    error.function().map(|s| s.to_uppercase()) == Some("SSL3_GET_SERVER_CERTIFICATE".into()) &&
-    error.reason() == Some("certificate verify failed")
-}
-
-fn is_unknown_message_digest_err(error: &OpensslError) -> bool {
-    error.library() == Some("asn1 encoding routines") &&
-    error.function().map(|s| s.to_uppercase()) == Some("ASN1_item_verify".into()) &&
-    error.reason() == Some("unknown message digest algorithm")
-}
-
-fn format_ssl_error(error: &OpensslError) -> String {
-     format!("{}: {} - {}",
-        error.library().unwrap_or("<unknown library>"),
-        error.function().unwrap_or("<unknown function>"),
-        error.reason().unwrap_or("<unknown reason>"))
 }
 
 /// [HTTP fetch](https://fetch.spec.whatwg.org#http-fetch)

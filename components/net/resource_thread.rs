@@ -14,7 +14,7 @@ use filemanager_thread::{FileManager, TFDProvider};
 use hsts::HstsList;
 use http_loader::HttpState;
 use hyper::client::pool::Pool;
-use hyper::header::{Header, Cookie, SetCookie};
+use hyper::header::{Header, SetCookie};
 use hyper_serde::Serde;
 use ipc_channel::ipc::{self, IpcReceiver, IpcReceiverSet, IpcSender};
 use net_traits::{CookieSource, CoreResourceThread};

@@ -64,7 +64,6 @@ extern crate log;
 extern crate mime;
 extern crate mime_guess;
 extern crate msg;
-extern crate net;
 extern crate net_traits;
 extern crate num_traits;
 extern crate offscreen_gl_context;
