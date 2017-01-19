@@ -101,7 +101,7 @@ fn create_resource_groups(config_dir: Option<&Path>)
     let mut hsts_list = HstsList::from_servo_preload();
     let mut auth_cache = AuthCache::new();
     let mut cookie_jar = CookieStorage::new(150);
-    let certificate_file = "./resources/certs";
+    let certificate_file = "./resources/certs";         //TODO full path or use the resource path use statment
 
     if let Some(config_dir) = config_dir {
         read_json_from_file(&mut auth_cache, config_dir, "auth_cache.json");
