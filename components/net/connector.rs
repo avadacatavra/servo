@@ -97,8 +97,8 @@ impl ServoSslConnector {
         let roots = self.roots.clone();
 
         ssl.set_verify_callback(SSL_VERIFY_PEER, move |p, x| {
-            openssl_verify_fn(&domain, p, x)
-            //rustls_verify(&domain, &roots, p, x)
+            //openssl_verify_fn(&domain, p, x)
+            rustls_verify(&domain, &roots, p, x)
         });
 
 
@@ -133,7 +133,7 @@ fn rustls_verify(domain: &str,
 
     // verify certificate
     //this is where we can measure 
-    match rustls::verify_server_cert(&roots, &presented_certs, &domain) {
+    match rustls::parallel_verify_server_cert(&roots, &presented_certs, &domain) {//rustls::verify_server_cert(&roots, &presented_certs, &domain) {
         Ok(_) => true,
         Err(error) => { error!("Verification error: {:?}", error);
                       false },

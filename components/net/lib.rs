@@ -48,6 +48,9 @@ extern crate uuid;
 extern crate webrender_traits;
 extern crate websocket;
 
+extern crate webpki;
+extern crate untrusted;
+
 mod blob_loader;
 mod chrome_loader;
 mod connector;
