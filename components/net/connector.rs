@@ -19,6 +19,7 @@ use std::fs::File;
 use std::io::BufReader;
 use std::sync::Arc;
 use time;
+use std::time::{Duration, Instant};
 
 pub type Connector = HttpsConnector<ServoSslClient>;
 
@@ -39,16 +40,20 @@ const DEFAULT_CIPHERS: &'static str = concat!(
 );
 
 pub fn create_http_connector(certificate_file: &str) -> Arc<Pool<Connector>> {
+    let c_now = Instant::now();
     let mut context = SslContextBuilder::new(SslMethod::tls()).unwrap();
     context.set_ca_file(certificate_file);
     context.set_cipher_list(DEFAULT_CIPHERS).unwrap();
     context.set_options(SSL_OP_NO_SSLV2 | SSL_OP_NO_SSLV3 | SSL_OP_NO_COMPRESSION);
 
     //create the rustls root cert store
+    let now = Instant::now();
     let ca_pem = File::open(certificate_file).unwrap();
     let mut ca_pem = BufReader::new(ca_pem);
     let mut root_store = RootCertStore::empty();
     root_store.add_pem_file(&mut ca_pem).unwrap().0;
+    let dur = now.elapsed();
+    info!("roots-creation time: {} s {} ns", dur.as_secs(), dur.subsec_nanos());
 
     let servo_connector = ServoSslConnector {
         context: Arc::new(context.build()),
@@ -59,7 +64,10 @@ pub fn create_http_connector(certificate_file: &str) -> Arc<Pool<Connector>> {
         connector: Arc::new(servo_connector),
     });
 
-    Arc::new(Pool::with_connector(Default::default(), connector))
+    let r = Arc::new(Pool::with_connector(Default::default(), connector));
+    let dur = c_now.elapsed();
+    info!("http-connector-creation time: {} s {} ns", dur.as_secs(), dur.subsec_nanos());
+    r
 }
 
 #[derive(Clone)]
@@ -71,13 +79,13 @@ impl SslClient for ServoSslClient {
     type Stream = hyper_openssl::SslStream<HttpStream>;
 
     fn wrap_client(&self, stream: HttpStream, host: &str) -> Result<Self::Stream> {
-        let start = time::precise_time_ns();
+        //let start = time::precise_time_ns();
         let r = match self.connector.connect(host, stream) {
             Ok(stream) => Ok(hyper_openssl::SslStream(Arc::new(Mutex::new(stream)))),
             Err(err) => Err(err),
         };
-        let end = time::precise_time_ns();
-        info!("openssl verify time: {} ns", end-start);
+        //let end = time::precise_time_ns();
+        //info!("verify time: {} ns", end-start);
         r
     }
 }
@@ -97,22 +105,31 @@ impl ServoSslConnector {
         let roots = self.roots.clone();
 
         ssl.set_verify_callback(SSL_VERIFY_PEER, move |p, x| {
-            //openssl_verify_fn(&domain, p, x)
-            rustls_verify(&domain, &roots, p, x)
+            openssl_verify_fn(&domain, p, x)
+            //rustls_verify(&domain, &roots, p, x)
         });
 
 
-
-        match ssl.connect(stream) {
+        let now = Instant::now();
+        let r = match ssl.connect(stream) {
             Ok(stream) => Ok(stream),
             Err(err) => Err(hyper::Error::Ssl(Box::new(err))),
-        }
+        };
+        let dur = now.elapsed();
+        info!("connection time: {} s {} ns", dur.as_secs(), dur.subsec_nanos());
+
+        r
+
     }
 }
 
 // for profiling purposes
 fn openssl_verify_fn(domain: &str, preverify_ok: bool, x509_ctx: &X509StoreContextRef) -> bool {
-    verify::verify_callback(&domain, preverify_ok, x509_ctx)
+    let now = Instant::now();
+    let r= verify::verify_callback(&domain, preverify_ok, x509_ctx);
+    let dur = now.elapsed();
+    info!("openssl-verif-call time: {} s {} ns", dur.as_secs(), dur.subsec_nanos());
+    r
 }
 
 //TODO figure out what to do with preverify_ok
@@ -120,7 +137,16 @@ fn rustls_verify(domain: &str,
                 roots: &RootCertStore,
                 preverify_ok: bool,
                 x509_ctx: &X509StoreContextRef) -> bool {
+    //TODO maybe preverify_ok will help reduce time?
+    let r_now = Instant::now();
+
+    if !preverify_ok || x509_ctx.error_depth() != 0 {
+        return preverify_ok;
+    }
+
+
     // create presented certs
+    let now = Instant::now();
     let mut presented_certs = vec!();
     match x509_ctx.chain() {
         Some(chain) => {
@@ -130,14 +156,33 @@ fn rustls_verify(domain: &str,
         },
         None => (),
     };
+    let dur = now.elapsed();
+    info!("chain-creation time: {} s {} ns", dur.as_secs(), dur.subsec_nanos());
+
 
     // verify certificate
     //this is where we can measure 
-    match rustls::parallel_verify_server_cert(&roots, &presented_certs, &domain) {//rustls::verify_server_cert(&roots, &presented_certs, &domain) {
+    let v_now = Instant::now();
+    /*let r = match rustls::parallel_verify_server_cert(&roots, &presented_certs, &domain) {
         Ok(_) => true,
         Err(error) => { error!("Verification error: {:?}", error);
                       false },
-    }
+    };*/
+
+    
+    let r = match rustls::verify_server_cert(&roots, &presented_certs, &domain) {
+        Ok(_) => true,
+        Err(error) => { error!("Verification error: {:?}", error);
+                      false },
+    };
+    
+   
+    let v_dur = v_now.elapsed();
+
+    let r_dur = r_now.elapsed();
+    info!("rustls-verify time: {} s {} ns", v_dur.as_secs(), v_dur.subsec_nanos());
+    info!("total-rustls-verify time: {} s {} ns", r_dur.as_secs(), r_dur.subsec_nanos());
+    r
 }
 
 //for testing purposes only
@@ -148,29 +193,43 @@ mod verify {
     use openssl::nid;
     use openssl::x509::{X509StoreContextRef, X509Ref, X509NameRef, GeneralName};
     use openssl::stack::Stack;
+    use std::time::Instant;
 
     pub fn verify_callback(domain: &str,
                            preverify_ok: bool,
                            x509_ctx: &X509StoreContextRef)
                            -> bool {
+        let now = Instant::now();
         if !preverify_ok || x509_ctx.error_depth() != 0 {
             return preverify_ok;
         }
 
-        match x509_ctx.current_cert() {
+        let r = match x509_ctx.current_cert() {
             Some(x509) => verify_hostname(domain, &x509),
             None => true,
-        }
+        };
+
+        let dur = now.elapsed();
+        info!("total-openssl-verify time: {} s {} ns", dur.as_secs(), dur.subsec_nanos());
+
+        r
     }
 
     fn verify_hostname(domain: &str, cert: &X509Ref) -> bool {
-        match cert.subject_alt_names() {
+        let now = Instant::now();
+        let r = match cert.subject_alt_names() {
             Some(names) => verify_subject_alt_names(domain, names),
             None => verify_subject_name(domain, &cert.subject_name()),
-        }
+        };
+
+        let dur = now.elapsed();
+        info!("verify-hostname time: {} s {} ns", dur.as_secs(), dur.subsec_nanos());
+
+        r
     }
 
     fn verify_subject_alt_names(domain: &str, names: Stack<GeneralName>) -> bool {
+        let now = Instant::now();
         let ip = domain.parse();
 
         for name in &names {
@@ -191,11 +250,14 @@ mod verify {
                 }
             }
         }
+        let dur = now.elapsed();
+        info!("verify-subj-alt-names time: {} s {} ns", dur.as_secs(), dur.subsec_nanos());
 
         false
     }
 
     fn verify_subject_name(domain: &str, subject_name: &X509NameRef) -> bool {
+        let now = Instant::now();
         if let Some(pattern) = subject_name.entries_by_nid(nid::COMMONNAME).next() {
             let pattern = match str::from_utf8(pattern.data().as_slice()) {
                 Ok(pattern) => pattern,
@@ -211,12 +273,15 @@ mod verify {
                 return true;
             }
         }
+        let dur = now.elapsed();
+        info!("verify-subj-name time: {} s {} ns", dur.as_secs(), dur.subsec_nanos());
 
         false
     }
 
     fn matches_dns(mut pattern: &str, mut hostname: &str, is_ip: bool) -> bool {
         // first strip trailing . off of pattern and hostname to normalize
+        let now = Instant::now();
         if pattern.ends_with('.') {
             pattern = &pattern[..pattern.len() - 1];
         }
@@ -224,11 +289,15 @@ mod verify {
             hostname = &hostname[..hostname.len() - 1];
         }
 
-        matches_wildcard(pattern, hostname, is_ip).unwrap_or_else(|| pattern == hostname)
+        let r = matches_wildcard(pattern, hostname, is_ip).unwrap_or_else(|| pattern == hostname);
+        let dur = now.elapsed();
+        info!("matches-dns time: {} s {} ns", dur.as_secs(), dur.subsec_nanos());
+        r
     }
 
     fn matches_wildcard(pattern: &str, hostname: &str, is_ip: bool) -> Option<bool> {
         // IP addresses and internationalized domains can't involved in wildcards
+        let now = Instant::now();
         if is_ip || pattern.starts_with("xn--") {
             return None;
         }
@@ -287,11 +356,15 @@ mod verify {
             return Some(false);
         }
 
+        let dur = now.elapsed();
+        info!("matches-wildcard time: {} s {} ns", dur.as_secs(), dur.subsec_nanos());
+
         Some(true)
     }
 
     fn matches_ip(expected: &IpAddr, actual: &[u8]) -> bool {
-        match (expected, actual.len()) {
+        let now = Instant::now();
+        let r = match (expected, actual.len()) {
             (&IpAddr::V4(ref addr), 4) => actual == addr.octets(),
             (&IpAddr::V6(ref addr), 16) => {
                 let segments = [((actual[0] as u16) << 8) | actual[1] as u16,
@@ -305,6 +378,9 @@ mod verify {
                 segments == addr.segments()
             }
             _ => false,
-        }
+        };
+        let dur = now.elapsed();
+        info!("matches-ip time: {} s {} ns", dur.as_secs(), dur.subsec_nanos());
+        r
     }
 }
