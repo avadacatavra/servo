@@ -9,7 +9,6 @@
 
 #![deny(unsafe_code)]
 
-extern crate antidote;
 #[macro_use]
 extern crate bitflags;
 extern crate brotli;
@@ -33,7 +32,6 @@ extern crate net_traits;
 extern crate openssl;
 extern crate profile_traits;
 extern crate rustc_serialize;
-extern crate rustls;
 #[macro_use]
 extern crate serde_derive;
 extern crate servo_config;
@@ -48,8 +46,6 @@ extern crate uuid;
 extern crate webrender_traits;
 extern crate websocket;
 
-extern crate webpki;
-extern crate untrusted;
 
 mod blob_loader;
 mod chrome_loader;
