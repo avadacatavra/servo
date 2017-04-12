@@ -29,6 +29,9 @@ use js::jsval::{JSVal, PrivateValue};
 use js::rust::{define_methods, define_properties, get_object_class};
 use libc;
 use std::ptr;
+use dom::window::Window;
+use std::mem;
+use js::glue::CreateServoJSPrincipal;
 
 /// The class of a non-callback interface object.
 #[derive(Copy, Clone)]
@@ -125,6 +128,7 @@ pub type TraceHook =
     unsafe extern "C" fn(trc: *mut JSTracer, obj: *mut JSObject);
 
 /// Create a global object with the given class.
+//i feel like i should get the runtime from here
 pub unsafe fn create_global_object(
         cx: *mut JSContext,
         class: &'static JSClass,
@@ -138,9 +142,20 @@ pub unsafe fn create_global_object(
     options.creationOptions_.traceGlobal_ = Some(trace);
     options.creationOptions_.sharedMemoryAndAtomics_ = true;
 
+    //FIXME need a non null principal
+    // TODO make sure this doesn't break? will private always be a window?
+    let x = private.clone() as *const Window;
+    //let obj = Box::from_raw( &mut x );
+    let obj = &*x;
+
+
+    //println!("{:?}", obj.origin());
+    let mut principal = CreateServoJSPrincipal(Box::into_raw(obj.origin()) as *const ::libc::c_void);
+
     rval.set(JS_NewGlobalObject(cx,
                                 class,
-                                ptr::null_mut(),
+                                principal,
+                                //ptr::null_mut(),
                                 OnNewGlobalHookOption::DontFireOnNewGlobalHook,
                                 &options));
     assert!(!rval.is_null());

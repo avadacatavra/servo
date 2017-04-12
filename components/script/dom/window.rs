@@ -119,6 +119,7 @@ use tinyfiledialogs::{self, MessageBoxIcon};
 use url::Position;
 use webdriver_handlers::jsval_to_webdriver;
 use webvr_traits::WebVRMsg;
+use servo_url::MutableOrigin;
 
 /// Current state of the window object
 #[derive(JSTraceable, Copy, Clone, Debug, PartialEq, HeapSizeOf)]
@@ -265,6 +266,9 @@ pub struct Window {
     /// to ensure that the element can be marked dirty when the image data becomes
     /// available at some point in the future.
     pending_layout_images: DOMRefCell<HashMap<PendingImageId, Vec<JS<Node>>>>,
+
+    ///origin for cross origim wrappers
+    origin: Box<MutableOrigin>
 }
 
 impl Window {
@@ -280,6 +284,10 @@ impl Window {
 
     pub fn get_cx(&self) -> *mut JSContext {
         self.js_runtime.borrow().as_ref().unwrap().cx()
+    }
+
+    pub fn origin(&self) -> Box<MutableOrigin> {
+        self.origin.clone()
     }
 
     pub fn dom_manipulation_task_source(&self) -> DOMManipulationTaskSource {
@@ -1717,6 +1725,7 @@ impl Window {
                id: PipelineId,
                parent_info: Option<(PipelineId, FrameType)>,
                window_size: Option<WindowSizeData>,
+               origin: MutableOrigin,
                webvr_thread: Option<IpcSender<WebVRMsg>>)
                -> Root<Window> {
         let layout_rpc: Box<LayoutRPC + Send> = {
@@ -1785,6 +1794,7 @@ impl Window {
             webvr_thread: webvr_thread,
             permission_state_invocation_results: DOMRefCell::new(HashMap::new()),
             pending_layout_images: DOMRefCell::new(HashMap::new()),
+            origin: Box::new(origin),
         };
 
         unsafe {

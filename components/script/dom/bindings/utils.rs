@@ -36,6 +36,16 @@ use std::ffi::CString;
 use std::os::raw::c_void;
 use std::ptr;
 use std::slice;
+use std::mem;
+use servo_url::MutableOrigin;
+
+use js::rust::{get_object_compartment, get_context_compartment};
+use dom::browsingcontext::XORIGIN_PROXY_HANDLER;
+use js::glue::{CreateWrapperProxyHandler, UncheckedUnwrapObject};
+use js::jsapi::{JS_GetCompartmentPrincipals, JS_GetClass, JSPrincipals};
+use js::glue::{ServoJSPrincipal, GetSecurityWrapper};
+use std::ffi::CStr;
+use std::str;
 
 /// Proxy handler for a WindowProxy.
 pub struct WindowProxyHandler(pub *const libc::c_void);
@@ -369,13 +379,104 @@ pub unsafe extern "C" fn resolve_global(
     true
 }
 
+// XOW stuff -- might need moved into a different file
+#[derive(Debug, PartialEq)]
+enum WrapperType {
+    CrossCompartment,
+    CrossOrigin,
+    Opaque,
+}
+
+#[derive(Debug, PartialEq)]
+enum CrossOriginObjectType {
+    CrossOriginWindow,
+    CrossOriginLocation,
+    CrossOriginOpaque,
+}
+
+unsafe fn identify_cross_origin_object(obj: HandleObject) -> CrossOriginObjectType {
+    let obj = UncheckedUnwrapObject(obj.get(), /* stopAtWindowProxy = */ 0);
+    let obj_class = JS_GetClass(obj);
+    let name = str::from_utf8(CStr::from_ptr((*obj_class).name).to_bytes()).unwrap().to_owned();
+    match &*name {
+        "Location" => CrossOriginObjectType::CrossOriginLocation,
+        "Window" => CrossOriginObjectType::CrossOriginWindow,
+        _ => CrossOriginObjectType::CrossOriginOpaque,
+    }
+}
+
+//TODO check obj and target -- kinda essential to the algorithm
+// gecko does some additional checks and optimizations
+unsafe fn target_subsumes_obj(cx: *mut JSContext, obj: HandleObject, target: HandleObject) -> bool {
+    println!("subsumes");
+    //need to check if the base principal subsumes 
+    //step 1 get compartment
+    let obj_c = get_object_compartment(obj.get());
+    let ctx_c = get_context_compartment(cx);
+    //step 2 get principals
+    let obj_p = JS_GetCompartmentPrincipals(obj_c);
+    let ctx_p = JS_GetCompartmentPrincipals(ctx_c);
+    //step 3 check document.domain
+
+    //step 4
+
+    //step 5 if nested, get base uri
+
+    //step 6 compare schemes. if files, return false unless identical
+
+    //step 7 compare hosts
+
+    //step 8 compare ports
+    false
+}
+
+unsafe fn get_opaque_wrapper() -> *const ::libc::c_void {
+    GetSecurityWrapper()    //shouldn't allow any access
+}
+
+unsafe fn get_cross_origin_wrapper() -> *const ::libc::c_void {
+    CreateWrapperProxyHandler(&XORIGIN_PROXY_HANDLER)
+}
+
+fn principal_to_origin(js_prin: &ServoJSPrincipal) -> & MutableOrigin {
+    unsafe { mem::transmute::<*const ::libc::c_void, &MutableOrigin>(js_prin.origin()) }
+}
+
+//TODO make sure you're doing the right subsumes check
+pub unsafe extern fn subsumes(obj: *mut JSPrincipals, other: *mut JSPrincipals) -> bool {
+    let obj_origin = principal_to_origin(&*(obj as *const _));
+    let other_origin = principal_to_origin(&*(other as *const _));
+    println!("Subsumes called: {:?}, {:?}", obj_origin, other_origin);
+    obj_origin.same_origin_domain(other_origin)
+}
+
+unsafe fn select_wrapper(cx: *mut JSContext, obj: HandleObject, target: HandleObject) -> *const libc::c_void {
+    let security_wrapper = !target_subsumes_obj(cx, obj, target);
+    if !security_wrapper {
+        println!("cross compartment wrapper");
+        return GetCrossCompartmentWrapper()
+    };
+
+    if identify_cross_origin_object(obj) != CrossOriginObjectType::CrossOriginOpaque {
+        println!("cross origin wrapper");
+        return get_cross_origin_wrapper()
+    };
+
+    println!("opaque");
+    get_opaque_wrapper()
+}
+
+//TODO figure out which is A and which is B
 unsafe extern "C" fn wrap(cx: *mut JSContext,
                           _existing: HandleObject,
                           obj: HandleObject)
                           -> *mut JSObject {
     // FIXME terrible idea. need security wrappers
     // https://github.com/servo/servo/issues/2382
-    WrapperNew(cx, obj, GetCrossCompartmentWrapper(), ptr::null(), false)
+    println!("select a wrapper");
+    let wrapper = select_wrapper(cx, obj, _existing);
+    WrapperNew(cx, obj, wrapper, ptr::null(), false)
+    //    false => WrapperNew(cx, obj, GetSecurityWrapper(), ptr::null(), false)//FIXME
 }
 
 unsafe extern "C" fn pre_wrap(cx: *mut JSContext,

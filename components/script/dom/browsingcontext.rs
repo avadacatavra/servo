@@ -546,7 +546,7 @@ unsafe extern "C" fn preventExtensions_xorigin(cx: *mut JSContext,
     throw_security_error(cx)
 }
 
-static XORIGIN_PROXY_HANDLER: ProxyTraps = ProxyTraps {
+pub static XORIGIN_PROXY_HANDLER: ProxyTraps = ProxyTraps {
     enter: None,
     getOwnPropertyDescriptor: Some(getOwnPropertyDescriptor_xorigin),
     defineProperty: Some(defineProperty_xorigin),
