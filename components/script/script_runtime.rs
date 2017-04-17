@@ -35,8 +35,14 @@ use std::panic::AssertUnwindSafe;
 use std::ptr;
 use style::thread_state;
 use time::{Tm, now};
-use dom::bindings::utils::subsumes;
 use js::jsapi::{JSSecurityCallbacks, JS_SetSecurityCallbacks};
+use dom::bindings::utils;
+
+//TODO contentsecuritypolicyallows?
+static SECURITY_CALLBACKS:  JSSecurityCallbacks = JSSecurityCallbacks {
+    contentSecurityPolicyAllows: None,
+    subsumes: Some(utils::subsumes)}
+;
 
 /// Common messages used to control the event loops in both the script and the worker
 pub enum CommonScriptMsg {
@@ -131,10 +137,7 @@ pub unsafe fn new_rt_and_cx() -> Runtime {
     let runtime = Runtime::new().unwrap();
 
     //set security callbacks 
-    let callbacks = JSSecurityCallbacks{contentSecurityPolicyAllows: None,
-        subsumes: Some(subsumes)};
-    JS_SetSecurityCallbacks(runtime.rt(), &callbacks);
-    println!("set security callbacks");
+    JS_SetSecurityCallbacks(runtime.rt(), &SECURITY_CALLBACKS);
 
     JS_AddExtraGCRootsTracer(runtime.rt(), Some(trace_rust_roots), ptr::null_mut());
     JS_AddExtraGCRootsTracer(runtime.rt(), Some(trace_refcounted_objects), ptr::null_mut());

@@ -451,8 +451,8 @@ unsafe fn get_cross_origin_wrapper() -> *const ::libc::c_void {
 
 //TODO make sure you're doing the right subsumes check
 pub unsafe extern fn subsumes(obj: *mut JSPrincipals, other: *mut JSPrincipals) -> bool {
-    let obj = &ServoJSPrincipals(obj);
-    let other = &ServoJSPrincipals(other);
+    let obj = &ServoJSPrincipal(obj);
+    let other = &ServoJSPrincipal(other);
     let obj_origin = obj.origin();
     let other_origin = other.origin();
     println!("Subsumes called: \n{:?}\n {:?}", obj_origin, other_origin);
