@@ -148,8 +148,6 @@ pub unsafe fn create_global_object(
     //let obj = Box::from_raw( &mut x );
     let obj = &*x;
 
-
-    //println!("{:?}", obj.origin());
     let mut principal = CreateServoJSPrincipal(Box::into_raw(obj.origin()) as *const ::libc::c_void);
 
     rval.set(JS_NewGlobalObject(cx,

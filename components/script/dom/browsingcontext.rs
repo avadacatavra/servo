@@ -487,6 +487,7 @@ unsafe extern "C" fn get_xorigin(cx: *mut JSContext,
                                  vp: MutableHandleValue)
                                  -> bool
 {
+    println!("get xorigin: {:?}", proxy);
     let mut found = false;
     has_xorigin(cx, proxy, id, &mut found);
     found && get(cx, proxy, receiver, id, vp)

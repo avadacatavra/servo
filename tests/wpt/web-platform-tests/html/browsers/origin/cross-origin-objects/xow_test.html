@@ -1,0 +1,33 @@
+<!doctype html>
+<meta charset=utf-8>
+<meta name="timeout" content="long">
+<title>I don't understand javascript</title>
+<link rel="author" title="(:avadacatavra)" href="avadacatavra@gmail.com">
+<link rel="help" href="https://html.spec.whatwg.org/multipage/#security-window">
+<link rel="help" href="https://html.spec.whatwg.org/multipage/#security-location">
+<script src="/common/get-host-info.sub.js"></script>
+<div id=log></div>
+<iframe id="B"</iframe>
+<iframe id="C"></iframe>
+<p>i suck at js</p>
+<button type="button" onclick="myFunction()">Try it</button>
+
+
+<p id="demo"></p>
+<p id="demo1"></p>
+
+
+<script>
+var host_info = get_host_info();
+path = location.pathname.substring(0, location.pathname.lastIndexOf('/')) + '/frame.html';
+var B = document.getElementById('B').contentWindow;
+var C = document.getElementById('C').contentWindow;
+B.frameElement.uriToLoad = path;
+C.frameElement.uriToLoad = get_host_info().HTTP_REMOTE_ORIGIN + path;
+
+
+function myFunction() {
+    document.getElementById("demo").innerHTML = B.frames;
+    document.getElementById("demo1").innerHTML = C.frames;
+}
+</script>
