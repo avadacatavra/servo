@@ -414,17 +414,17 @@ unsafe fn identify_cross_origin_object(obj: HandleObject) -> CrossOriginObjectTy
 
 //TODO check obj and target -- kinda essential to the algorithm
 // gecko does some additional checks and optimizations
-// TODO why do i need cx?
-unsafe fn target_subsumes_obj(cx: *mut JSContext, obj: HandleObject, target: HandleObject) -> bool {
+unsafe fn target_subsumes_obj(cx: *mut JSContext, obj: HandleObject) -> bool {
     //need to check if the base principal subsumes 
     //step 1 get compartment
     let obj_c = get_object_compartment(obj.get());
-    let tar_c = get_object_compartment(target.get());
+    let ctx_c = get_context_compartment(cx);
     //step 2 get principals
     let obj_p = JS_GetCompartmentPrincipals(obj_c);
-    let tar_p = JS_GetCompartmentPrincipals(tar_c);
+    let ctx_p = JS_GetCompartmentPrincipals(ctx_c);
 
-    subsumes(obj_p, tar_p)
+    //TODO determine what subsumes check is sufficient
+    subsumes(obj_p, ctx_p)
     //println!("subsumes? {:?}", x);
     //step 3 check document.domain
 
@@ -445,13 +445,14 @@ unsafe fn get_opaque_wrapper() -> *const ::libc::c_void {
 }
 
 unsafe fn get_cross_origin_wrapper() -> *const ::libc::c_void {
-    CreateWrapperProxyHandler(&XORIGIN_PROXY_HANDLER)
+    //CreateWrapperProxyHandler(&XORIGIN_PROXY_HANDLER)
+    GetSecurityWrapper()
 }
 
 //TODO make sure you're doing the right subsumes check
 pub unsafe extern fn subsumes(obj: *mut JSPrincipals, other: *mut JSPrincipals) -> bool {
-    let obj = (&*(obj as *const ServoJSPrincipal));
-    let other = (&*(other as *const ServoJSPrincipal));
+    let obj = &ServoJSPrincipals(obj);
+    let other = &ServoJSPrincipals(other);
     let obj_origin = obj.origin();
     let other_origin = other.origin();
     println!("Subsumes called: \n{:?}\n {:?}", obj_origin, other_origin);
@@ -459,8 +460,8 @@ pub unsafe extern fn subsumes(obj: *mut JSPrincipals, other: *mut JSPrincipals) 
 }
 
 unsafe fn select_wrapper(cx: *mut JSContext, obj: HandleObject, target: HandleObject) -> *const libc::c_void {
-    println!("selecting: {:?}, {:?}", obj, target);
-    let security_wrapper = !target_subsumes_obj(cx, obj, target);
+    println!("selecting: {:?}, {:?}", obj, cx);
+    let security_wrapper = !target_subsumes_obj(cx, obj);
     if !security_wrapper {
         println!("cross compartment wrapper");
         return GetCrossCompartmentWrapper()
