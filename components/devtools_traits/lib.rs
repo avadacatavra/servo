@@ -15,16 +15,18 @@
 #[macro_use]
 extern crate bitflags;
 extern crate heapsize;
-#[macro_use] extern crate heapsize_derive;
+#[macro_use]
+extern crate heapsize_derive;
 extern crate hyper;
 extern crate ipc_channel;
 extern crate msg;
-#[macro_use] extern crate serde;
+#[macro_use]
+extern crate serde;
 extern crate servo_url;
 extern crate time;
 
 use hyper::header::Headers;
-use hyper::method::Method;
+use hyper::Method;
 use ipc_channel::ipc::IpcSender;
 use msg::constellation_msg::PipelineId;
 use servo_url::ServoUrl;
@@ -45,7 +47,7 @@ pub struct CSSError {
     pub filename: String,
     pub line: u32,
     pub column: u32,
-    pub msg: String
+    pub msg: String,
 }
 
 /// Messages to instruct the devtools server to update its known actors/state
@@ -75,9 +77,7 @@ pub enum ChromeToDevtoolsControlMsg {
 pub enum ScriptToDevtoolsControlMsg {
     /// A new global object was created, associated with a particular pipeline.
     /// The means of communicating directly with it are provided.
-    NewGlobal((PipelineId, Option<WorkerId>),
-              IpcSender<DevtoolScriptControlMsg>,
-              DevtoolsPageInfo),
+    NewGlobal((PipelineId, Option<WorkerId>), IpcSender<DevtoolScriptControlMsg>, DevtoolsPageInfo),
     /// A particular page has invoked the console API.
     ConsoleAPI(PipelineId, ConsoleMessage, Option<WorkerId>),
     /// An animation frame with the given timestamp was processed in a script thread.
