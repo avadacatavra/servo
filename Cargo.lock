@@ -1,4 +1,12 @@
 [[package]]
+name = "accountable-refcell"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "backtrace 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "adler32"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1692,6 +1700,7 @@ dependencies = [
 name = "malloc_size_of"
 version = "0.0.1"
 dependencies = [
+ "accountable-refcell 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "app_units 0.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "cssparser 0.22.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "euclid 0.15.5 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2547,6 +2556,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "script"
 version = "0.0.1"
 dependencies = [
+ "accountable-refcell 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "angle 0.5.0 (git+https://github.com/servo/angle?branch=servo)",
  "app_units 0.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "audio-video-metadata 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -3756,6 +3766,7 @@ dependencies = [
 ]
 
 [metadata]
+"checksum accountable-refcell 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "9c3087cac7a2abb0e43fa836ce57f286efa489cb01f8263872b3bb970e6504b2"
 "checksum adler32 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "3ff33fe13a08dbce05bcefa2c68eea4844941437e33d6f808240b54d7157b9cd"
 "checksum aho-corasick 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)" = "500909c4f87a9e52355b26626d890833e9e1d53ac566db76c36faa984b889699"
 "checksum alloc-no-stdlib 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b21f6ad9c9957eb5d70c3dee16d31c092b3cab339628f821766b05e6833d72b8"

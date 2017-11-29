@@ -4,6 +4,7 @@
 
 //! The core DOM types. Defines the basic DOM hierarchy as well as all the HTML elements.
 
+use accountable_refcell::RefMut;
 use app_units::Au;
 use devtools_traits::NodeInfo;
 use document_loader::DocumentLoader;
@@ -74,7 +75,7 @@ use servo_arc::Arc;
 use servo_url::ServoUrl;
 use smallvec::SmallVec;
 use std::borrow::ToOwned;
-use std::cell::{Cell, UnsafeCell, RefMut};
+use std::cell::{Cell, UnsafeCell}; //, RefMut};
 use std::cmp;
 use std::default::Default;
 use std::iter;

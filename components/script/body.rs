@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use accountable_refcell::Ref;
 use dom::bindings::codegen::Bindings::FormDataBinding::FormDataMethods;
 use dom::bindings::error::{Error, Fallible};
 use dom::bindings::reflector::DomObject;
@@ -17,7 +18,7 @@ use js::jsapi::JS_ParseJSON;
 use js::jsapi::Value as JSValue;
 use js::jsval::UndefinedValue;
 use mime::{Mime, TopLevel, SubLevel};
-use std::cell::Ref;
+// use std::cell::Ref;
 use std::rc::Rc;
 use std::str;
 use url::form_urlencoded;

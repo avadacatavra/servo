@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use accountable_refcell::RefMut;
 use app_units::{Au, AU_PER_PX};
 use cssparser::{Parser, ParserInput};
 use document_loader::{LoadType, LoadBlocker};
@@ -52,7 +53,8 @@ use num_traits::ToPrimitive;
 use script_thread::ScriptThread;
 use servo_url::ServoUrl;
 use servo_url::origin::ImmutableOrigin;
-use std::cell::{Cell, RefMut};
+use std::cell::Cell;
+// use std::cell::{Cell, RefMut};
 use std::char;
 use std::default::Default;
 use std::i32;

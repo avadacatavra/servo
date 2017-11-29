@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use accountable_refcell::Ref;
 use canvas_traits::webgl::{WebGLError, WebGLVersion};
 use dom::bindings::cell::DomRefCell;
 use dom::bindings::codegen::Bindings::OESStandardDerivativesBinding::OESStandardDerivativesConstants;
@@ -17,7 +18,7 @@ use js::jsapi::JSContext;
 use js::jsval::JSVal;
 use malloc_size_of::MallocSizeOf;
 use ref_filter_map::ref_filter_map;
-use std::cell::Ref;
+// use std::cell::Ref;
 use std::collections::HashMap;
 use std::iter::FromIterator;
 use super::{ext, WebGLExtension, WebGLExtensionSpec};

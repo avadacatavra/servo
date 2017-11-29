@@ -4,6 +4,7 @@
 
 //! DOM bindings for `CharacterData`.
 
+use accountable_refcell::Ref;
 use dom::bindings::cell::DomRefCell;
 use dom::bindings::codegen::Bindings::CharacterDataBinding::CharacterDataMethods;
 use dom::bindings::codegen::Bindings::NodeBinding::NodeBinding::NodeMethods;
@@ -23,7 +24,7 @@ use dom::text::Text;
 use dom::virtualmethods::vtable_for;
 use dom_struct::dom_struct;
 use servo_config::opts;
-use std::cell::Ref;
+// use std::cell::Ref;
 
 // https://dom.spec.whatwg.org/#characterdata
 #[dom_struct]

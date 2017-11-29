@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use accountable_refcell::Ref;
 use devtools_traits::AttrInfo;
 use dom::bindings::cell::DomRefCell;
 use dom::bindings::codegen::Bindings::AttrBinding::{self, AttrMethods};
@@ -20,7 +21,7 @@ use html5ever::{Prefix, LocalName, Namespace};
 use script_thread::ScriptThread;
 use servo_atoms::Atom;
 use std::borrow::ToOwned;
-use std::cell::Ref;
+// use std::cell::Ref;
 use std::mem;
 use style::attr::{AttrIdentifier, AttrValue};
 

@@ -1,3 +1,5 @@
+paths = ["/Users/ddh/mozilla/servo/accountable-refcell"]
+
 [target.arm-linux-androideabi]
 linker = "./ports/servo/fake-ld-arm.sh"
 ar = "arm-linux-androideabi-ar"

@@ -43,6 +43,7 @@
 //!   measured as well as the thing it points to. E.g.
 //!   `<Box<_> as MallocSizeOf>::size_of(field, ops)`.
 
+extern crate accountable_refcell;
 extern crate app_units;
 extern crate cssparser;
 extern crate euclid;
@@ -271,6 +272,12 @@ impl<T: MallocSizeOf + Copy> MallocSizeOf for std::cell::Cell<T> {
 }
 
 impl<T: MallocSizeOf> MallocSizeOf for std::cell::RefCell<T> {
+    fn size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
+        self.borrow().size_of(ops)
+    }
+}
+
+impl<T: MallocSizeOf> MallocSizeOf for accountable_refcell::RefCell<T> {
     fn size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
         self.borrow().size_of(ops)
     }

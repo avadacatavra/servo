@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use accountable_refcell::Ref;
 use body::{BodyOperations, BodyType, consume_body, consume_body_with_promise};
 use dom::bindings::cell::DomRefCell;
 use dom::bindings::codegen::Bindings::HeadersBinding::{HeadersInit, HeadersMethods};
@@ -23,7 +24,8 @@ use hyper::status::StatusCode;
 use hyper_serde::Serde;
 use net_traits::response::{ResponseBody as NetTraitsResponseBody};
 use servo_url::ServoUrl;
-use std::cell::{Cell, Ref};
+// use std::cell::{Cell, Ref};
+use std::cell::Cell;
 use std::mem;
 use std::rc::Rc;
 use std::str::FromStr;

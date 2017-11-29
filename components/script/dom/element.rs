@@ -4,6 +4,7 @@
 
 //! Element nodes.
 
+use accountable_refcell::Ref;
 use devtools_traits::AttrInfo;
 use dom::activation::Activatable;
 use dom::attr::{Attr, AttrHelpersForLayout};
@@ -94,7 +95,8 @@ use selectors::sink::Push;
 use servo_arc::Arc;
 use servo_atoms::Atom;
 use std::borrow::Cow;
-use std::cell::{Cell, Ref};
+use std::cell::Cell;
+// use std::cell::{Cell, Ref};
 use std::default::Default;
 use std::fmt;
 use std::mem;

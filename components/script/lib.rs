@@ -21,6 +21,7 @@
 #![plugin(script_plugins)]
 #![cfg_attr(not(feature = "unrooted_must_root_lint"), allow(unknown_lints))]
 
+extern crate accountable_refcell;
 extern crate angle;
 extern crate app_units;
 extern crate audio_video_metadata;

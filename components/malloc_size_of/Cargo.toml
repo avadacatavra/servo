@@ -12,6 +12,7 @@ path = "lib.rs"
 servo = ["mozjs", "string_cache", "url", "webrender_api", "xml5ever"]
 
 [dependencies]
+accountable-refcell = "0.1"
 app_units = "0.5.5"
 cssparser = "0.22.0"
 euclid = "0.15"

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use accountable_refcell::Ref;
 use dom::bindings::cell::DomRefCell;
 use dom::bindings::codegen::Bindings::DOMMatrixBinding::{DOMMatrixInit, DOMMatrixMethods};
 use dom::bindings::codegen::Bindings::DOMMatrixReadOnlyBinding::{DOMMatrixReadOnlyMethods, Wrap};
@@ -15,7 +16,8 @@ use dom::dompoint::DOMPoint;
 use dom::globalscope::GlobalScope;
 use dom_struct::dom_struct;
 use euclid::{Transform3D, Radians};
-use std::cell::{Cell, Ref};
+// use std::cell::{Cell, Ref};
+use std::cell::Cell;
 use std::f64;
 
 #[dom_struct]
