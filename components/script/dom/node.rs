@@ -882,68 +882,9 @@ impl Node {
         }
     }
 
-    /// Used by `HTMLTableSectionElement::InsertRow` and `HTMLTableRowElement::InsertCell`
-    pub fn insert_cell_or_row<F, G, I>(&self, index: i32, get_items: F, new_child: G) -> Fallible<DomRoot<HTMLElement>>
-        where F: Fn() -> DomRoot<HTMLCollection>,
-              G: Fn() -> DomRoot<I>,
-              I: DerivedFrom<Node> + DerivedFrom<HTMLElement> + DomObject,
-    {
-        if index < -1 {
-            return Err(Error::IndexSize);
-        }
+    
 
-        let tr = new_child();
-
-
-        {
-            let tr_node = tr.upcast::<Node>();
-            if index == -1 {
-                self.InsertBefore(tr_node, None)?;
-            } else {
-                let items = get_items();
-                let node = match items.elements_iter()
-                                      .map(DomRoot::upcast::<Node>)
-                                      .map(Some)
-                                      .chain(iter::once(None))
-                                      .nth(index as usize) {
-                    None => return Err(Error::IndexSize),
-                    Some(node) => node,
-                };
-                self.InsertBefore(tr_node, node.r())?;
-            }
-        }
-
-        Ok(DomRoot::upcast::<HTMLElement>(tr))
-    }
-
-    /// Used by `HTMLTableSectionElement::DeleteRow` and `HTMLTableRowElement::DeleteCell`
-    pub fn delete_cell_or_row<F, G>(&self, index: i32, get_items: F, is_delete_type: G) -> ErrorResult
-        where F: Fn() -> DomRoot<HTMLCollection>,
-              G: Fn(&Element) -> bool
-    {
-        let element = match index {
-            index if index < -1 => return Err(Error::IndexSize),
-            -1 => {
-                let last_child = self.upcast::<Node>().GetLastChild();
-                match last_child.and_then(|node| node.inclusively_preceding_siblings()
-                                                     .filter_map(DomRoot::downcast::<Element>)
-                                                     .filter(|elem| is_delete_type(elem))
-                                                     .next()) {
-                    Some(element) => element,
-                    None => return Ok(()),
-                }
-            },
-            index => match get_items().Item(index as u32) {
-                Some(element) => element,
-                None => return Err(Error::IndexSize),
-            },
-        };
-
-        element.upcast::<Node>().remove_self();
-        Ok(())
-    }
-
-    pub fn get_stylesheet(&self) -> Option<Arc<Stylesheet>> {
+    fn get_stylesheet(&self) -> Option<Arc<Stylesheet>> {
         if let Some(node) = self.downcast::<HTMLStyleElement>() {
             node.get_stylesheet()
         } else if let Some(node) = self.downcast::<HTMLLinkElement>() {
@@ -955,7 +896,7 @@ impl Node {
         }
     }
 
-    pub fn get_cssom_stylesheet(&self) -> Option<DomRoot<CSSStyleSheet>> {
+    fn get_cssom_stylesheet(&self) -> Option<DomRoot<CSSStyleSheet>> {
         if let Some(node) = self.downcast::<HTMLStyleElement>() {
             node.get_cssom_stylesheet()
         } else if let Some(node) = self.downcast::<HTMLLinkElement>() {
@@ -1026,7 +967,7 @@ pub trait LayoutNodeHelpers {
     fn selection(&self) -> Option<Range<usize>>;
     fn image_url(&self) -> Option<ServoUrl>;
     fn canvas_data(&self) -> Option<HTMLCanvasData>;
-    fn svg_data(&self) -> Option<SVGSVGData>;
+    #[cfg(feature = "servo")] fn svg_data(&self) -> Option<SVGSVGData>;
     fn iframe_browsing_context_id(&self) -> Option<BrowsingContextId>;
     fn iframe_pipeline_id(&self) -> Option<PipelineId>;
     fn opaque(&self) -> OpaqueNode;

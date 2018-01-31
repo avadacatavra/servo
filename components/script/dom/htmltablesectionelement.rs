@@ -60,7 +60,8 @@ impl HTMLTableSectionElementMethods for HTMLTableSectionElement {
     // https://html.spec.whatwg.org/multipage/#dom-tbody-insertrow
     fn InsertRow(&self, index: i32) -> Fallible<DomRoot<HTMLElement>> {
         let node = self.upcast::<Node>();
-        node.insert_cell_or_row(
+        insert_cell_or_row(
+            &node,
             index,
             || self.Rows(),
             || HTMLTableRowElement::new(local_name!("tr"), None, &node.owner_doc()))
@@ -69,7 +70,8 @@ impl HTMLTableSectionElementMethods for HTMLTableSectionElement {
     // https://html.spec.whatwg.org/multipage/#dom-tbody-deleterow
     fn DeleteRow(&self, index: i32) -> ErrorResult {
         let node = self.upcast::<Node>();
-        node.delete_cell_or_row(
+        delete_cell_or_row(
+            &node,
             index,
             || self.Rows(),
             |n| n.is::<HTMLTableRowElement>())
@@ -104,3 +106,64 @@ impl VirtualMethods for HTMLTableSectionElement {
         }
     }
 }
+
+/// Used by `HTMLTableSectionElement::InsertRow` and `HTMLTableRowElement::InsertCell`
+    pub fn insert_cell_or_row<F, G, I>(node: &Node, index: i32, get_items: F, new_child: G) -> Fallible<DomRoot<HTMLElement>>
+        where F: Fn() -> DomRoot<HTMLCollection>,
+              G: Fn() -> DomRoot<I>,
+              I: DerivedFrom<Node> + DerivedFrom<HTMLElement> + DomObject,
+    {
+        if index < -1 {
+            return Err(Error::IndexSize);
+        }
+
+        let tr = new_child();
+
+
+        {
+            let tr_node = tr.upcast::<Node>();
+            if index == -1 {
+                node.InsertBefore(tr_node, None)?;
+            } else {
+                let items = get_items();
+                let node = match items.elements_iter()
+                                      .map(DomRoot::upcast::<Node>)
+                                      .map(Some)
+                                      .chain(iter::once(None))
+                                      .nth(index as usize) {
+                    None => return Err(Error::IndexSize),
+                    Some(node) => node,
+                };
+                node.InsertBefore(tr_node, node.r())?;
+            }
+        }
+
+        Ok(DomRoot::upcast::<HTMLElement>(tr))
+    }
+
+    /// Used by `HTMLTableSectionElement::DeleteRow` and `HTMLTableRowElement::DeleteCell`
+    pub fn delete_cell_or_row<F, G>(node: &Node, index: i32, get_items: F, is_delete_type: G) -> ErrorResult
+        where F: Fn() -> DomRoot<HTMLCollection>,
+              G: Fn(&Element) -> bool
+    {
+        let element = match index {
+            index if index < -1 => return Err(Error::IndexSize),
+            -1 => {
+                let last_child = node.upcast::<Node>().GetLastChild();
+                match last_child.and_then(|n| n.inclusively_preceding_siblings()
+                                                     .filter_map(DomRoot::downcast::<Element>)
+                                                     .filter(|elem| is_delete_type(elem))
+                                                     .next()) {
+                    Some(element) => element,
+                    None => return Ok(()),
+                }
+            },
+            index => match get_items().Item(index as u32) {
+                Some(element) => element,
+                None => return Err(Error::IndexSize),
+            },
+        };
+
+        element.upcast::<Node>().remove_self();
+        Ok(())
+    }

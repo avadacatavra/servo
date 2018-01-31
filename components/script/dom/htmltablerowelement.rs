@@ -18,7 +18,7 @@ use dom::htmlelement::HTMLElement;
 use dom::htmltabledatacellelement::HTMLTableDataCellElement;
 use dom::htmltableelement::HTMLTableElement;
 use dom::htmltableheadercellelement::HTMLTableHeaderCellElement;
-use dom::htmltablesectionelement::HTMLTableSectionElement;
+use dom::htmltablesectionelement::{HTMLTableSectionElement, insert_cell_or_row, delete_cell_or_row};
 use dom::node::{Node, window_from_node};
 use dom::virtualmethods::VirtualMethods;
 use dom_struct::dom_struct;
@@ -85,7 +85,8 @@ impl HTMLTableRowElementMethods for HTMLTableRowElement {
     // https://html.spec.whatwg.org/multipage/#dom-tr-insertcell
     fn InsertCell(&self, index: i32) -> Fallible<DomRoot<HTMLElement>> {
         let node = self.upcast::<Node>();
-        node.insert_cell_or_row(
+        insert_cell_or_row(
+            &node,
             index,
             || self.Cells(),
             || HTMLTableDataCellElement::new(local_name!("td"), None, &node.owner_doc()))
@@ -94,7 +95,8 @@ impl HTMLTableRowElementMethods for HTMLTableRowElement {
     // https://html.spec.whatwg.org/multipage/#dom-tr-deletecell
     fn DeleteCell(&self, index: i32) -> ErrorResult {
         let node = self.upcast::<Node>();
-        node.delete_cell_or_row(
+        delete_cell_or_row(
+            &node,
             index,
             || self.Cells(),
             |n| n.is::<HTMLTableDataCellElement>())
