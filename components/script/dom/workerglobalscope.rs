@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use devtools_traits::{DevtoolScriptControlMsg, WorkerId};
+#[cfg(feature = "servo")] use devtools_traits::{DevtoolScriptControlMsg, WorkerId};
 use dom::bindings::codegen::Bindings::FunctionBinding::Function;
 use dom::bindings::codegen::Bindings::RequestBinding::RequestInit;
 use dom::bindings::codegen::Bindings::WorkerGlobalScopeBinding::WorkerGlobalScopeMethods;
@@ -11,28 +11,28 @@ use dom::bindings::error::{Error, ErrorResult, Fallible, report_pending_exceptio
 use dom::bindings::inheritance::Castable;
 use dom::bindings::reflector::DomObject;
 use dom::bindings::root::{DomRoot, MutNullableDom};
-use dom::bindings::settings_stack::AutoEntryScript;
+#[cfg(feature = "servo")] use dom::bindings::settings_stack::AutoEntryScript;
 use dom::bindings::str::DOMString;
 use dom::bindings::trace::RootedTraceableBox;
-use dom::crypto::Crypto;
-use dom::dedicatedworkerglobalscope::DedicatedWorkerGlobalScope;
+#[cfg(feature = "servo")] use dom::crypto::Crypto;
+#[cfg(feature = "servo")] use dom::dedicatedworkerglobalscope::DedicatedWorkerGlobalScope;
 use dom::globalscope::GlobalScope;
-use dom::performance::Performance;
+#[cfg(feature = "servo")] use dom::performance::Performance;
 use dom::promise::Promise;
-use dom::serviceworkerglobalscope::ServiceWorkerGlobalScope;
+#[cfg(feature = "servo")] use dom::serviceworkerglobalscope::ServiceWorkerGlobalScope;
 use dom::window::{base64_atob, base64_btoa};
 use dom::workerlocation::WorkerLocation;
 use dom::workernavigator::WorkerNavigator;
 use dom_struct::dom_struct;
-use fetch;
-use ipc_channel::ipc::IpcSender;
+#[cfg(feature = "servo")] use fetch;
+#[cfg(feature = "servo")] use ipc_channel::ipc::IpcSender;
 use js::jsapi::{HandleValue, JSAutoCompartment, JSContext, JSRuntime};
 use js::jsval::UndefinedValue;
 use js::panic::maybe_resume_unwind;
 use msg::constellation_msg::PipelineId;
-use net_traits::{IpcSend, load_whole_resource};
-use net_traits::request::{CredentialsMode, Destination, RequestInit as NetRequestInit};
-use script_runtime::{CommonScriptMsg, ScriptChan, ScriptPort, get_reports, Runtime};
+#[cfg(feature = "servo")] use net_traits::{IpcSend, load_whole_resource};
+#[cfg(feature = "servo")] use net_traits::request::{CredentialsMode, Destination, RequestInit as NetRequestInit};
+#[cfg(feature = "servo")] use script_runtime::{CommonScriptMsg, ScriptChan, ScriptPort, get_reports, Runtime};
 use script_traits::{TimerEvent, TimerEventId};
 use script_traits::WorkerGlobalScopeInit;
 use servo_url::{MutableOrigin, ServoUrl};
@@ -42,11 +42,11 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::Receiver;
 use task::TaskCanceller;
-use task_source::file_reading::FileReadingTaskSource;
-use task_source::networking::NetworkingTaskSource;
-use task_source::performance_timeline::PerformanceTimelineTaskSource;
+#[cfg(feature = "servo")] use task_source::file_reading::FileReadingTaskSource;
+#[cfg(feature = "servo")] use task_source::networking::NetworkingTaskSource;
+#[cfg(feature = "servo")] use task_source::performance_timeline::PerformanceTimelineTaskSource;
 use time::precise_time_ns;
-use timers::{IsInterval, TimerCallback};
+#[cfg(feature = "servo")] use timers::{IsInterval, TimerCallback};
 
 pub fn prepare_workerscope_init(global: &GlobalScope,
                                 devtools_sender: Option<IpcSender<DevtoolScriptControlMsg>>) -> WorkerGlobalScopeInit {
@@ -355,6 +355,7 @@ impl WorkerGlobalScope {
         }
     }
 
+    #[cfg(feature = "servo")] 
     pub fn script_chan(&self) -> Box<ScriptChan + Send> {
         let dedicated = self.downcast::<DedicatedWorkerGlobalScope>();
         let service_worker = self.downcast::<ServiceWorkerGlobalScope>();
@@ -367,18 +368,22 @@ impl WorkerGlobalScope {
         }
     }
 
+    #[cfg(feature = "servo")] 
     pub fn file_reading_task_source(&self) -> FileReadingTaskSource {
         FileReadingTaskSource(self.script_chan(), self.pipeline_id())
     }
 
+    #[cfg(feature = "servo")] 
     pub fn networking_task_source(&self) -> NetworkingTaskSource {
         NetworkingTaskSource(self.script_chan(), self.pipeline_id())
     }
 
+    #[cfg(feature = "servo")] 
     pub fn performance_timeline_task_source(&self) -> PerformanceTimelineTaskSource {
         PerformanceTimelineTaskSource(self.script_chan(), self.pipeline_id())
     }
 
+    #[cfg(feature = "servo")] 
     pub fn new_script_pair(&self) -> (Box<ScriptChan + Send>, Box<ScriptPort + Send>) {
         let dedicated = self.downcast::<DedicatedWorkerGlobalScope>();
         if let Some(dedicated) = dedicated {
@@ -388,6 +393,7 @@ impl WorkerGlobalScope {
         }
     }
 
+    #[cfg(feature = "servo")] 
     pub fn process_event(&self, msg: CommonScriptMsg) {
         match msg {
             CommonScriptMsg::Task(_, task, _) => {

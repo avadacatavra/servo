@@ -21,122 +21,123 @@
 #![plugin(script_plugins)]
 #![cfg_attr(not(feature = "unrooted_must_root_lint"), allow(unknown_lints))]
 
-extern crate angle;
+#[cfg(feature = "servo")] extern crate angle;
 extern crate app_units;
-extern crate audio_video_metadata;
-extern crate base64;
+#[cfg(feature = "servo")] extern crate audio_video_metadata;
+#[cfg(feature = "servo")] extern crate base64;
 #[macro_use]
-extern crate bitflags;
-extern crate bluetooth_traits;
-extern crate byteorder;
-extern crate canvas_traits;
-extern crate caseless;
+#[cfg(feature = "servo")] extern crate bitflags;
+#[cfg(feature = "servo")] extern crate bluetooth_traits;
+#[cfg(feature = "servo")] extern crate byteorder;
+#[cfg(feature = "servo")] extern crate canvas_traits;
+#[cfg(feature = "servo")] extern crate caseless;
 extern crate chrono;
-extern crate cookie as cookie_rs;
+#[cfg(feature = "servo")] extern crate cookie as cookie_rs;
 #[macro_use] extern crate cssparser;
 #[macro_use] extern crate deny_public_fields;
-extern crate devtools_traits;
+#[cfg(feature = "servo")]  extern crate devtools_traits;
 extern crate dom_struct;
 #[macro_use]
-extern crate domobject_derive;
+#[cfg(feature = "servo")]  extern crate domobject_derive;
 extern crate encoding_rs;
 extern crate euclid;
 extern crate fnv;
-extern crate gleam;
-extern crate half;
+#[cfg(feature = "servo")] extern crate gleam;
+#[cfg(feature = "servo")] extern crate half;
 #[macro_use] extern crate html5ever;
+#[cfg(feature = "servo")] #[macro_use]
+#[cfg(feature = "servo")] extern crate hyper;
+#[cfg(feature = "servo")] extern crate hyper_serde;
+#[cfg(feature = "servo")] extern crate image;
+#[cfg(feature = "servo")] extern crate ipc_channel;
 #[macro_use]
-extern crate hyper;
-extern crate hyper_serde;
-extern crate image;
-extern crate ipc_channel;
+#[cfg(feature = "servo")]  extern crate jstraceable_derive;
 #[macro_use]
-extern crate jstraceable_derive;
-#[macro_use]
-extern crate lazy_static;
+#[cfg(feature = "servo")] extern crate lazy_static;
 extern crate libc;
 #[macro_use]
-extern crate log;
+#[cfg(feature = "servo")] extern crate log;
 #[macro_use] extern crate malloc_size_of;
 #[macro_use] extern crate malloc_size_of_derive;
-extern crate metrics;
+#[cfg(feature = "servo")] extern crate metrics;
 #[macro_use]
-extern crate mime;
-extern crate mime_guess;
+#[cfg(feature = "servo")] extern crate mime;
+#[cfg(feature = "servo")] extern crate mime_guess;
 extern crate mitochondria;
 #[macro_use]
 extern crate mozjs as js;
 extern crate msg;
-extern crate net_traits;
+#[cfg(feature = "servo")] extern crate net_traits;
 extern crate num_traits;
-extern crate offscreen_gl_context;
+#[cfg(feature = "servo")] extern crate offscreen_gl_context;
 extern crate open;
-extern crate parking_lot;
-extern crate phf;
+#[cfg(feature = "servo")] extern crate parking_lot;
+#[cfg(feature = "servo")] extern crate phf;
 #[macro_use]
-extern crate profile_traits;
-extern crate ref_filter_map;
+#[cfg(feature = "servo")] extern crate profile_traits;
+#[cfg(feature = "servo")] extern crate ref_filter_map;
 extern crate ref_slice;
-extern crate regex;
+#[cfg(feature = "servo")] extern crate regex;
 extern crate script_layout_interface;
 extern crate script_traits;
 extern crate selectors;
-extern crate serde;
-extern crate servo_allocator;
+#[cfg(feature = "servo")] extern crate serde;
+#[cfg(feature = "servo")] extern crate servo_allocator;
 extern crate servo_arc;
 #[macro_use] extern crate servo_atoms;
 extern crate servo_config;
-extern crate servo_geometry;
-extern crate servo_rand;
+#[cfg(feature = "servo")] extern crate servo_geometry;
+#[cfg(feature = "servo")] extern crate servo_rand;
 extern crate servo_url;
 extern crate smallvec;
 #[macro_use]
 extern crate style;
 extern crate style_traits;
-extern crate swapper;
+#[cfg(feature = "servo")] extern crate swapper;
 extern crate time;
 #[cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))]
 extern crate tinyfiledialogs;
-extern crate unicode_segmentation;
+#[cfg(feature = "servo")] extern crate unicode_segmentation;
 extern crate url;
-extern crate utf8;
+#[cfg(feature = "servo")] extern crate utf8;
 extern crate uuid;
-extern crate webrender_api;
-extern crate webvr_traits;
-extern crate xml5ever;
+#[cfg(feature = "servo")] extern crate webrender_api;
+#[cfg(feature = "servo")] extern crate webvr_traits;
+#[cfg(feature = "servo")] extern crate xml5ever;
 
 #[macro_use]
 mod task;
 
-mod body;
-pub mod clipboard_provider;
-mod devtools;
+#[cfg(feature = "servo")] mod body;
+#[cfg(feature = "servo")] pub mod clipboard_provider;
+#[cfg(feature = "servo")] mod devtools;
 pub mod document_loader;
 #[macro_use]
 mod dom;
-pub mod fetch;
-mod layout_image;
-mod mem;
+#[cfg(feature = "servo")] pub mod fetch;
+#[cfg(feature = "servo")] mod layout_image;
+#[cfg(feature = "servo")] mod mem;
 mod microtask;
-mod network_listener;
-pub mod script_runtime;
+#[cfg(feature = "servo")] mod network_listener;
+#[cfg(feature = "servo")] pub mod script_runtime;
 #[allow(unsafe_code)]
 pub mod script_thread;
-mod serviceworker_manager;
-mod serviceworkerjob;
-mod stylesheet_loader;
-mod task_source;
-pub mod test;
-pub mod textinput;
-mod timers;
-mod unpremultiplytable;
-mod webdriver_handlers;
+#[cfg(feature = "servo")] mod serviceworker_manager;
+#[cfg(feature = "servo")] mod serviceworkerjob;
+#[cfg(feature = "servo")] mod stylesheet_loader;
+#[cfg(feature = "servo")] mod task_source;
+#[cfg(feature = "servo")] pub mod test;
+#[cfg(feature = "servo")] pub mod textinput;
+#[cfg(feature = "servo")] mod timers;
+#[cfg(feature = "servo")] mod unpremultiplytable;
+#[cfg(feature = "servo")] mod webdriver_handlers;
 
 /// A module with everything layout can use from script.
 ///
 /// Try to keep this small!
 ///
 /// TODO(emilio): A few of the FooHelpers can go away, presumably...
+#[cfg(feature = "servo")]
 pub mod layout_exports {
     pub use dom::bindings::inheritance::{CharacterDataTypeId, ElementTypeId};
     pub use dom::bindings::inheritance::{HTMLElementTypeId, NodeTypeId};

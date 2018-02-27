@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use dom::beforeunloadevent::BeforeUnloadEvent;
-use dom::bindings::callback::{CallbackContainer, ExceptionHandling, CallbackFunction};
+#[cfg(feature = "servo")] use dom::bindings::callback::{CallbackContainer, ExceptionHandling, CallbackFunction};
 use dom::bindings::cell::DomRefCell;
 use dom::bindings::codegen::Bindings::BeforeUnloadEventBinding::BeforeUnloadEventMethods;
 use dom::bindings::codegen::Bindings::ErrorEventBinding::ErrorEventMethods;
@@ -64,6 +64,7 @@ pub enum CommonEventHandler {
         Rc<OnBeforeUnloadEventHandlerNonNull>),
 }
 
+#[cfg(feature = "servo")]
 impl CommonEventHandler {
     fn parent(&self) -> &CallbackFunction {
         match *self {
@@ -148,6 +149,7 @@ pub enum CompiledEventListener {
 impl CompiledEventListener {
     #[allow(unsafe_code)]
     // https://html.spec.whatwg.org/multipage/#the-event-handler-processing-algorithm
+    #[cfg(feature = "servo")]
     pub fn call_or_handle_event<T: DomObject>(&self,
                                               object: &T,
                                               event: &Event,
@@ -333,11 +335,13 @@ impl EventTarget {
         event.dispatch(self, None)
     }
 
+    #[cfg(feature = "servo")]
     pub fn remove_all_listeners(&self) {
         *self.handlers.borrow_mut() = Default::default();
     }
 
     /// <https://html.spec.whatwg.org/multipage/#event-handler-attributes:event-handlers-11>
+    #[cfg(feature = "servo")]
     fn set_inline_event_listener(&self,
                                  ty: Atom,
                                  listener: Option<InlineEventListener>) {
@@ -370,6 +374,7 @@ impl EventTarget {
         }
     }
 
+    #[cfg(feature = "servo")]
     fn get_inline_event_listener(&self, ty: &Atom) -> Option<CommonEventHandler> {
         let mut handlers = self.handlers.borrow_mut();
         handlers.get_mut(ty).and_then(|entry| entry.get_inline_listener(self, ty))
@@ -392,6 +397,7 @@ impl EventTarget {
     }
 
     // https://html.spec.whatwg.org/multipage/#getting-the-current-value-of-the-event-handler
+    #[cfg(feature = "servo")]
     #[allow(unsafe_code)]
     fn get_compiled_event_handler(&self,
                                   handler: InternalRawUncompiledHandler,
@@ -487,6 +493,7 @@ impl EventTarget {
         }
     }
 
+    #[cfg(feature = "servo")]
     #[allow(unsafe_code)]
     pub fn set_event_handler_common<T: CallbackContainer>(
         &self,
@@ -506,6 +513,7 @@ impl EventTarget {
         self.set_inline_event_listener(Atom::from(ty), event_listener);
     }
 
+    #[cfg(feature = "servo")]
     #[allow(unsafe_code)]
     pub fn set_error_event_handler<T: CallbackContainer>(
         &self,
@@ -525,6 +533,7 @@ impl EventTarget {
         self.set_inline_event_listener(Atom::from(ty), event_listener);
     }
 
+    #[cfg(feature = "servo")]
     #[allow(unsafe_code)]
     pub fn set_beforeunload_event_handler<T: CallbackContainer>(
         &self,
@@ -544,6 +553,7 @@ impl EventTarget {
         self.set_inline_event_listener(Atom::from(ty), event_listener);
     }
 
+    #[cfg(feature = "servo")]
     #[allow(unsafe_code)]
     pub fn get_event_handler_common<T: CallbackContainer>(&self, ty: &str) -> Option<Rc<T>> {
         let cx = self.global().get_cx();
@@ -558,6 +568,7 @@ impl EventTarget {
         !self.handlers.borrow().is_empty()
     }
 
+    #[cfg(feature = "servo")]
     // https://dom.spec.whatwg.org/#concept-event-fire
     pub fn fire_event(&self, name: Atom) -> DomRoot<Event> {
         self.fire_event_with_params(name,
@@ -565,6 +576,7 @@ impl EventTarget {
                                     EventCancelable::NotCancelable)
     }
 
+    #[cfg(feature = "servo")]
     // https://dom.spec.whatwg.org/#concept-event-fire
     pub fn fire_bubbling_event(&self, name: Atom) -> DomRoot<Event> {
         self.fire_event_with_params(name,
@@ -572,6 +584,7 @@ impl EventTarget {
                                     EventCancelable::NotCancelable)
     }
 
+    #[cfg(feature = "servo")]
     // https://dom.spec.whatwg.org/#concept-event-fire
     pub fn fire_cancelable_event(&self, name: Atom) -> DomRoot<Event> {
         self.fire_event_with_params(name,
@@ -579,6 +592,7 @@ impl EventTarget {
                                     EventCancelable::Cancelable)
     }
 
+    #[cfg(feature = "servo")]
     // https://dom.spec.whatwg.org/#concept-event-fire
     pub fn fire_bubbling_cancelable_event(&self, name: Atom) -> DomRoot<Event> {
         self.fire_event_with_params(name,
@@ -586,7 +600,8 @@ impl EventTarget {
                                     EventCancelable::Cancelable)
     }
 
-    // https://dom.spec.whatwg.org/#concept-event-fire
+    #[cfg(feature = "servo")]
+     // https://dom.spec.whatwg.org/#concept-event-fire
     pub fn fire_event_with_params(&self,
                                   name: Atom,
                                   bubbles: EventBubbles,
@@ -596,6 +611,8 @@ impl EventTarget {
         event.fire(self);
         event
     }
+    
+    #[cfg(feature = "servo")]
     // https://dom.spec.whatwg.org/#dom-eventtarget-addeventlistener
     pub fn add_event_listener(
         &self,
@@ -627,6 +644,7 @@ impl EventTarget {
         }
     }
 
+    #[cfg(feature = "servo")]
     // https://dom.spec.whatwg.org/#dom-eventtarget-removeeventlistener
     pub fn remove_event_listener(
         &self,
@@ -657,6 +675,7 @@ impl EventTarget {
     }
 }
 
+#[cfg(feature = "servo")]
 impl EventTargetMethods for EventTarget {
     // https://dom.spec.whatwg.org/#dom-eventtarget-addeventlistener
     fn AddEventListener(
@@ -697,6 +716,7 @@ impl VirtualMethods for EventTarget {
     }
 }
 
+#[cfg(feature = "servo")]    
 impl From<AddEventListenerOptionsOrBoolean> for AddEventListenerOptions {
     fn from(options: AddEventListenerOptionsOrBoolean) -> Self {
         match options {
@@ -710,6 +730,7 @@ impl From<AddEventListenerOptionsOrBoolean> for AddEventListenerOptions {
     }
 }
 
+#[cfg(feature = "servo")]
 impl From<EventListenerOptionsOrBoolean> for EventListenerOptions {
     fn from(options: EventListenerOptionsOrBoolean) -> Self {
         match options {

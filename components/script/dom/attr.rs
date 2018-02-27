@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use devtools_traits::AttrInfo;
+#[cfg(feature = "servo")] use devtools_traits::AttrInfo;
 use dom::bindings::cell::DomRefCell;
 use dom::bindings::codegen::Bindings::AttrBinding::{self, AttrMethods};
 use dom::bindings::inheritance::Castable;
 use dom::bindings::reflector::{Reflector, reflect_dom_object};
 use dom::bindings::root::{DomRoot, LayoutDom, MutNullableDom, RootedReference};
 use dom::bindings::str::DOMString;
-use dom::customelementregistry::CallbackReaction;
+#[cfg(feature = "servo")] use dom::customelementregistry::CallbackReaction;
 use dom::element::{AttributeMutation, Element};
 use dom::mutationobserver::{Mutation, MutationObserver};
 use dom::node::Node;
-use dom::virtualmethods::vtable_for;
+#[cfg(feature = "servo")] use dom::virtualmethods::vtable_for;
 use dom::window::Window;
 use dom_struct::dom_struct;
 use html5ever::{Prefix, LocalName, Namespace};
@@ -190,18 +190,21 @@ impl Attr {
 
         MutationObserver::queue_a_mutation_record(owner.upcast::<Node>(), mutation);
 
+
+        #[cfg(feature = "servo")] {
         if owner.get_custom_element_definition().is_some() {
             let reaction = CallbackReaction::AttributeChanged(name, Some(old_value), Some(new_value), namespace);
             ScriptThread::enqueue_callback_reaction(owner, reaction, None);
-        }
+        }}
 
         assert_eq!(Some(owner), self.owner().r());
         owner.will_mutate_attr(self);
         self.swap_value(&mut value);
+        #[cfg(feature = "servo")] {
         if self.identifier.namespace == ns!() {
             vtable_for(owner.upcast())
                 .attribute_mutated(self, AttributeMutation::Set(Some(&value)));
-        }
+        }}
     }
 
     /// Used to swap the attribute's value without triggering mutation events

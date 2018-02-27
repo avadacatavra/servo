@@ -22,7 +22,7 @@ use dom::characterdata::CharacterData;
 use dom::document::Document;
 use dom::documentfragment::DocumentFragment;
 use dom::element::Element;
-use dom::htmlscriptelement::HTMLScriptElement;
+#[cfg(feature = "servo")] use dom::htmlscriptelement::HTMLScriptElement;
 use dom::node::{Node, UnbindContext};
 use dom::text::Text;
 use dom::window::Window;

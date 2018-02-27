@@ -8,10 +8,10 @@
 
 use dom::bindings::root::Dom;
 use dom::document::Document;
-use ipc_channel::ipc::IpcSender;
-use net_traits::{CoreResourceMsg, FetchChannels, FetchResponseMsg};
-use net_traits::{ResourceThreads, IpcSend};
-use net_traits::request::RequestInit;
+#[cfg(feature = "servo")] use ipc_channel::ipc::IpcSender;
+#[cfg(feature = "servo")] use net_traits::{CoreResourceMsg, FetchChannels, FetchResponseMsg};
+#[cfg(feature = "servo")] use net_traits::{ResourceThreads, IpcSend};
+#[cfg(feature = "servo")] use net_traits::request::RequestInit;
 use servo_url::ServoUrl;
 use std::thread;
 
@@ -84,7 +84,7 @@ impl Drop for LoadBlocker {
 
 #[derive(JSTraceable, MallocSizeOf)]
 pub struct DocumentLoader {
-    resource_threads: ResourceThreads,
+    #[cfg(feature = "servo")] resource_threads: ResourceThreads,
     blocking_loads: Vec<LoadType>,
     events_inhibited: bool,
 }
@@ -113,6 +113,7 @@ impl DocumentLoader {
     }
 
     /// Initiate a new fetch.
+    #[cfg(feature = "servo")]
     pub fn fetch_async(&mut self,
                        load: LoadType,
                        request: RequestInit,
@@ -122,6 +123,7 @@ impl DocumentLoader {
     }
 
     /// Initiate a new fetch that does not block the document load event.
+    #[cfg(feature = "servo")]
     pub fn fetch_async_background(&self,
                                   request: RequestInit,
                                   fetch_target: IpcSender<FetchResponseMsg>) {
@@ -156,6 +158,7 @@ impl DocumentLoader {
         self.events_inhibited
     }
 
+    #[cfg(feature = "servo")]
     pub fn resource_threads(&self) -> &ResourceThreads {
         &self.resource_threads
     }

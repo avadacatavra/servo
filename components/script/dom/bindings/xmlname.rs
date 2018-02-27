@@ -9,6 +9,7 @@ use dom::bindings::str::DOMString;
 use html5ever::{Prefix, LocalName, Namespace};
 
 /// Validate a qualified name. See https://dom.spec.whatwg.org/#validate for details.
+#[cfg(feature = "servo")]
 pub fn validate_qualified_name(qualified_name: &str) -> ErrorResult {
     match xml_name_type(qualified_name) {
         XMLName::InvalidXMLName => {
@@ -25,6 +26,7 @@ pub fn validate_qualified_name(qualified_name: &str) -> ErrorResult {
 
 /// Validate a namespace and qualified name and extract their parts.
 /// See https://dom.spec.whatwg.org/#validate-and-extract for details.
+#[cfg(feature = "servo")]
 pub fn validate_and_extract(namespace: Option<DOMString>,
                             qualified_name: &str)
                             -> Fallible<(Namespace, Option<Prefix>, LocalName)> {

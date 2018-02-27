@@ -10,7 +10,7 @@ use dom::bindings::str::DOMString;
 use dom::node::{Node, window_from_node};
 use dom::nodelist::NodeList;
 use dom_struct::dom_struct;
-use html5ever::{LocalName, Namespace};
+#[cfg(feature = "servo")] use html5ever::{LocalName, Namespace};
 
 #[dom_struct]
 pub struct MutationRecord {
@@ -27,7 +27,7 @@ pub struct MutationRecord {
 }
 
 impl MutationRecord {
-    #[allow(unrooted_must_root)]
+    #[cfg(feature = "servo")] #[allow(unrooted_must_root)]
     pub fn attribute_mutated(target: &Node,
                              attribute_name: &LocalName,
                              attribute_namespace: Option<&Namespace>,

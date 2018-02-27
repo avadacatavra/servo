@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use devtools_traits::{ScriptToDevtoolsControlMsg, WorkerId};
+#[cfg(feature = "servo")] use devtools_traits::{ScriptToDevtoolsControlMsg, WorkerId};
 use dom::bindings::cell::DomRefCell;
 use dom::bindings::codegen::Bindings::WindowBinding::WindowMethods;
 use dom::bindings::codegen::Bindings::WorkerGlobalScopeBinding::WorkerGlobalScopeMethods;
@@ -11,19 +11,19 @@ use dom::bindings::error::{ErrorInfo, report_pending_exception};
 use dom::bindings::inheritance::Castable;
 use dom::bindings::reflector::DomObject;
 use dom::bindings::root::{DomRoot, MutNullableDom};
-use dom::bindings::settings_stack::{AutoEntryScript, entry_global, incumbent_global};
+#[cfg(feature = "servo")] use dom::bindings::settings_stack::{AutoEntryScript, entry_global, incumbent_global};
 use dom::bindings::str::DOMString;
-use dom::crypto::Crypto;
-use dom::dedicatedworkerglobalscope::DedicatedWorkerGlobalScope;
+#[cfg(feature = "servo")] use dom::crypto::Crypto;
+#[cfg(feature = "servo")] use dom::dedicatedworkerglobalscope::DedicatedWorkerGlobalScope;
 use dom::errorevent::ErrorEvent;
-use dom::event::{Event, EventBubbles, EventCancelable, EventStatus};
+#[cfg(feature = "servo")] use dom::event::{Event, EventBubbles, EventCancelable, EventStatus};
 use dom::eventtarget::EventTarget;
-use dom::performance::Performance;
+#[cfg(feature = "servo")] use dom::performance::Performance;
 use dom::window::Window;
-use dom::workerglobalscope::WorkerGlobalScope;
-use dom::workletglobalscope::WorkletGlobalScope;
+#[cfg(feature = "servo")] use dom::workerglobalscope::WorkerGlobalScope;
+#[cfg(feature = "servo")] use dom::workletglobalscope::WorkletGlobalScope;
 use dom_struct::dom_struct;
-use ipc_channel::ipc::IpcSender;
+#[cfg(feature = "servo")] use ipc_channel::ipc::IpcSender;
 use js::{JSCLASS_IS_DOMJSCLASS, JSCLASS_IS_GLOBAL};
 use js::glue::{IsWrapper, UnwrapObject};
 use js::jsapi::{CurrentGlobalOrNull, GetGlobalForObjectCrossCompartment};
@@ -35,9 +35,9 @@ use js::rust::{CompileOptionsWrapper, Runtime, get_object_class};
 use libc;
 use microtask::{Microtask, MicrotaskQueue};
 use msg::constellation_msg::PipelineId;
-use net_traits::{CoreResourceThread, ResourceThreads, IpcSend};
-use profile_traits::{mem, time};
-use script_runtime::{CommonScriptMsg, ScriptChan, ScriptPort};
+#[cfg(feature = "servo")] use net_traits::{CoreResourceThread, ResourceThreads, IpcSend};
+#[cfg(feature = "servo")] use profile_traits::{mem, time};
+#[cfg(feature = "servo")] use script_runtime::{CommonScriptMsg, ScriptChan, ScriptPort};
 use script_thread::{MainThreadScriptChan, ScriptThread};
 use script_traits::{MsDuration, ScriptToConstellationChan, TimerEvent};
 use script_traits::{TimerEventId, TimerSchedulerMsg, TimerSource};
@@ -47,18 +47,18 @@ use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use std::ffi::CString;
 use std::rc::Rc;
-use task::TaskCanceller;
-use task_source::file_reading::FileReadingTaskSource;
-use task_source::networking::NetworkingTaskSource;
-use task_source::performance_timeline::PerformanceTimelineTaskSource;
-use time::{Timespec, get_time};
-use timers::{IsInterval, OneshotTimerCallback, OneshotTimerHandle};
-use timers::{OneshotTimers, TimerCallback};
+#[cfg(feature = "servo")] use task::TaskCanceller;
+#[cfg(feature = "servo")] use task_source::file_reading::FileReadingTaskSource;
+#[cfg(feature = "servo")] use task_source::networking::NetworkingTaskSource;
+#[cfg(feature = "servo")] use task_source::performance_timeline::PerformanceTimelineTaskSource;
+#[cfg(feature = "servo")] use time::{Timespec, get_time};
+#[cfg(feature = "servo")] use timers::{IsInterval, OneshotTimerCallback, OneshotTimerHandle};
+#[cfg(feature = "servo")] use timers::{OneshotTimers, TimerCallback};
 
 #[dom_struct]
 pub struct GlobalScope {
     eventtarget: EventTarget,
-    crypto: MutNullableDom<Crypto>,
+    #[cfg(feature = "servo")] crypto: MutNullableDom<Crypto>,
     next_worker_id: Cell<WorkerId>,
 
     /// Pipeline id associated with this global.
@@ -97,7 +97,7 @@ pub struct GlobalScope {
     /// including resource_thread, filemanager_thread and storage_thread
     resource_threads: ResourceThreads,
 
-    timers: OneshotTimers,
+    #[cfg(feature = "servo")] timers: OneshotTimers,
 
     /// The origin of the globalscope
     origin: MutableOrigin,
@@ -127,7 +127,7 @@ impl GlobalScope {
     ) -> Self {
         Self {
             eventtarget: EventTarget::new_inherited(),
-            crypto: Default::default(),
+            #[cfg(feature = "servo")] crypto: Default::default(),
             next_worker_id: Cell::new(WorkerId(0)),
             pipeline_id,
             devtools_wants_updates: Default::default(),
@@ -190,6 +190,7 @@ impl GlobalScope {
         }
     }
 
+    #[cfg(feature = "servo")]
     pub fn crypto(&self) -> DomRoot<Crypto> {
         self.crypto.or_init(|| Crypto::new(self))
     }
@@ -272,6 +273,7 @@ impl GlobalScope {
             // https://html.spec.whatwg.org/multipage/#script-settings-for-browsing-contexts:api-base-url
             return window.Document().base_url();
         }
+        #[cfg(feature = "servo")] { 
         if let Some(worker) = self.downcast::<WorkerGlobalScope>() {
             // https://html.spec.whatwg.org/multipage/#script-settings-for-workers:api-base-url
             return worker.get_url().clone();
@@ -279,6 +281,7 @@ impl GlobalScope {
         if let Some(worker) = self.downcast::<WorkletGlobalScope>() {
             // https://drafts.css-houdini.org/worklets/#script-settings-for-worklets
             return worker.base_url();
+        }
         }
         unreachable!();
     }
@@ -304,6 +307,7 @@ impl GlobalScope {
     }
 
     /// <https://html.spec.whatwg.org/multipage/#report-the-error>
+    #[cfg(feature = "servo")]
     pub fn report_an_error(&self, error_info: ErrorInfo, value: HandleValue) {
         // Step 1.
         if self.in_error_reporting_mode.get() {
@@ -354,6 +358,7 @@ impl GlobalScope {
     }
 
     /// `ScriptChan` to send messages to the event loop of this global scope.
+    #[cfg(feature = "servo")]
     pub fn script_chan(&self) -> Box<ScriptChan + Send> {
         if let Some(window) = self.downcast::<Window>() {
             return MainThreadScriptChan(window.main_thread_script_chan().clone()).clone();
@@ -384,6 +389,7 @@ impl GlobalScope {
 
     /// Evaluate a JS script on this global scope.
     #[allow(unsafe_code)]
+    #[cfg(feature = "servo")]
     pub fn evaluate_script_on_global_with_result(
             &self, code: &str, filename: &str, rval: MutableHandleValue, line_number: u32) -> bool {
         let metadata = time::TimerMetadata {
@@ -507,6 +513,7 @@ impl GlobalScope {
     /// Create a new sender/receiver pair that can be used to implement an on-demand
     /// event loop. Used for implementing web APIs that require blocking semantics
     /// without resorting to nested event loops.
+    #[cfg(feature = "servo")] 
     pub fn new_script_pair(&self) -> (Box<ScriptChan + Send>, Box<ScriptPort + Send>) {
         if let Some(window) = self.downcast::<Window>() {
             return window.new_script_pair();
@@ -524,6 +531,7 @@ impl GlobalScope {
 
     /// Process a single event as if it were the next event
     /// in the thread queue for this global scope.
+    #[cfg(feature = "servo")]
     pub fn process_event(&self, msg: CommonScriptMsg) {
         if self.is::<Window>() {
             return ScriptThread::process_event(msg);
@@ -566,6 +574,7 @@ impl GlobalScope {
     /// Returns the ["entry"] global object.
     ///
     /// ["entry"]: https://html.spec.whatwg.org/multipage/#entry
+    #[cfg(feature = "servo")]
     pub fn entry() -> DomRoot<Self> {
         entry_global()
     }
@@ -573,6 +582,7 @@ impl GlobalScope {
     /// Returns the ["incumbent"] global object.
     ///
     /// ["incumbent"]: https://html.spec.whatwg.org/multipage/#incumbent
+    #[cfg(feature = "servo")]
     pub fn incumbent() -> Option<DomRoot<Self>> {
         incumbent_global()
     }

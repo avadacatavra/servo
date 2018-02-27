@@ -11,8 +11,8 @@ use dom::bindings::cell::DomRefCell;
 use dom::bindings::codegen::Bindings::PromiseBinding::PromiseJobCallback;
 use dom::bindings::root::DomRoot;
 use dom::globalscope::GlobalScope;
-use dom::htmlimageelement::ImageElementMicrotask;
-use dom::htmlmediaelement::MediaElementMicrotask;
+#[cfg(feature = "servo")] use dom::htmlimageelement::ImageElementMicrotask;
+#[cfg(feature = "servo")] use dom::htmlmediaelement::MediaElementMicrotask;
 use dom::mutationobserver::MutationObserver;
 use msg::constellation_msg::PipelineId;
 use script_thread::ScriptThread;
@@ -32,8 +32,8 @@ pub struct MicrotaskQueue {
 #[derive(JSTraceable, MallocSizeOf)]
 pub enum Microtask {
     Promise(EnqueuedPromiseCallback),
-    MediaElement(MediaElementMicrotask),
-    ImageElement(ImageElementMicrotask),
+    #[cfg(feature = "servo")] MediaElement(MediaElementMicrotask),
+    #[cfg(feature = "servo")] ImageElement(ImageElementMicrotask),
     CustomElementReaction,
     NotifyMutationObservers,
 }

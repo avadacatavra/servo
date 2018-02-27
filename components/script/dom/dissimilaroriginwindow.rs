@@ -13,7 +13,7 @@ use dom::dissimilaroriginlocation::DissimilarOriginLocation;
 use dom::globalscope::GlobalScope;
 use dom::windowproxy::WindowProxy;
 use dom_struct::dom_struct;
-use ipc_channel::ipc;
+#[cfg(feature = "servo")] use ipc_channel::ipc;
 use js::jsapi::{JSContext, HandleValue};
 use js::jsval::{JSVal, UndefinedValue};
 use msg::constellation_msg::PipelineId;
@@ -51,7 +51,9 @@ impl DissimilarOriginWindow {
     ) -> DomRoot<Self> {
         let cx = global_to_clone_from.get_cx();
         // Any timer events fired on this window are ignored.
-        let (timer_event_chan, _) = ipc::channel().unwrap();
+        #[cfg(feature = "servo")] {
+            let (timer_event_chan, _) = ipc::channel().unwrap();
+        }
         let win = Box::new(Self {
             globalscope: GlobalScope::new_inherited(
                 PipelineId::new(),

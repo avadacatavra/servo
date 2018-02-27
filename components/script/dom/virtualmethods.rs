@@ -13,44 +13,44 @@ use dom::bindings::str::DOMString;
 use dom::document::Document;
 use dom::element::{AttributeMutation, Element};
 use dom::event::Event;
-use dom::htmlanchorelement::HTMLAnchorElement;
-use dom::htmlareaelement::HTMLAreaElement;
-use dom::htmlbaseelement::HTMLBaseElement;
-use dom::htmlbodyelement::HTMLBodyElement;
-use dom::htmlbuttonelement::HTMLButtonElement;
-use dom::htmlcanvaselement::HTMLCanvasElement;
-use dom::htmldetailselement::HTMLDetailsElement;
-use dom::htmlelement::HTMLElement;
-use dom::htmlfieldsetelement::HTMLFieldSetElement;
-use dom::htmlfontelement::HTMLFontElement;
-use dom::htmlformelement::HTMLFormElement;
-use dom::htmlheadelement::HTMLHeadElement;
-use dom::htmlhrelement::HTMLHRElement;
-use dom::htmliframeelement::HTMLIFrameElement;
-use dom::htmlimageelement::HTMLImageElement;
-use dom::htmlinputelement::HTMLInputElement;
-use dom::htmllabelelement::HTMLLabelElement;
-use dom::htmllielement::HTMLLIElement;
-use dom::htmllinkelement::HTMLLinkElement;
-use dom::htmlmediaelement::HTMLMediaElement;
-use dom::htmlmetaelement::HTMLMetaElement;
-use dom::htmlobjectelement::HTMLObjectElement;
-use dom::htmloptgroupelement::HTMLOptGroupElement;
-use dom::htmloptionelement::HTMLOptionElement;
-use dom::htmloutputelement::HTMLOutputElement;
-use dom::htmlscriptelement::HTMLScriptElement;
-use dom::htmlselectelement::HTMLSelectElement;
-use dom::htmlsourceelement::HTMLSourceElement;
-use dom::htmlstyleelement::HTMLStyleElement;
-use dom::htmltablecellelement::HTMLTableCellElement;
-use dom::htmltableelement::HTMLTableElement;
-use dom::htmltablerowelement::HTMLTableRowElement;
-use dom::htmltablesectionelement::HTMLTableSectionElement;
-use dom::htmltemplateelement::HTMLTemplateElement;
-use dom::htmltextareaelement::HTMLTextAreaElement;
-use dom::htmltitleelement::HTMLTitleElement;
+#[cfg(feature = "servo")] use dom::htmlanchorelement::HTMLAnchorElement;
+#[cfg(feature = "servo")] use dom::htmlareaelement::HTMLAreaElement;
+#[cfg(feature = "servo")] use dom::htmlbaseelement::HTMLBaseElement;
+#[cfg(feature = "servo")] use dom::htmlbodyelement::HTMLBodyElement;
+#[cfg(feature = "servo")] use dom::htmlbuttonelement::HTMLButtonElement;
+#[cfg(feature = "servo")] use dom::htmlcanvaselement::HTMLCanvasElement;
+#[cfg(feature = "servo")] use dom::htmldetailselement::HTMLDetailsElement;
+#[cfg(feature = "servo")] use dom::htmlelement::HTMLElement;
+#[cfg(feature = "servo")] use dom::htmlfieldsetelement::HTMLFieldSetElement;
+#[cfg(feature = "servo")] use dom::htmlfontelement::HTMLFontElement;
+#[cfg(feature = "servo")] use dom::htmlformelement::HTMLFormElement;
+#[cfg(feature = "servo")] use dom::htmlheadelement::HTMLHeadElement;
+#[cfg(feature = "servo")] use dom::htmlhrelement::HTMLHRElement;
+#[cfg(feature = "servo")] use dom::htmliframeelement::HTMLIFrameElement;
+#[cfg(feature = "servo")] use dom::htmlimageelement::HTMLImageElement;
+#[cfg(feature = "servo")] use dom::htmlinputelement::HTMLInputElement;
+#[cfg(feature = "servo")] use dom::htmllabelelement::HTMLLabelElement;
+#[cfg(feature = "servo")] use dom::htmllielement::HTMLLIElement;
+#[cfg(feature = "servo")] use dom::htmllinkelement::HTMLLinkElement;
+#[cfg(feature = "servo")] use dom::htmlmediaelement::HTMLMediaElement;
+#[cfg(feature = "servo")] use dom::htmlmetaelement::HTMLMetaElement;
+#[cfg(feature = "servo")] use dom::htmlobjectelement::HTMLObjectElement;
+#[cfg(feature = "servo")] use dom::htmloptgroupelement::HTMLOptGroupElement;
+#[cfg(feature = "servo")] use dom::htmloptionelement::HTMLOptionElement;
+#[cfg(feature = "servo")] use dom::htmloutputelement::HTMLOutputElement;
+#[cfg(feature = "servo")] use dom::htmlscriptelement::HTMLScriptElement;
+#[cfg(feature = "servo")] use dom::htmlselectelement::HTMLSelectElement;
+#[cfg(feature = "servo")] use dom::htmlsourceelement::HTMLSourceElement;
+#[cfg(feature = "servo")] use dom::htmlstyleelement::HTMLStyleElement;
+#[cfg(feature = "servo")] use dom::htmltablecellelement::HTMLTableCellElement;
+#[cfg(feature = "servo")] use dom::htmltableelement::HTMLTableElement;
+#[cfg(feature = "servo")] use dom::htmltablerowelement::HTMLTableRowElement;
+#[cfg(feature = "servo")] use dom::htmltablesectionelement::HTMLTableSectionElement;
+#[cfg(feature = "servo")] use dom::htmltemplateelement::HTMLTemplateElement;
+#[cfg(feature = "servo")] use dom::htmltextareaelement::HTMLTextAreaElement;
+#[cfg(feature = "servo")] use dom::htmltitleelement::HTMLTitleElement;
 use dom::node::{ChildrenMutation, CloneChildrenFlag, Node, UnbindContext};
-use dom::svgsvgelement::SVGSVGElement;
+#[cfg(feature = "servo")] use dom::svgsvgelement::SVGSVGElement;
 use html5ever::LocalName;
 use style::attr::AttrValue;
 
@@ -149,6 +149,11 @@ pub trait VirtualMethods {
 /// concrete type, propagating up the parent hierarchy unless otherwise
 /// interrupted.
 pub fn vtable_for(node: &Node) -> &VirtualMethods {
+    #[cfg(feature = "gecko")] {
+        node as &VirtualMethods
+    }
+
+    #[cfg(feature = "servo")] 
     match node.type_id() {
         NodeTypeId::Element(ElementTypeId::HTMLElement(HTMLElementTypeId::HTMLAnchorElement)) => {
             node.downcast::<HTMLAnchorElement>().unwrap() as &VirtualMethods

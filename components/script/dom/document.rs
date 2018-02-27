@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use cookie_rs;
-use devtools_traits::ScriptToDevtoolsControlMsg;
+#[cfg(feature = "servo")] use cookie_rs;
+#[cfg(feature = "servo")] use devtools_traits::ScriptToDevtoolsControlMsg;
 use document_loader::{DocumentLoader, LoadType};
-use dom::activation::{ActivationSource, synthetic_click_activation};
-use dom::attr::Attr;
-use dom::beforeunloadevent::BeforeUnloadEvent;
-use dom::bindings::callback::ExceptionHandling;
+#[cfg(feature = "servo")] use dom::activation::{ActivationSource, synthetic_click_activation};
+#[cfg(feature = "servo")] use dom::attr::Attr;
+#[cfg(feature = "servo")] use dom::beforeunloadevent::BeforeUnloadEvent;
+#[cfg(feature = "servo")] use dom::bindings::callback::ExceptionHandling;
 use dom::bindings::cell::DomRefCell;
 use dom::bindings::codegen::Bindings::DocumentBinding;
 use dom::bindings::codegen::Bindings::DocumentBinding::{DocumentMethods, DocumentReadyState, ElementCreationOptions};
@@ -28,93 +28,93 @@ use dom::bindings::root::{Dom, DomRoot, LayoutDom, MutNullableDom, RootedReferen
 use dom::bindings::str::{DOMString, USVString};
 use dom::bindings::xmlname::{namespace_from_domstring, validate_and_extract, xml_name_type};
 use dom::bindings::xmlname::XMLName::InvalidXMLName;
-use dom::closeevent::CloseEvent;
+#[cfg(feature = "servo")] use dom::closeevent::CloseEvent;
 use dom::comment::Comment;
 use dom::cssstylesheet::CSSStyleSheet;
-use dom::customelementregistry::CustomElementDefinition;
-use dom::customevent::CustomEvent;
+#[cfg(feature = "servo")] use dom::customelementregistry::CustomElementDefinition;
+#[cfg(feature = "servo")] use dom::customevent::CustomEvent;
 use dom::documentfragment::DocumentFragment;
-use dom::documenttype::DocumentType;
-use dom::domimplementation::DOMImplementation;
+#[cfg(feature = "servo")] use dom::documenttype::DocumentType;
+#[cfg(feature = "servo")] use dom::domimplementation::DOMImplementation;
 use dom::element::{Element, ElementCreator, ElementPerformFullscreenEnter, ElementPerformFullscreenExit};
 use dom::element::CustomElementCreationMode;
-use dom::errorevent::ErrorEvent;
-use dom::event::{Event, EventBubbles, EventCancelable, EventDefault, EventStatus};
+#[cfg(feature = "servo")] use dom::errorevent::ErrorEvent;
+#[cfg(feature = "servo")] use dom::event::{Event, EventBubbles, EventCancelable, EventDefault, EventStatus};
 use dom::eventtarget::EventTarget;
-use dom::focusevent::FocusEvent;
-use dom::forcetouchevent::ForceTouchEvent;
+#[cfg(feature = "servo")] use dom::focusevent::FocusEvent;
+#[cfg(feature = "servo")] use dom::forcetouchevent::ForceTouchEvent;
 use dom::globalscope::GlobalScope;
-use dom::hashchangeevent::HashChangeEvent;
-use dom::htmlanchorelement::HTMLAnchorElement;
-use dom::htmlareaelement::HTMLAreaElement;
-use dom::htmlbaseelement::HTMLBaseElement;
-use dom::htmlbodyelement::HTMLBodyElement;
-use dom::htmlcollection::{CollectionFilter, HTMLCollection};
-use dom::htmlelement::HTMLElement;
-use dom::htmlembedelement::HTMLEmbedElement;
-use dom::htmlformelement::{FormControl, FormControlElementHelpers, HTMLFormElement};
-use dom::htmlheadelement::HTMLHeadElement;
-use dom::htmlhtmlelement::HTMLHtmlElement;
-use dom::htmliframeelement::HTMLIFrameElement;
-use dom::htmlimageelement::HTMLImageElement;
-use dom::htmlmetaelement::HTMLMetaElement;
-use dom::htmlscriptelement::{HTMLScriptElement, ScriptResult};
-use dom::htmltitleelement::HTMLTitleElement;
-use dom::keyboardevent::KeyboardEvent;
+#[cfg(feature = "servo")] use dom::hashchangeevent::HashChangeEvent;
+#[cfg(feature = "servo")] use dom::htmlanchorelement::HTMLAnchorElement;
+#[cfg(feature = "servo")] use dom::htmlareaelement::HTMLAreaElement;
+#[cfg(feature = "servo")] use dom::htmlbaseelement::HTMLBaseElement;
+#[cfg(feature = "servo")] use dom::htmlbodyelement::HTMLBodyElement;
+#[cfg(feature = "servo")] use dom::htmlcollection::{CollectionFilter, HTMLCollection};
+#[cfg(feature = "servo")] use dom::htmlelement::HTMLElement;
+#[cfg(feature = "servo")] use dom::htmlembedelement::HTMLEmbedElement;
+#[cfg(feature = "servo")] use dom::htmlformelement::{FormControl, FormControlElementHelpers, HTMLFormElement};
+#[cfg(feature = "servo")] use dom::htmlheadelement::HTMLHeadElement;
+#[cfg(feature = "servo")] use dom::htmlhtmlelement::HTMLHtmlElement;
+#[cfg(feature = "servo")] use dom::htmliframeelement::HTMLIFrameElement;
+#[cfg(feature = "servo")] use dom::htmlimageelement::HTMLImageElement;
+#[cfg(feature = "servo")] use dom::htmlmetaelement::HTMLMetaElement;
+#[cfg(feature = "servo")] use dom::htmlscriptelement::{HTMLScriptElement, ScriptResult};
+#[cfg(feature = "servo")] use dom::htmltitleelement::HTMLTitleElement;
+#[cfg(feature = "servo")] use dom::keyboardevent::KeyboardEvent;
 use dom::location::Location;
-use dom::messageevent::MessageEvent;
-use dom::mouseevent::MouseEvent;
+#[cfg(feature = "servo")] use dom::messageevent::MessageEvent;
+#[cfg(feature = "servo")] use dom::mouseevent::MouseEvent;
 use dom::node::{self, CloneChildrenFlag, Node, NodeDamage, window_from_node, NodeFlags, LayoutNodeHelpers};
 use dom::node::VecPreOrderInsertionHelper;
 use dom::nodeiterator::NodeIterator;
 use dom::nodelist::NodeList;
-use dom::pagetransitionevent::PageTransitionEvent;
-use dom::popstateevent::PopStateEvent;
-use dom::processinginstruction::ProcessingInstruction;
-use dom::progressevent::ProgressEvent;
+#[cfg(feature = "servo")] use dom::pagetransitionevent::PageTransitionEvent;
+#[cfg(feature = "servo")] use dom::popstateevent::PopStateEvent;
+#[cfg(feature = "servo")] use dom::processinginstruction::ProcessingInstruction;
+#[cfg(feature = "servo")] use dom::progressevent::ProgressEvent;
 use dom::promise::Promise;
 use dom::range::Range;
-use dom::servoparser::ServoParser;
-use dom::storageevent::StorageEvent;
+#[cfg(feature = "servo")] use dom::servoparser::ServoParser;
+#[cfg(feature = "servo")] use dom::storageevent::StorageEvent;
 use dom::stylesheetlist::StyleSheetList;
-use dom::text::Text;
-use dom::touch::Touch;
-use dom::touchevent::TouchEvent;
-use dom::touchlist::TouchList;
+#[cfg(feature = "servo")] use dom::text::Text;
+#[cfg(feature = "servo")] use dom::touch::Touch;
+#[cfg(feature = "servo")] use dom::touchevent::TouchEvent;
+#[cfg(feature = "servo")] use dom::touchlist::TouchList;
 use dom::treewalker::TreeWalker;
-use dom::uievent::UIEvent;
-use dom::virtualmethods::vtable_for;
-use dom::webglcontextevent::WebGLContextEvent;
+#[cfg(feature = "servo")] use dom::uievent::UIEvent;
+#[cfg(feature = "servo")] use dom::virtualmethods::vtable_for;
+#[cfg(feature = "servo")] use dom::webglcontextevent::WebGLContextEvent;
 use dom::window::{ReflowReason, Window};
-use dom::windowproxy::WindowProxy;
+#[cfg(feature = "servo")] use dom::windowproxy::WindowProxy;
 use dom_struct::dom_struct;
 use encoding_rs::{Encoding, UTF_8};
 use euclid::Point2D;
-use fetch::FetchCanceller;
+#[cfg(feature = "servo")] use fetch::FetchCanceller;
 use html5ever::{LocalName, Namespace, QualName};
-use hyper::header::{Header, SetCookie};
-use hyper_serde::Serde;
-use ipc_channel::ipc::{self, IpcSender};
+#[cfg(feature = "servo")] use hyper::header::{Header, SetCookie};
+#[cfg(feature = "servo")] use hyper_serde::Serde;
+#[cfg(feature = "servo")] use ipc_channel::ipc::{self, IpcSender};
 use js::jsapi::{JSContext, JSObject, JSRuntime};
 use js::jsapi::JS_GetRuntime;
-use metrics::{InteractiveFlag, InteractiveMetrics, InteractiveWindow, ProfilerMetadataFactory, ProgressiveWebMetric};
+#[cfg(feature = "servo")] use metrics::{InteractiveFlag, InteractiveMetrics, InteractiveWindow, ProfilerMetadataFactory, ProgressiveWebMetric};
 use msg::constellation_msg::{BrowsingContextId, Key, KeyModifiers, KeyState, TopLevelBrowsingContextId};
-use net_traits::{FetchResponseMsg, IpcSend, ReferrerPolicy};
-use net_traits::CookieSource::NonHTTP;
-use net_traits::CoreResourceMsg::{GetCookiesForUrl, SetCookiesForUrl};
-use net_traits::pub_domains::is_pub_domain;
-use net_traits::request::RequestInit;
-use net_traits::response::HttpsState;
-use num_traits::ToPrimitive;
-use profile_traits::time::{TimerMetadata, TimerMetadataFrameType, TimerMetadataReflowType};
+#[cfg(feature = "servo")] use net_traits::{FetchResponseMsg, IpcSend, ReferrerPolicy};
+#[cfg(feature = "servo")] use net_traits::CookieSource::NonHTTP;
+#[cfg(feature = "servo")] use net_traits::CoreResourceMsg::{GetCookiesForUrl, SetCookiesForUrl};
+#[cfg(feature = "servo")] use net_traits::pub_domains::is_pub_domain;
+#[cfg(feature = "servo")] use net_traits::request::RequestInit;
+#[cfg(feature = "servo")] use net_traits::response::HttpsState;
+#[cfg(feature = "servo")] use num_traits::ToPrimitive;
+#[cfg(feature = "servo")] use profile_traits::time::{TimerMetadata, TimerMetadataFrameType, TimerMetadataReflowType};
 use script_layout_interface::message::{Msg, NodesFromPointQueryType, ReflowGoal};
-use script_runtime::{CommonScriptMsg, ScriptThreadEventCategory};
+#[cfg(feature = "servo")] use script_runtime::{CommonScriptMsg, ScriptThreadEventCategory};
 use script_thread::{MainThreadScriptMsg, ScriptThread};
-use script_traits::{AnimationState, DocumentActivity, MouseButton, MouseEventType};
-use script_traits::{MozBrowserEvent, MsDuration, ScriptMsg, TouchEventType, TouchId};
-use script_traits::{TouchpadPressurePhase, UntrustedNodeAddress};
+#[cfg(feature = "servo")] use script_traits::{AnimationState, DocumentActivity, MouseButton, MouseEventType};
+#[cfg(feature = "servo")] use script_traits::{MozBrowserEvent, MsDuration, ScriptMsg, TouchEventType, TouchId};
+#[cfg(feature = "servo")] use script_traits::{TouchpadPressurePhase, UntrustedNodeAddress};
 use servo_arc::Arc;
-use servo_atoms::Atom;
+#[cfg(feature = "servo")] use servo_atoms::Atom;
 use servo_config::prefs::PREFS;
 use servo_url::{ImmutableOrigin, MutableOrigin, ServoUrl};
 use std::borrow::ToOwned;
@@ -136,12 +136,12 @@ use style::shared_lock::{SharedRwLock as StyleSharedRwLock, SharedRwLockReadGuar
 use style::str::{HTML_SPACE_CHARACTERS, split_html_space_chars, str_join};
 use style::stylesheet_set::StylesheetSet;
 use style::stylesheets::{Stylesheet, StylesheetContents, Origin, OriginSet};
-use task_source::TaskSource;
+#[cfg(feature = "servo")] use task_source::TaskSource;
 use time;
-use timers::OneshotTimerCallback;
+#[cfg(feature = "servo")] use timers::OneshotTimerCallback;
 use url::Host;
 use url::percent_encoding::percent_decode;
-use webrender_api::ClipId;
+#[cfg(feature = "servo")] use webrender_api::ClipId;
 
 /// The number of times we are allowed to see spurious `requestAnimationFrame()` calls before
 /// falling back to fake ones.
@@ -235,7 +235,7 @@ impl ::style::stylesheets::StylesheetInDocument for StyleSheetInDocument {
 pub struct Document {
     node: Node,
     window: Dom<Window>,
-    implementation: MutNullableDom<DOMImplementation>,
+    #[cfg(feature = "servo")] implementation: MutNullableDom<DOMImplementation>,
     content_type: DOMString,
     last_modified: Option<String>,
     encoding: Cell<&'static Encoding>,
@@ -432,6 +432,7 @@ impl Document {
     pub fn has_browsing_context(&self) -> bool { self.has_browsing_context }
 
     /// <https://html.spec.whatwg.org/multipage/#concept-document-bc>
+    #[cfg(feature = "servo")]
     #[inline]
     pub fn browsing_context(&self) -> Option<DomRoot<WindowProxy>> {
         if self.has_browsing_context {
@@ -850,6 +851,7 @@ impl Document {
     }
 
     #[allow(unsafe_code)]
+    #[cfg(feature = "servo")] 
     pub fn handle_mouse_event(
         &self,
         js_runtime: *mut JSRuntime,
@@ -945,6 +947,7 @@ impl Document {
         self.window.reflow(ReflowGoal::Full, ReflowReason::MouseEvent);
     }
 
+    #[cfg(feature = "servo")] 
     fn maybe_fire_dblclick(&self, click_pos: Point2D<f32>, target: &Node) {
         // https://w3c.github.io/uievents/#event-type-dblclick
         let now = Instant::now();
@@ -999,6 +1002,7 @@ impl Document {
     }
 
     #[allow(unsafe_code)]
+    #[cfg(feature = "servo")] 
     pub fn handle_touchpad_pressure_event(
         &self,
         js_runtime: *mut JSRuntime,
@@ -1049,6 +1053,7 @@ impl Document {
         }
     }
 
+    #[cfg(feature = "servo")] 
     fn fire_forcetouch_event(&self, event_name: String, target: &EventTarget, force: f32) {
         let force_event = ForceTouchEvent::new(&self.window,
                                                DOMString::from(event_name),
@@ -1057,6 +1062,7 @@ impl Document {
         event.fire(target);
     }
 
+    #[cfg(feature = "servo")] 
     pub fn fire_mouse_event(&self, client_point: Point2D<f32>, target: &EventTarget, event_name: FireMouseEventType) {
         let client_x = client_point.x.to_i32().unwrap_or(0);
         let client_y = client_point.y.to_i32().unwrap_or(0);
@@ -1085,6 +1091,7 @@ impl Document {
     }
 
     #[allow(unsafe_code)]
+    #[cfg(feature = "servo")] 
     pub fn handle_mouse_move_event(
         &self,
         js_runtime: *mut JSRuntime,
@@ -1174,6 +1181,7 @@ impl Document {
     }
 
     #[allow(unsafe_code)]
+    #[cfg(feature = "servo")] 
     pub fn handle_touch_event(
         &self,
         js_runtime: *mut JSRuntime,
@@ -1282,6 +1290,7 @@ impl Document {
     }
 
     /// The entry point for all key processing for web content
+    #[cfg(feature = "servo")] 
     pub fn dispatch_key_event(&self,
                               ch: Option<char>,
                               key: Key,
@@ -1442,6 +1451,7 @@ impl Document {
         }
     }
 
+    #[cfg(feature = "servo")] 
     pub fn set_current_script(&self, script: Option<&HTMLScriptElement>) {
         self.current_script.set(script);
     }
@@ -1472,6 +1482,7 @@ impl Document {
         }
     }
 
+    #[cfg(feature = "servo")] 
     pub fn trigger_mozbrowser_event(&self, event: MozBrowserEvent) {
         if PREFS.is_mozbrowser_enabled() {
             if let Some((parent_pipeline_id, _)) = self.window.parent_info() {
@@ -1482,6 +1493,7 @@ impl Document {
     }
 
     /// <https://html.spec.whatwg.org/multipage/#dom-window-requestanimationframe>
+    #[cfg(feature = "servo")] 
     pub fn request_animation_frame(&self, callback: AnimationFrameCallback) -> u32 {
         let ident = self.animation_frame_ident.get() + 1;
 
@@ -1514,6 +1526,7 @@ impl Document {
     }
 
     /// <https://html.spec.whatwg.org/multipage/#dom-window-cancelanimationframe>
+    #[cfg(feature = "servo")] 
     pub fn cancel_animation_frame(&self, ident: u32) {
         let mut list = self.animation_frame_list.borrow_mut();
         if let Some(pair) = list.iter_mut().find(|pair| pair.0 == ident) {
@@ -1522,6 +1535,7 @@ impl Document {
     }
 
     /// <https://html.spec.whatwg.org/multipage/#run-the-animation-frame-callbacks>
+    #[cfg(feature = "servo")] 
     pub fn run_the_animation_frame_callbacks(&self) {
         rooted_vec!(let mut animation_frame_list);
         mem::swap(
@@ -1583,6 +1597,7 @@ impl Document {
         }
     }
 
+    #[cfg(feature = "servo")] 
     pub fn fetch_async(&self, load: LoadType,
                        request: RequestInit,
                        fetch_target: IpcSender<FetchResponseMsg>) {
@@ -1760,12 +1775,14 @@ impl Document {
     }
 
     // https://html.spec.whatwg.org/multipage/#set-of-scripts-that-will-execute-as-soon-as-possible
+    #[cfg(feature = "servo")] 
     pub fn add_asap_script(&self, script: &HTMLScriptElement) {
         self.asap_scripts_set.borrow_mut().push(Dom::from_ref(script));
     }
 
     /// https://html.spec.whatwg.org/multipage/#the-end step 5.
     /// https://html.spec.whatwg.org/multipage/#prepare-a-script step 22.d.
+    #[cfg(feature = "servo")] 
     pub fn asap_script_loaded(&self, element: &HTMLScriptElement, result: ScriptResult) {
         {
             let mut scripts = self.asap_scripts_set.borrow_mut();
@@ -1776,12 +1793,14 @@ impl Document {
     }
 
     // https://html.spec.whatwg.org/multipage/#list-of-scripts-that-will-execute-in-order-as-soon-as-possible
+    #[cfg(feature = "servo")] 
     pub fn push_asap_in_order_script(&self, script: &HTMLScriptElement) {
         self.asap_in_order_scripts_list.push(script);
     }
 
     /// https://html.spec.whatwg.org/multipage/#the-end step 5.
     /// https://html.spec.whatwg.org/multipage/#prepare-a-script step 22.c.
+    #[cfg(feature = "servo")] 
     pub fn asap_in_order_script_loaded(&self,
                                        element: &HTMLScriptElement,
                                        result: ScriptResult) {
@@ -1792,18 +1811,21 @@ impl Document {
     }
 
     // https://html.spec.whatwg.org/multipage/#list-of-scripts-that-will-execute-when-the-document-has-finished-parsing
+    #[cfg(feature = "servo")] 
     pub fn add_deferred_script(&self, script: &HTMLScriptElement) {
         self.deferred_scripts.push(script);
     }
 
     /// https://html.spec.whatwg.org/multipage/#the-end step 3.
     /// https://html.spec.whatwg.org/multipage/#prepare-a-script step 22.d.
+    #[cfg(feature = "servo")] 
     pub fn deferred_script_loaded(&self, element: &HTMLScriptElement, result: ScriptResult) {
         self.deferred_scripts.loaded(element, result);
         self.process_deferred_scripts();
     }
 
     /// https://html.spec.whatwg.org/multipage/#the-end step 3.
+    #[cfg(feature = "servo")] 
     fn process_deferred_scripts(&self) {
         if self.ready_state.get() != DocumentReadyState::Interactive {
             return;
@@ -1826,6 +1848,7 @@ impl Document {
     }
 
     // https://html.spec.whatwg.org/multipage/#the-end step 4.
+    #[cfg(feature = "servo")] 
     pub fn maybe_dispatch_dom_content_loaded(&self) {
         if self.domcontentloaded_dispatched.get() {
             return;
@@ -1886,14 +1909,17 @@ impl Document {
         self.send_to_constellation(ScriptMsg::LoadComplete);
     }
 
+    #[cfg(feature = "servo")] 
     pub fn set_current_parser(&self, script: Option<&ServoParser>) {
         self.current_parser.set(script);
     }
 
+    #[cfg(feature = "servo")] 
     pub fn get_current_parser(&self) -> Option<DomRoot<ServoParser>> {
         self.current_parser.get()
     }
 
+    #[cfg(feature = "servo")] 
     pub fn can_invoke_script(&self) -> bool {
         match self.get_current_parser() {
             Some(parser) => {
@@ -1941,42 +1967,52 @@ impl Document {
         self.dom_interactive.get()
     }
 
+    #[cfg(feature = "servo")] 
     pub fn set_navigation_start(&self, navigation_start: u64) {
         self.interactive_time.borrow_mut().set_navigation_start(navigation_start);
     }
 
+    #[cfg(feature = "servo")] 
     pub fn get_interactive_metrics(&self) -> Ref<InteractiveMetrics> {
         self.interactive_time.borrow()
     }
 
+    #[cfg(feature = "servo")] 
     pub fn has_recorded_tti_metric(&self) -> bool {
         self.get_interactive_metrics().get_tti().is_some()
     }
 
+    #[cfg(feature = "servo")] 
     pub fn get_dom_content_loaded_event_start(&self) -> u64 {
         self.dom_content_loaded_event_start.get()
     }
 
+    #[cfg(feature = "servo")] 
     pub fn get_dom_content_loaded_event_end(&self) -> u64 {
         self.dom_content_loaded_event_end.get()
     }
 
+    #[cfg(feature = "servo")] 
     pub fn get_dom_complete(&self) -> u64 {
         self.dom_complete.get()
     }
 
+    #[cfg(feature = "servo")] 
     pub fn get_top_level_dom_complete(&self) -> u64 {
         self.top_level_dom_complete.get()
     }
 
+    #[cfg(feature = "servo")] 
     pub fn get_load_event_start(&self) -> u64 {
         self.load_event_start.get()
     }
 
+    #[cfg(feature = "servo")] 
     pub fn get_load_event_end(&self) -> u64 {
         self.load_event_end.get()
     }
 
+    #[cfg(feature = "servo")] 
     pub fn start_tti(&self) {
         if self.get_interactive_metrics().needs_tti() {
             self.tti_window.borrow_mut().start_window();
@@ -1986,6 +2022,7 @@ impl Document {
     /// check tti for this document
     /// if it's been 10s since this doc encountered a task over 50ms, then we consider the
     /// main thread available and try to set tti
+    #[cfg(feature = "servo")] 
     pub fn record_tti_if_necessary(&self) {
         if self.has_recorded_tti_metric() { return; }
         if self.tti_window.borrow().needs_check() {
@@ -1995,6 +2032,7 @@ impl Document {
     }
 
     // https://html.spec.whatwg.org/multipage/#fire-a-focus-event
+    #[cfg(feature = "servo")] 
     fn fire_focus_event(&self, focus_event_type: FocusEventType, node: &Node, related_target: Option<&EventTarget>) {
         let (event_name, does_bubble) = match focus_event_type {
             FocusEventType::Focus => (DOMString::from("focus"), EventBubbles::DoesNotBubble),
@@ -2031,6 +2069,7 @@ impl Document {
     }
 
     /// <https://html.spec.whatwg.org/multipage/#look-up-a-custom-element-definition>
+    #[cfg(feature = "servo")] 
     pub fn lookup_custom_element_definition(&self,
                                             namespace: &Namespace,
                                             local_name: &LocalName,
@@ -2079,6 +2118,7 @@ pub enum DocumentSource {
 }
 
 #[allow(unsafe_code)]
+#[cfg(feature = "servo")] 
 pub trait LayoutDocumentHelpers {
     unsafe fn is_html_document_for_layout(&self) -> bool;
     unsafe fn drain_pending_restyles(&self) -> Vec<(LayoutDom<Element>, PendingRestyle)>;
@@ -2089,6 +2129,7 @@ pub trait LayoutDocumentHelpers {
 }
 
 #[allow(unsafe_code)]
+#[cfg(feature = "servo")] 
 impl LayoutDocumentHelpers for LayoutDom<Document> {
     #[inline]
     unsafe fn is_html_document_for_layout(&self) -> bool {
@@ -2621,7 +2662,7 @@ impl Document {
     }
 
     // https://fullscreen.spec.whatwg.org/#dom-element-requestfullscreen
-    #[allow(unrooted_must_root)]
+    #[cfg(feature = "servo")] #[allow(unrooted_must_root)]
     pub fn enter_fullscreen(&self, pending: &Element) -> Rc<Promise> {
         // Step 1
         let promise = Promise::new(self.global().r());
@@ -2673,7 +2714,7 @@ impl Document {
     }
 
     // https://fullscreen.spec.whatwg.org/#exit-fullscreen
-    #[allow(unrooted_must_root)]
+    #[cfg(feature = "servo")] #[allow(unrooted_must_root)]
     pub fn exit_fullscreen(&self) -> Rc<Promise> {
         let global = self.global();
         // Step 1
@@ -2773,6 +2814,7 @@ impl DocumentMethods for Document {
     }
 
     // https://dom.spec.whatwg.org/#dom-document-implementation
+    #[cfg(feature = "servo")]
     fn Implementation(&self) -> DomRoot<DOMImplementation> {
         self.implementation.or_init(|| DOMImplementation::new(self))
     }
@@ -2893,6 +2935,7 @@ impl DocumentMethods for Document {
     }
 
     // https://dom.spec.whatwg.org/#dom-document-doctype
+    #[cfg(feature = "servo")]
     fn GetDoctype(&self) -> Option<DomRoot<DocumentType>> {
         self.upcast::<Node>().children().filter_map(DomRoot::downcast).next()
     }
@@ -3092,6 +3135,7 @@ impl DocumentMethods for Document {
     }
 
     // https://dom.spec.whatwg.org/#dom-document-createevent
+    #[cfg(feature = "servo")]  
     fn CreateEvent(&self, mut interface: DOMString) -> Fallible<DomRoot<Event>> {
         interface.make_ascii_lowercase();
         match &*interface {
@@ -3491,6 +3535,7 @@ impl DocumentMethods for Document {
     }
 
     // https://html.spec.whatwg.org/multipage/#dom-document-cookie
+    #[cfg(feature = "servo")]
     fn GetCookie(&self) -> Fallible<DOMString> {
         if self.is_cookie_averse() {
             return Ok(DOMString::new());
@@ -3511,6 +3556,7 @@ impl DocumentMethods for Document {
     }
 
     // https://html.spec.whatwg.org/multipage/#dom-document-cookie
+    #[cfg(feature = "servo")]
     fn SetCookie(&self, cookie: DOMString) -> ErrorResult {
         if self.is_cookie_averse() {
             return Ok(());
@@ -3845,7 +3891,7 @@ impl DocumentMethods for Document {
             self.window.upcast::<GlobalScope>().resource_threads().clone();
         *self.loader.borrow_mut() =
             DocumentLoader::new_with_threads(resource_threads, Some(url.clone()));
-        ServoParser::parse_html_script_input(self, url, type_);
+        #[cfg(feature = "servo")] ServoParser::parse_html_script_input(self, url, type_);
 
         // Step 26.
         self.ready_state.set(DocumentReadyState::Interactive);
@@ -4009,12 +4055,14 @@ pub fn determine_policy_for_token(token: &str) -> Option<ReferrerPolicy> {
 
 /// Specifies the type of focus event that is sent to a pipeline
 #[derive(Clone, Copy, PartialEq)]
+#[cfg(feature = "servo")]
 pub enum FocusType {
     Element,    // The first focus message - focus the element itself
     Parent,     // Focusing a parent element (an iframe)
 }
 
 /// Focus events
+#[cfg(feature = "servo")]
 pub enum FocusEventType {
     Focus,      // Element gained focus. Doesn't bubble.
     Blur,       // Element lost focus. Doesn't bubble.
@@ -4027,12 +4075,14 @@ pub enum FocusEventType {
 /// without mutating the DOM), then we fall back to simple timeouts to save energy over video
 /// refresh.
 #[derive(JSTraceable, MallocSizeOf)]
+#[cfg(feature = "servo")]
 pub struct FakeRequestAnimationFrameCallback {
     /// The document.
     #[ignore_malloc_size_of = "non-owning"]
     document: Trusted<Document>,
 }
 
+#[cfg(feature = "servo")]
 impl FakeRequestAnimationFrameCallback {
     pub fn invoke(self) {
         let document = self.document.root();
@@ -4041,6 +4091,7 @@ impl FakeRequestAnimationFrameCallback {
 }
 
 #[derive(JSTraceable, MallocSizeOf)]
+#[cfg(feature = "servo")]
 pub enum AnimationFrameCallback {
     DevtoolsFramerateTick { actor_name: String },
     FrameRequestCallback {
@@ -4049,6 +4100,7 @@ pub enum AnimationFrameCallback {
     },
 }
 
+#[cfg(feature = "servo")] 
 impl AnimationFrameCallback {
     fn call(&self, document: &Document, now: f64) {
         match *self {

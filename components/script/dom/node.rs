@@ -5,7 +5,7 @@
 //! The core DOM types. Defines the basic DOM hierarchy as well as all the HTML elements.
 
 use app_units::Au;
-use devtools_traits::NodeInfo;
+#[cfg(feature = "servo")] use devtools_traits::NodeInfo;
 use document_loader::DocumentLoader;
 use dom::bindings::cell::DomRefCell;
 use dom::bindings::codegen::Bindings::CharacterDataBinding::CharacterDataMethods;
@@ -28,35 +28,35 @@ use dom::bindings::str::{DOMString, USVString};
 use dom::bindings::xmlname::namespace_from_domstring;
 use dom::characterdata::{CharacterData, LayoutCharacterDataHelpers};
 use dom::cssstylesheet::CSSStyleSheet;
-use dom::customelementregistry::{CallbackReaction, try_upgrade_element};
+#[cfg(feature = "servo")] use dom::customelementregistry::{CallbackReaction, try_upgrade_element};
 use dom::document::{Document, DocumentSource, HasBrowsingContext, IsHTMLDocument};
 use dom::documentfragment::DocumentFragment;
 use dom::documenttype::DocumentType;
 use dom::element::{CustomElementCreationMode, Element, ElementCreator};
 use dom::eventtarget::EventTarget;
 use dom::globalscope::GlobalScope;
-use dom::htmlbodyelement::HTMLBodyElement;
-use dom::htmlcanvaselement::{HTMLCanvasElement, LayoutHTMLCanvasElementHelpers};
-use dom::htmlcollection::HTMLCollection;
-use dom::htmlelement::HTMLElement;
-use dom::htmliframeelement::{HTMLIFrameElement, HTMLIFrameElementLayoutMethods};
-use dom::htmlimageelement::{HTMLImageElement, LayoutHTMLImageElementHelpers};
-use dom::htmlinputelement::{HTMLInputElement, LayoutHTMLInputElementHelpers};
-use dom::htmllinkelement::HTMLLinkElement;
-use dom::htmlmetaelement::HTMLMetaElement;
-use dom::htmlstyleelement::HTMLStyleElement;
-use dom::htmltextareaelement::{HTMLTextAreaElement, LayoutHTMLTextAreaElementHelpers};
+#[cfg(feature = "servo")] use dom::htmlbodyelement::HTMLBodyElement;
+#[cfg(feature = "servo")] use dom::htmlcanvaselement::{HTMLCanvasElement, LayoutHTMLCanvasElementHelpers};
+#[cfg(feature = "servo")] use dom::htmlcollection::HTMLCollection;
+#[cfg(feature = "servo")] use dom::htmlelement::HTMLElement;
+#[cfg(feature = "servo")] use dom::htmliframeelement::{HTMLIFrameElement, HTMLIFrameElementLayoutMethods};
+#[cfg(feature = "servo")] use dom::htmlimageelement::{HTMLImageElement, LayoutHTMLImageElementHelpers};
+#[cfg(feature = "servo")] use dom::htmlinputelement::{HTMLInputElement, LayoutHTMLInputElementHelpers};
+#[cfg(feature = "servo")] use dom::htmllinkelement::HTMLLinkElement;
+#[cfg(feature = "servo")] use dom::htmlmetaelement::HTMLMetaElement;
+#[cfg(feature = "servo")] use dom::htmlstyleelement::HTMLStyleElement;
+#[cfg(feature = "servo")] use dom::htmltextareaelement::{HTMLTextAreaElement, LayoutHTMLTextAreaElementHelpers};
 use dom::mutationobserver::{Mutation, MutationObserver, RegisteredObserver};
 use dom::nodelist::NodeList;
 use dom::processinginstruction::ProcessingInstruction;
 use dom::range::WeakRangeVec;
-use dom::svgsvgelement::{SVGSVGElement, LayoutSVGSVGElementHelpers};
+#[cfg(feature = "servo")] use dom::svgsvgelement::{SVGSVGElement, LayoutSVGSVGElementHelpers};
 use dom::text::Text;
 use dom::virtualmethods::{VirtualMethods, vtable_for};
 use dom::window::Window;
 use dom_struct::dom_struct;
 use euclid::{Point2D, Vector2D, Rect, Size2D};
-use html5ever::{Prefix, Namespace, QualName};
+#[cfg(feature = "servo")] use html5ever::{Prefix, Namespace, QualName};
 use js::jsapi::{JSContext, JSObject, JSRuntime};
 use libc::{self, c_void, uintptr_t};
 use malloc_size_of::{MallocSizeOf, MallocSizeOfOps};
@@ -623,6 +623,7 @@ impl Node {
     // https://drafts.csswg.org/cssom-view/#dom-element-scrollheight
     // https://drafts.csswg.org/cssom-view/#dom-element-scrolltop
     // https://drafts.csswg.org/cssom-view/#dom-element-scrollleft
+    #[cfg(feature = "servo")]
     pub fn scroll_area(&self) -> Rect<i32> {
         // Step 1
         let document = self.owner_doc();
@@ -883,7 +884,7 @@ impl Node {
     }
 
     
-
+    #[cfg(feature = "servo")]
     fn get_stylesheet(&self) -> Option<Arc<Stylesheet>> {
         if let Some(node) = self.downcast::<HTMLStyleElement>() {
             node.get_stylesheet()
@@ -896,6 +897,7 @@ impl Node {
         }
     }
 
+    #[cfg(feature = "servo")]
     fn get_cssom_stylesheet(&self) -> Option<DomRoot<CSSStyleSheet>> {
         if let Some(node) = self.downcast::<HTMLStyleElement>() {
             node.get_cssom_stylesheet()
@@ -966,7 +968,7 @@ pub trait LayoutNodeHelpers {
     fn text_content(&self) -> String;
     fn selection(&self) -> Option<Range<usize>>;
     fn image_url(&self) -> Option<ServoUrl>;
-    fn canvas_data(&self) -> Option<HTMLCanvasData>;
+    #[cfg(feature = "servo")] fn canvas_data(&self) -> Option<HTMLCanvasData>;
     #[cfg(feature = "servo")] fn svg_data(&self) -> Option<SVGSVGData>;
     fn iframe_browsing_context_id(&self) -> Option<BrowsingContextId>;
     fn iframe_pipeline_id(&self) -> Option<PipelineId>;
@@ -1071,6 +1073,7 @@ impl LayoutNodeHelpers for LayoutDom<Node> {
     }
 
     #[allow(unsafe_code)]
+    #[cfg(feature = "servo")] 
     fn text_content(&self) -> String {
         if let Some(text) = self.downcast::<Text>() {
             return unsafe { text.upcast().data_for_layout().to_owned() };
@@ -1088,6 +1091,7 @@ impl LayoutNodeHelpers for LayoutDom<Node> {
     }
 
     #[allow(unsafe_code)]
+    #[cfg(feature = "servo")] 
     fn selection(&self) -> Option<Range<usize>> {
         if let Some(area) = self.downcast::<HTMLTextAreaElement>() {
             return unsafe { area.selection_for_layout() };
@@ -1101,6 +1105,7 @@ impl LayoutNodeHelpers for LayoutDom<Node> {
     }
 
     #[allow(unsafe_code)]
+    #[cfg(feature = "servo")]
     fn image_url(&self) -> Option<ServoUrl> {
         unsafe {
             self.downcast::<HTMLImageElement>()
@@ -1109,22 +1114,26 @@ impl LayoutNodeHelpers for LayoutDom<Node> {
         }
     }
 
+    #[cfg(feature = "servo")]
     fn canvas_data(&self) -> Option<HTMLCanvasData> {
         self.downcast::<HTMLCanvasElement>()
             .map(|canvas| canvas.data())
     }
 
+    #[cfg(feature = "servo")]
     fn svg_data(&self) -> Option<SVGSVGData> {
         self.downcast::<SVGSVGElement>()
             .map(|svg| svg.data())
     }
 
+    #[cfg(feature = "servo")]
     fn iframe_browsing_context_id(&self) -> Option<BrowsingContextId> {
         let iframe_element = self.downcast::<HTMLIFrameElement>()
             .expect("not an iframe element!");
         iframe_element.browsing_context_id()
     }
 
+    #[cfg(feature = "servo")]
     fn iframe_pipeline_id(&self) -> Option<PipelineId> {
         let iframe_element = self.downcast::<HTMLIFrameElement>()
             .expect("not an iframe element!");
@@ -2678,6 +2687,7 @@ impl Into<LayoutNodeType> for NodeTypeId {
     }
 }
 
+#[cfg(feature = "servo")] 
 impl Into<LayoutElementType> for ElementTypeId {
     #[inline(always)]
     fn into(self) -> LayoutElementType {

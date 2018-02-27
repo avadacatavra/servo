@@ -7,12 +7,13 @@
 use dom::bindings::codegen::InterfaceObjectMap;
 use dom::bindings::codegen::PrototypeList;
 use dom::bindings::codegen::PrototypeList::{MAX_PROTO_CHAIN_LENGTH, PROTO_OR_IFACE_LENGTH};
-use dom::bindings::conversions::{jsstring_to_str, private_from_proto_check};
+#[cfg(feature = "servo")] use dom::bindings::conversions::jsstring_to_str;
+use dom::bindings::conversions::private_from_proto_check;
 use dom::bindings::error::throw_invalid_this;
 use dom::bindings::inheritance::TopTypeId;
 use dom::bindings::str::DOMString;
 use dom::bindings::trace::trace_object;
-use dom::windowproxy;
+#[cfg(feature = "servo")] use dom::windowproxy;
 use js;
 use js::JS_CALLEE;
 use js::glue::{CallJitGetterOp, CallJitMethodOp, CallJitSetterOp, IsWrapper};

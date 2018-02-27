@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use devtools_traits::{TimelineMarker, TimelineMarkerType};
-use dom::bindings::callback::ExceptionHandling;
+#[cfg(feature = "servo")] use devtools_traits::{TimelineMarker, TimelineMarkerType};
+#[cfg(feature = "servo")] use dom::bindings::callback::ExceptionHandling;
 use dom::bindings::cell::DomRefCell;
 use dom::bindings::codegen::Bindings::EventBinding;
 use dom::bindings::codegen::Bindings::EventBinding::{EventConstants, EventMethods};
@@ -20,10 +20,10 @@ use dom::node::Node;
 use dom::virtualmethods::vtable_for;
 use dom::window::Window;
 use dom_struct::dom_struct;
-use servo_atoms::Atom;
+#[cfg(feature = "servo")] use servo_atoms::Atom;
 use std::cell::Cell;
 use std::default::Default;
-use task::TaskOnce;
+#[cfg(feature = "servo")] use task::TaskOnce;
 use time;
 
 #[dom_struct]
@@ -31,7 +31,7 @@ pub struct Event {
     reflector_: Reflector,
     current_target: MutNullableDom<EventTarget>,
     target: MutNullableDom<EventTarget>,
-    type_: DomRefCell<Atom>,
+    #[cfg(feature = "servo")] type_: DomRefCell<Atom>,
     phase: Cell<EventPhase>,
     canceled: Cell<EventDefault>,
     stop_propagation: Cell<bool>,
@@ -50,7 +50,7 @@ impl Event {
             reflector_: Reflector::new(),
             current_target: Default::default(),
             target: Default::default(),
-            type_: DomRefCell::new(atom!("")),
+            #[cfg(feature = "servo")] type_: DomRefCell::new(atom!("")),
             phase: Cell::new(EventPhase::None),
             canceled: Cell::new(EventDefault::Allowed),
             stop_propagation: Cell::new(false),
@@ -70,6 +70,7 @@ impl Event {
                            EventBinding::Wrap)
     }
 
+    #[cfg(feature = "servo")] 
     pub fn new(global: &GlobalScope,
                type_: Atom,
                bubbles: EventBubbles,
@@ -79,6 +80,7 @@ impl Event {
         event
     }
 
+    #[cfg(feature = "servo")] 
     pub fn Constructor(global: &GlobalScope,
                        type_: DOMString,
                        init: &EventBinding::EventInit) -> Fallible<DomRoot<Event>> {
@@ -87,6 +89,7 @@ impl Event {
         Ok(Event::new(global, Atom::from(type_), bubbles, cancelable))
     }
 
+    #[cfg(feature = "servo")] 
     pub fn init_event(&self, type_: Atom, bubbles: bool, cancelable: bool) {
         if self.dispatching.get() {
             return;
@@ -195,7 +198,7 @@ impl Event {
         self.initialized.get()
     }
 
-    #[inline]
+    #[inline] #[cfg(feature = "servo")] 
     pub fn type_(&self) -> Atom {
         self.type_.borrow().clone()
     }
@@ -228,6 +231,7 @@ impl EventMethods for Event {
     }
 
     // https://dom.spec.whatwg.org/#dom-event-type
+    #[cfg(feature = "servo")]
     fn Type(&self) -> DOMString {
         DOMString::from(&*self.type_()) // FIXME(ajeffrey): Directly convert from Atom to DOMString
     }
@@ -388,6 +392,7 @@ pub struct EventTask {
     pub cancelable: EventCancelable,
 }
 
+#[cfg(feature = "servo")] 
 impl TaskOnce for EventTask {
     fn run_once(self) {
         let target = self.target.root();
@@ -403,6 +408,7 @@ pub struct SimpleEventTask {
     pub name: Atom,
 }
 
+#[cfg(feature = "servo")] 
 impl TaskOnce for SimpleEventTask {
     fn run_once(self) {
         let target = self.target.root();
@@ -412,6 +418,7 @@ impl TaskOnce for SimpleEventTask {
 
 // See dispatch_event.
 // https://dom.spec.whatwg.org/#concept-event-dispatch
+#[cfg(feature = "servo")] 
 fn dispatch_to_listeners(event: &Event, target: &EventTarget, event_path: &[&EventTarget]) {
     assert!(!event.stop_propagation.get());
     assert!(!event.stop_immediate.get());
@@ -488,6 +495,7 @@ fn invoke(window: Option<&Window>,
 }
 
 // https://dom.spec.whatwg.org/#concept-event-listener-inner-invoke
+#[cfg(feature = "servo")]
 fn inner_invoke(window: Option<&Window>,
                 object: &EventTarget,
                 event: &Event,

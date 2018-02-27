@@ -31,6 +31,7 @@ use libc;
 use std::ptr;
 
 /// The class of a non-callback interface object.
+#[cfg(feature = "servo")]
 #[derive(Clone, Copy)]
 pub struct NonCallbackInterfaceObjectClass {
     /// The SpiderMonkey Class structure.
@@ -43,8 +44,10 @@ pub struct NonCallbackInterfaceObjectClass {
     pub representation: &'static [u8],
 }
 
+#[cfg(feature = "servo")]
 unsafe impl Sync for NonCallbackInterfaceObjectClass {}
 
+#[cfg(feature = "servo")]
 impl NonCallbackInterfaceObjectClass {
     /// Create a new `NonCallbackInterfaceObjectClass` structure.
     pub const fn new(constructor_behavior: &'static InterfaceConstructorBehavior,
@@ -76,12 +79,15 @@ impl NonCallbackInterfaceObjectClass {
 }
 
 /// A constructor class hook.
+#[cfg(feature = "servo")]
 pub type ConstructorClassHook =
     unsafe extern "C" fn(cx: *mut JSContext, argc: u32, vp: *mut Value) -> bool;
 
 /// The constructor behavior of a non-callback interface object.
+#[cfg(feature = "servo")]
 pub struct InterfaceConstructorBehavior(ClassOps);
 
+#[cfg(feature = "servo")]
 impl InterfaceConstructorBehavior {
     /// An interface constructor that unconditionally throws a type error.
     pub const fn throw() -> Self {
@@ -125,6 +131,7 @@ pub type TraceHook =
     unsafe extern "C" fn(trc: *mut JSTracer, obj: *mut JSObject);
 
 /// Create a global object with the given class.
+#[cfg(feature = "servo")]
 pub unsafe fn create_global_object(
         cx: *mut JSContext,
         class: &'static JSClass,
@@ -159,6 +166,7 @@ pub unsafe fn create_global_object(
 }
 
 /// Create and define the interface object of a callback interface.
+#[cfg(feature = "servo")]
 pub unsafe fn create_callback_interface_object(
         cx: *mut JSContext,
         global: HandleObject,
@@ -174,6 +182,7 @@ pub unsafe fn create_callback_interface_object(
 }
 
 /// Create the interface prototype object of a non-callback interface.
+#[cfg(feature = "servo")]
 pub unsafe fn create_interface_prototype_object(
         cx: *mut JSContext,
         proto: HandleObject,
@@ -200,6 +209,7 @@ pub unsafe fn create_interface_prototype_object(
 }
 
 /// Create and define the interface object of a non-callback interface.
+#[cfg(feature = "servo")]
 pub unsafe fn create_noncallback_interface_object(
         cx: *mut JSContext,
         global: HandleObject,
@@ -226,6 +236,7 @@ pub unsafe fn create_noncallback_interface_object(
 }
 
 /// Create and define the named constructors of a non-callback interface.
+#[cfg(feature = "servo")]
 pub unsafe fn create_named_constructors(
         cx: *mut JSContext,
         global: HandleObject,
@@ -311,6 +322,7 @@ pub unsafe fn define_guarded_properties(
 
 /// Returns whether an interface with exposure set given by `globals` should
 /// be exposed in the global object `obj`.
+#[cfg(feature = "servo")]
 pub unsafe fn is_exposed_in(object: HandleObject, globals: Globals) -> bool {
     let unwrapped = UncheckedUnwrapObject(object.get(), /* stopAtWindowProxy = */ 0);
     let dom_class = get_dom_class(unwrapped).unwrap();
@@ -348,6 +360,7 @@ const OBJECT_OPS: ObjectOps = ObjectOps {
     funToString: Some(fun_to_string_hook),
 };
 
+#[cfg(feature = "servo")]
 unsafe extern "C" fn fun_to_string_hook(cx: *mut JSContext,
                                         obj: HandleObject,
                                         _indent: u32)
@@ -362,6 +375,7 @@ unsafe extern "C" fn fun_to_string_hook(cx: *mut JSContext,
 }
 
 /// Hook for instanceof on interface objects.
+#[cfg(feature = "servo")]
 unsafe extern "C" fn has_instance_hook(cx: *mut JSContext,
         obj: HandleObject,
         value: MutableHandleValue,
@@ -377,6 +391,7 @@ unsafe extern "C" fn has_instance_hook(cx: *mut JSContext,
 
 /// Return whether a value is an instance of a given prototype.
 /// <http://heycam.github.io/webidl/#es-interface-hasinstance>
+#[cfg(feature = "servo")]
 unsafe fn has_instance(
         cx: *mut JSContext,
         interface_object: HandleObject,
@@ -420,6 +435,7 @@ unsafe fn has_instance(
     Err(())
 }
 
+#[cfg(feature = "servo")]
 unsafe fn create_unscopable_object(
         cx: *mut JSContext,
         names: &[&[u8]],
@@ -436,6 +452,7 @@ unsafe fn create_unscopable_object(
     }
 }
 
+#[cfg(feature = "servo")]
 unsafe fn define_name(cx: *mut JSContext, obj: HandleObject, name: &[u8]) {
     assert_eq!(*name.last().unwrap(), b'\0');
     rooted!(in(cx) let name = JS_AtomizeAndPinString(cx, name.as_ptr() as *const libc::c_char));
@@ -448,6 +465,7 @@ unsafe fn define_name(cx: *mut JSContext, obj: HandleObject, name: &[u8]) {
                                None, None));
 }
 
+#[cfg(feature = "servo")]
 unsafe fn define_length(cx: *mut JSContext, obj: HandleObject, length: u32) {
     assert!(JS_DefineProperty4(cx,
                                obj,
@@ -457,6 +475,7 @@ unsafe fn define_length(cx: *mut JSContext, obj: HandleObject, length: u32) {
                                None, None));
 }
 
+#[cfg(feature = "servo")]
 unsafe extern "C" fn invalid_constructor(
         cx: *mut JSContext,
         _argc: libc::c_uint,
@@ -466,6 +485,7 @@ unsafe extern "C" fn invalid_constructor(
     false
 }
 
+#[cfg(feature = "servo")]
 unsafe extern "C" fn non_new_constructor(
         cx: *mut JSContext,
         _argc: libc::c_uint,

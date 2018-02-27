@@ -7,16 +7,16 @@ use dom::bindings::inheritance::Castable;
 use dom::bindings::reflector::Reflector;
 use dom::bindings::root::{Dom, DomRoot};
 use dom::bindings::str::DOMString;
-use dom::cssfontfacerule::CSSFontFaceRule;
-use dom::cssimportrule::CSSImportRule;
-use dom::csskeyframerule::CSSKeyframeRule;
-use dom::csskeyframesrule::CSSKeyframesRule;
-use dom::cssmediarule::CSSMediaRule;
-use dom::cssnamespacerule::CSSNamespaceRule;
-use dom::cssstylerule::CSSStyleRule;
-use dom::cssstylesheet::CSSStyleSheet;
-use dom::csssupportsrule::CSSSupportsRule;
-use dom::cssviewportrule::CSSViewportRule;
+#[cfg(feature = "servo")] use dom::cssfontfacerule::CSSFontFaceRule;
+#[cfg(feature = "servo")] use dom::cssimportrule::CSSImportRule;
+#[cfg(feature = "servo")] use dom::csskeyframerule::CSSKeyframeRule;
+#[cfg(feature = "servo")] use dom::csskeyframesrule::CSSKeyframesRule;
+#[cfg(feature = "servo")] use dom::cssmediarule::CSSMediaRule;
+#[cfg(feature = "servo")] use dom::cssnamespacerule::CSSNamespaceRule;
+#[cfg(feature = "servo")] use dom::cssstylerule::CSSStyleRule;
+#[cfg(feature = "servo")] use dom::cssstylesheet::CSSStyleSheet;
+#[cfg(feature = "servo")] use dom::csssupportsrule::CSSSupportsRule;
+#[cfg(feature = "servo")] use dom::cssviewportrule::CSSViewportRule;
 use dom::window::Window;
 use dom_struct::dom_struct;
 use std::cell::Cell;
@@ -45,6 +45,7 @@ impl CSSRule {
         }
     }
 
+    #[cfg(feature = "servo")] 
     pub fn as_specific(&self) -> &SpecificCSSRule {
         if let Some(rule) = self.downcast::<CSSStyleRule>() {
             rule as &SpecificCSSRule
@@ -71,6 +72,7 @@ impl CSSRule {
 
     // Given a StyleCssRule, create a new instance of a derived class of
     // CSSRule based on which rule it is
+    #[cfg(feature = "servo")] 
     pub fn new_specific(window: &Window, parent_stylesheet: &CSSStyleSheet,
                         rule: StyleCssRule) -> DomRoot<CSSRule> {
         // be sure to update the match in as_specific when this is updated

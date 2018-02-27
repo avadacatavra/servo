@@ -5,7 +5,7 @@
 //! Machinery to conditionally expose things.
 
 use js::jsapi::{HandleObject, JSContext};
-use servo_config::prefs::PREFS;
+#[cfg(feature = "servo")] use servo_config::prefs::PREFS;
 
 /// A container with a condition.
 pub struct Guard<T: Clone + Copy> {
@@ -35,6 +35,7 @@ impl<T: Clone + Copy> Guard<T> {
 }
 
 /// A condition to expose things.
+#[cfg(feature = "servo")]
 pub enum Condition {
     /// The condition is satisfied if the function returns true.
     Func(unsafe fn(*mut JSContext, HandleObject) -> bool),
@@ -44,6 +45,7 @@ pub enum Condition {
     Satisfied,
 }
 
+#[cfg(feature = "servo")]
 impl Condition {
     unsafe fn is_satisfied(&self, cx: *mut JSContext, obj: HandleObject) -> bool {
         match *self {

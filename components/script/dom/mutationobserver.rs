@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use dom::bindings::callback::ExceptionHandling;
+#[cfg(feature = "servo")] use dom::bindings::callback::ExceptionHandling;
 use dom::bindings::cell::DomRefCell;
 use dom::bindings::codegen::Bindings::MutationObserverBinding;
 use dom::bindings::codegen::Bindings::MutationObserverBinding::MutationCallback;
@@ -16,7 +16,7 @@ use dom::mutationrecord::MutationRecord;
 use dom::node::Node;
 use dom::window::Window;
 use dom_struct::dom_struct;
-use html5ever::{Namespace, LocalName};
+#[cfg(feature = "servo")] use html5ever::{Namespace, LocalName};
 use microtask::Microtask;
 use script_thread::ScriptThread;
 use std::rc::Rc;
@@ -85,6 +85,7 @@ impl MutationObserver {
     }
 
     /// <https://dom.spec.whatwg.org/#notify-mutation-observers>
+    #[cfg(feature = "servo")]
     pub fn notify_mutation_observers() {
         // Step 1
         ScriptThread::set_mutation_observer_compound_microtask_queued(false);

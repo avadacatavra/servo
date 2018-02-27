@@ -8,7 +8,7 @@ use chrono::{Datelike, TimeZone};
 use chrono::prelude::{Weekday, Utc};
 use cssparser::CowRcStr;
 use html5ever::{LocalName, Namespace};
-use servo_atoms::Atom;
+#[cfg(feature = "servo")] use servo_atoms::Atom;
 use std::borrow::{Borrow, Cow, ToOwned};
 use std::default::Default;
 use std::fmt;
@@ -20,9 +20,11 @@ use std::str;
 use std::str::{Bytes, FromStr};
 
 /// Encapsulates the IDL `ByteString` type.
+#[cfg(feature = "servo")]
 #[derive(Clone, Debug, Default, Eq, JSTraceable, MallocSizeOf, PartialEq)]
 pub struct ByteString(Vec<u8>);
 
+#[cfg(feature = "servo")]
 impl ByteString {
     /// Creates a new `ByteString`.
     pub fn new(value: Vec<u8>) -> ByteString {
@@ -51,12 +53,14 @@ impl ByteString {
     }
 }
 
+#[cfg(feature = "servo")]
 impl Into<Vec<u8>> for ByteString {
     fn into(self) -> Vec<u8> {
         self.0
     }
 }
 
+#[cfg(feature = "servo")]
 impl Hash for ByteString {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.hash(state);
@@ -70,6 +74,7 @@ impl FromStr for ByteString {
     }
 }
 
+#[cfg(feature = "servo")]
 impl ops::Deref for ByteString {
     type Target = [u8];
     fn deref(&self) -> &[u8] {
@@ -85,6 +90,7 @@ pub struct USVString(pub String);
 
 /// Returns whether `s` is a `token`, as defined by
 /// [RFC 2616](http://tools.ietf.org/html/rfc2616#page-17).
+#[cfg(feature = "servo")]
 pub fn is_token(s: &[u8]) -> bool {
     if s.is_empty() {
         return false; // A token must be at least a single character
@@ -421,6 +427,7 @@ impl From<DOMString> for Namespace {
     }
 }
 
+#[cfg(feature = "servo")]
 impl From<DOMString> for Atom {
     fn from(contents: DOMString) -> Atom {
         Atom::from(contents.0)

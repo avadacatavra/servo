@@ -4,8 +4,8 @@
 
 //! Element nodes.
 
-use devtools_traits::AttrInfo;
-use dom::activation::Activatable;
+#[cfg(feature = "servo")] use devtools_traits::AttrInfo;
+#[cfg(feature = "servo")] use dom::activation::Activatable;
 use dom::attr::{Attr, AttrHelpersForLayout};
 use dom::bindings::cell::DomRefCell;
 use dom::bindings::codegen::Bindings::AttrBinding::AttrMethods;
@@ -30,61 +30,61 @@ use dom::bindings::xmlname::{namespace_from_domstring, validate_and_extract, xml
 use dom::bindings::xmlname::XMLName::InvalidXMLName;
 use dom::characterdata::CharacterData;
 use dom::create::create_element;
-use dom::customelementregistry::{CallbackReaction, CustomElementDefinition, CustomElementReaction};
+#[cfg(feature = "servo")] use dom::customelementregistry::{CallbackReaction, CustomElementDefinition, CustomElementReaction};
 use dom::document::{Document, LayoutDocumentHelpers};
 use dom::documentfragment::DocumentFragment;
-use dom::domrect::DOMRect;
-use dom::domtokenlist::DOMTokenList;
-use dom::event::Event;
+#[cfg(feature = "servo")] use dom::domrect::DOMRect;
+#[cfg(feature = "servo")] use dom::domtokenlist::DOMTokenList;
+#[cfg(feature = "servo")] use dom::event::Event;
 use dom::eventtarget::EventTarget;
-use dom::htmlanchorelement::HTMLAnchorElement;
-use dom::htmlbodyelement::{HTMLBodyElement, HTMLBodyElementLayoutHelpers};
-use dom::htmlbuttonelement::HTMLButtonElement;
-use dom::htmlcanvaselement::{HTMLCanvasElement, LayoutHTMLCanvasElementHelpers};
+#[cfg(feature = "servo")] use dom::htmlanchorelement::HTMLAnchorElement;
+#[cfg(feature = "servo")] use dom::htmlbodyelement::{HTMLBodyElement, HTMLBodyElementLayoutHelpers};
+#[cfg(feature = "servo")] use dom::htmlbuttonelement::HTMLButtonElement;
+#[cfg(feature = "servo")] use dom::htmlcanvaselement::{HTMLCanvasElement, LayoutHTMLCanvasElementHelpers};
 use dom::htmlcollection::HTMLCollection;
-use dom::htmlelement::HTMLElement;
-use dom::htmlfieldsetelement::HTMLFieldSetElement;
-use dom::htmlfontelement::{HTMLFontElement, HTMLFontElementLayoutHelpers};
-use dom::htmlformelement::FormControlElementHelpers;
-use dom::htmlhrelement::{HTMLHRElement, HTMLHRLayoutHelpers};
-use dom::htmliframeelement::{HTMLIFrameElement, HTMLIFrameElementLayoutMethods};
-use dom::htmlimageelement::{HTMLImageElement, LayoutHTMLImageElementHelpers};
-use dom::htmlinputelement::{HTMLInputElement, LayoutHTMLInputElementHelpers};
-use dom::htmllabelelement::HTMLLabelElement;
-use dom::htmllegendelement::HTMLLegendElement;
-use dom::htmllinkelement::HTMLLinkElement;
-use dom::htmlobjectelement::HTMLObjectElement;
-use dom::htmloptgroupelement::HTMLOptGroupElement;
-use dom::htmlselectelement::HTMLSelectElement;
-use dom::htmlstyleelement::HTMLStyleElement;
-use dom::htmltablecellelement::{HTMLTableCellElement, HTMLTableCellElementLayoutHelpers};
-use dom::htmltableelement::{HTMLTableElement, HTMLTableElementLayoutHelpers};
-use dom::htmltablerowelement::{HTMLTableRowElement, HTMLTableRowElementLayoutHelpers};
-use dom::htmltablesectionelement::{HTMLTableSectionElement, HTMLTableSectionElementLayoutHelpers};
-use dom::htmltemplateelement::HTMLTemplateElement;
-use dom::htmltextareaelement::{HTMLTextAreaElement, LayoutHTMLTextAreaElementHelpers};
-use dom::mutationobserver::{Mutation, MutationObserver};
-use dom::namednodemap::NamedNodeMap;
+#[cfg(feature = "servo")] use dom::htmlelement::HTMLElement;
+#[cfg(feature = "servo")] use dom::htmlfieldsetelement::HTMLFieldSetElement;
+#[cfg(feature = "servo")] use dom::htmlfontelement::{HTMLFontElement, HTMLFontElementLayoutHelpers};
+#[cfg(feature = "servo")] use dom::htmlformelement::FormControlElementHelpers;
+#[cfg(feature = "servo")] use dom::htmlhrelement::{HTMLHRElement, HTMLHRLayoutHelpers};
+#[cfg(feature = "servo")] use dom::htmliframeelement::{HTMLIFrameElement, HTMLIFrameElementLayoutMethods};
+#[cfg(feature = "servo")] use dom::htmlimageelement::{HTMLImageElement, LayoutHTMLImageElementHelpers};
+#[cfg(feature = "servo")] use dom::htmlinputelement::{HTMLInputElement, LayoutHTMLInputElementHelpers};
+#[cfg(feature = "servo")] use dom::htmllabelelement::HTMLLabelElement;
+#[cfg(feature = "servo")] use dom::htmllegendelement::HTMLLegendElement;
+#[cfg(feature = "servo")] use dom::htmllinkelement::HTMLLinkElement;
+#[cfg(feature = "servo")] use dom::htmlobjectelement::HTMLObjectElement;
+#[cfg(feature = "servo")] use dom::htmloptgroupelement::HTMLOptGroupElement;
+#[cfg(feature = "servo")] use dom::htmlselectelement::HTMLSelectElement;
+#[cfg(feature = "servo")] use dom::htmlstyleelement::HTMLStyleElement;
+#[cfg(feature = "servo")] use dom::htmltablecellelement::{HTMLTableCellElement, HTMLTableCellElementLayoutHelpers};
+#[cfg(feature = "servo")] use dom::htmltableelement::{HTMLTableElement, HTMLTableElementLayoutHelpers};
+#[cfg(feature = "servo")] use dom::htmltablerowelement::{HTMLTableRowElement, HTMLTableRowElementLayoutHelpers};
+#[cfg(feature = "servo")] use dom::htmltablesectionelement::{HTMLTableSectionElement, HTMLTableSectionElementLayoutHelpers};
+#[cfg(feature = "servo")] use dom::htmltemplateelement::HTMLTemplateElement;
+#[cfg(feature = "servo")] use dom::htmltextareaelement::{HTMLTextAreaElement, LayoutHTMLTextAreaElementHelpers};
+#[cfg(feature = "servo")] use dom::mutationobserver::{Mutation, MutationObserver};
+#[cfg(feature = "servo")] use dom::namednodemap::NamedNodeMap;
 use dom::node::{ChildrenMutation, LayoutNodeHelpers, Node};
 use dom::node::{NodeDamage, NodeFlags, UnbindContext};
 use dom::node::{document_from_node, window_from_node};
 use dom::nodelist::NodeList;
 use dom::promise::Promise;
-use dom::servoparser::ServoParser;
+#[cfg(feature = "servo")] use dom::servoparser::ServoParser;
 use dom::text::Text;
-use dom::validation::Validatable;
+#[cfg(feature = "servo")] use dom::validation::Validatable;
 use dom::virtualmethods::{VirtualMethods, vtable_for};
 use dom::window::ReflowReason;
 use dom_struct::dom_struct;
-use html5ever::{Prefix, LocalName, Namespace, QualName};
-use html5ever::serialize;
-use html5ever::serialize::SerializeOpts;
-use html5ever::serialize::TraversalScope;
-use html5ever::serialize::TraversalScope::{ChildrenOnly, IncludeNode};
+#[cfg(feature = "servo")] use html5ever::{Prefix, LocalName, Namespace, QualName};
+#[cfg(feature = "servo")] use html5ever::serialize;
+#[cfg(feature = "servo")] use html5ever::serialize::SerializeOpts;
+#[cfg(feature = "servo")] use html5ever::serialize::TraversalScope;
+#[cfg(feature = "servo")] use html5ever::serialize::TraversalScope::{ChildrenOnly, IncludeNode};
 use js::jsapi::Heap;
 use js::jsval::JSVal;
-use net_traits::request::CorsSettings;
-use ref_filter_map::ref_filter_map;
+#[cfg(feature = "servo")] use net_traits::request::CorsSettings;
+#[cfg(feature = "servo")] use ref_filter_map::ref_filter_map;
 use script_layout_interface::message::ReflowGoal;
 use script_thread::ScriptThread;
 use selectors::Element as SelectorsElement;
@@ -92,7 +92,7 @@ use selectors::attr::{AttrSelectorOperation, NamespaceConstraint, CaseSensitivit
 use selectors::matching::{ElementSelectorFlags, MatchingContext};
 use selectors::sink::Push;
 use servo_arc::Arc;
-use servo_atoms::Atom;
+#[cfg(feature = "servo")] use servo_atoms::Atom;
 use std::borrow::Cow;
 use std::cell::{Cell, Ref};
 use std::default::Default;
@@ -118,13 +118,13 @@ use style::shared_lock::{SharedRwLock, Locked};
 use style::thread_state;
 use style::values::{CSSFloat, Either};
 use style::values::{specified, computed};
-use stylesheet_loader::StylesheetOwner;
-use task::TaskOnce;
-use xml5ever::serialize as xmlSerialize;
-use xml5ever::serialize::SerializeOpts as XmlSerializeOpts;
-use xml5ever::serialize::TraversalScope as XmlTraversalScope;
-use xml5ever::serialize::TraversalScope::ChildrenOnly as XmlChildrenOnly;
-use xml5ever::serialize::TraversalScope::IncludeNode as XmlIncludeNode;
+#[cfg(feature = "servo")] use stylesheet_loader::StylesheetOwner;
+#[cfg(feature = "servo")] use task::TaskOnce;
+#[cfg(feature = "servo")] use xml5ever::serialize as xmlSerialize;
+#[cfg(feature = "servo")] use xml5ever::serialize::SerializeOpts as XmlSerializeOpts;
+#[cfg(feature = "servo")] use xml5ever::serialize::TraversalScope as XmlTraversalScope;
+#[cfg(feature = "servo")] use xml5ever::serialize::TraversalScope::ChildrenOnly as XmlChildrenOnly;
+#[cfg(feature = "servo")] use xml5ever::serialize::TraversalScope::IncludeNode as XmlIncludeNode;
 
 // TODO: Update focus state when the top-level browsing context gains or loses system focus,
 // and when the element enters or leaves a browsing context container.
@@ -143,7 +143,7 @@ pub struct Element {
     #[ignore_malloc_size_of = "Arc"]
     style_attribute: DomRefCell<Option<Arc<Locked<PropertyDeclarationBlock>>>>,
     attr_list: MutNullableDom<NamedNodeMap>,
-    class_list: MutNullableDom<DOMTokenList>,
+    #[cfg(feature = "servo")] class_list: MutNullableDom<DOMTokenList>,
     state: Cell<ElementState>,
     /// These flags are set by the style system to indicate the that certain
     /// operations may require restyling this element or its descendants. The
@@ -503,6 +503,7 @@ impl LayoutElementHelpers for LayoutDom<Element> {
     }
 
     #[allow(unsafe_code)]
+    #[cfg(feature = "servo")]
     unsafe fn synthesize_presentational_hints_for_legacy_attributes<V>(&self, hints: &mut V)
         where V: Push<ApplicableDeclarationBlock>
     {
@@ -948,6 +949,7 @@ impl Element {
     }
 
     // Element branch of https://dom.spec.whatwg.org/#locate-a-namespace
+    #[cfg(feature = "servo")]
     pub fn locate_namespace(&self, prefix: Option<DOMString>) -> Namespace {
         let prefix = prefix.map(String::from).map(LocalName::from);
 
@@ -1083,6 +1085,7 @@ impl Element {
         None
     }
 
+    #[cfg(feature = "servo")]
     pub fn is_focusable_area(&self) -> bool {
         if self.is_actually_disabled() {
             return false;
@@ -1104,6 +1107,7 @@ impl Element {
         }
     }
 
+    #[cfg(feature = "servo")]
     pub fn is_actually_disabled(&self) -> bool {
         let node = self.upcast::<Node>();
         match node.type_id() {
@@ -1511,6 +1515,7 @@ impl Element {
     }
 
     // https://w3c.github.io/DOM-Parsing/#parsing
+    #[cfg(feature = "servo")]
     pub fn parse_fragment(&self, markup: DOMString) -> Fallible<DomRoot<DocumentFragment>> {
         // Steps 1-2.
         let context_document = document_from_node(self);
@@ -1611,11 +1616,13 @@ impl ElementMethods for Element {
     }
 
     // https://dom.spec.whatwg.org/#dom-element-classlist
+    #[cfg(feature = "servo")]
     fn ClassList(&self) -> DomRoot<DOMTokenList> {
         self.class_list.or_init(|| DOMTokenList::new(self, &local_name!("class")))
     }
 
     // https://dom.spec.whatwg.org/#dom-element-attributes
+    #[cfg(feature = "servo")]
     fn Attributes(&self) -> DomRoot<NamedNodeMap> {
         self.attr_list.or_init(|| NamedNodeMap::new(&window_from_node(self), self))
     }
@@ -1810,6 +1817,7 @@ impl ElementMethods for Element {
     }
 
     // https://drafts.csswg.org/cssom-view/#dom-element-getclientrects
+    #[cfg(feature = "servo")]
     fn GetClientRects(&self) -> Vec<DomRoot<DOMRect>> {
         let win = window_from_node(self);
         let raw_rects = self.upcast::<Node>().content_boxes();
@@ -1823,6 +1831,7 @@ impl ElementMethods for Element {
     }
 
     // https://drafts.csswg.org/cssom-view/#dom-element-getboundingclientrect
+    #[cfg(feature = "servo")]
     fn GetBoundingClientRect(&self) -> DomRoot<DOMRect> {
         let win = window_from_node(self);
         let rect = self.upcast::<Node>().bounding_content_box_or_zero();
@@ -2114,6 +2123,7 @@ impl ElementMethods for Element {
     }
 
     /// <https://w3c.github.io/DOM-Parsing/#widl-Element-innerHTML>
+    #[cfg(feature = "servo")]
     fn SetInnerHTML(&self, value: DOMString) -> ErrorResult {
         // Step 1.
         let frag = self.parse_fragment(value)?;
@@ -2632,6 +2642,7 @@ impl<'a> SelectorsElement for DomRoot<Element> {
         self.namespace()
     }
 
+    #[cfg(feature = "servo")]
     fn match_non_ts_pseudo_class<F>(
         &self,
         pseudo_class: &NonTSPseudoClass,
@@ -2688,6 +2699,7 @@ impl<'a> SelectorsElement for DomRoot<Element> {
         }
     }
 
+    #[cfg(feature = "servo")]
     fn is_link(&self) -> bool {
         // FIXME: This is HTML only.
         let node = self.upcast::<Node>();
@@ -2717,6 +2729,7 @@ impl<'a> SelectorsElement for DomRoot<Element> {
 
 
 impl Element {
+    #[cfg(feature = "servo")]
     pub fn as_maybe_activatable(&self) -> Option<&Activatable> {
         let element = match self.upcast::<Node>().type_id() {
             NodeTypeId::Element(ElementTypeId::HTMLElement(HTMLElementTypeId::HTMLInputElement)) => {
@@ -2748,6 +2761,7 @@ impl Element {
         })
     }
 
+    #[cfg(feature = "servo")]
     pub fn as_stylesheet_owner(&self) -> Option<&StylesheetOwner> {
         if let Some(s) = self.downcast::<HTMLStyleElement>() {
             return Some(s as &StylesheetOwner)
@@ -2761,6 +2775,7 @@ impl Element {
     }
 
     // https://html.spec.whatwg.org/multipage/#category-submit
+    #[cfg(feature = "servo")]
     pub fn as_maybe_validatable(&self) -> Option<&Validatable> {
         let element = match self.upcast::<Node>().type_id() {
             NodeTypeId::Element(ElementTypeId::HTMLElement(HTMLElementTypeId::HTMLInputElement)) => {
@@ -2790,10 +2805,12 @@ impl Element {
         element
     }
 
+    #[cfg(feature = "servo")]
     pub fn click_in_progress(&self) -> bool {
         self.upcast::<Node>().get_flag(NodeFlags::CLICK_IN_PROGRESS)
     }
 
+    #[cfg(feature = "servo")]
     pub fn set_click_in_progress(&self, click: bool) {
         self.upcast::<Node>().set_flag(NodeFlags::CLICK_IN_PROGRESS, click)
     }
@@ -2822,6 +2839,7 @@ impl Element {
     ///
     /// Use an element's synthetic click activation (or handle_event) for any script-triggered clicks.
     /// If the spec says otherwise, check with Manishearth first
+    #[cfg(feature = "servo")]
     pub fn authentic_click_activation(&self, event: &Event) {
         // Not explicitly part of the spec, however this helps enforce the invariants
         // required to save state between pre-activation and post-activation
@@ -2984,6 +3002,7 @@ impl Element {
 }
 
 impl Element {
+    #[cfg(feature = "servo")]
     pub fn check_ancestors_disabled_state_for_form_control(&self) {
         let node = self.upcast::<Node>();
         if self.disabled_state() {
@@ -3013,6 +3032,7 @@ impl Element {
         }
     }
 
+    #[cfg(feature = "servo")]
     pub fn check_parent_disabled_state_for_option(&self) {
         if self.disabled_state() {
             return;
@@ -3112,6 +3132,7 @@ impl ElementPerformFullscreenEnter {
     }
 }
 
+#[cfg(feature = "servo")]
 impl TaskOnce for ElementPerformFullscreenEnter {
     #[allow(unrooted_must_root)]
     fn run_once(self) {
@@ -3154,6 +3175,7 @@ impl ElementPerformFullscreenExit {
     }
 }
 
+#[cfg(feature = "servo")]
 impl TaskOnce for ElementPerformFullscreenExit {
     #[allow(unrooted_must_root)]
     fn run_once(self) {

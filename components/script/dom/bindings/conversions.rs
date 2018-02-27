@@ -37,8 +37,9 @@ use dom::bindings::inheritance::Castable;
 use dom::bindings::num::Finite;
 use dom::bindings::reflector::{DomObject, Reflector};
 use dom::bindings::root::DomRoot;
-use dom::bindings::str::{ByteString, DOMString, USVString};
-use dom::bindings::trace::{JSTraceable, RootedTraceableBox};
+#[cfg(feature = "servo")] use dom::bindings::str::ByteString;
+use dom::bindings::str::{DOMString, USVString};
+#[cfg(feature = "servo")] use dom::bindings::trace::{JSTraceable, RootedTraceableBox};
 use dom::bindings::utils::DOMClass;
 use js;
 pub use js::conversions::{FromJSValConvertible, ToJSValConvertible, ConversionResult};
@@ -55,8 +56,8 @@ use js::jsapi::{JS_NewStringCopyN, JS_StringHasLatin1Chars, MutableHandleValue};
 use js::jsval::{ObjectValue, StringValue, UndefinedValue};
 use js::rust::{ToString, get_object_class, is_dom_class, is_dom_object, maybe_wrap_value};
 use libc;
-use num_traits::Float;
-use servo_config::opts;
+#[cfg(feature = "servo")] use num_traits::Float;
+#[cfg(feature = "servo")] use servo_config::opts;
 use std::{char, ffi, ptr, slice};
 
 /// A trait to check whether a given `JSObject` implements an IDL interface.
@@ -103,6 +104,7 @@ impl<T: Float + FromJSValConvertible<Config=()>> FromJSValConvertible for Finite
     }
 }
 
+#[cfg(feature = "servo")]
 impl <T: DomObject + IDLInterface> FromJSValConvertible for DomRoot<T> {
     type Config = ();
 
@@ -117,6 +119,7 @@ impl <T: DomObject + IDLInterface> FromJSValConvertible for DomRoot<T> {
     }
 }
 
+#[cfg(feature = "servo")]
 impl<T: ToJSValConvertible + JSTraceable> ToJSValConvertible for RootedTraceableBox<T> {
     #[inline]
     unsafe fn to_jsval(&self, cx: *mut JSContext, rval: MutableHandleValue) {
@@ -129,6 +132,7 @@ impl<T: ToJSValConvertible + JSTraceable> ToJSValConvertible for RootedTraceable
 /// integer.
 ///
 /// Handling of invalid UTF-16 in strings depends on the relevant option.
+#[cfg(feature = "servo")]
 pub unsafe fn jsid_to_string(cx: *mut JSContext, id: HandleId) -> Option<DOMString> {
     if RUST_JSID_IS_STRING(id) {
         return Some(jsstring_to_str(cx, RUST_JSID_TO_STRING(id)));
@@ -142,6 +146,7 @@ pub unsafe fn jsid_to_string(cx: *mut JSContext, id: HandleId) -> Option<DOMStri
 }
 
 // http://heycam.github.io/webidl/#es-USVString
+#[cfg(feature = "servo")]
 impl ToJSValConvertible for USVString {
     unsafe fn to_jsval(&self, cx: *mut JSContext, rval: MutableHandleValue) {
         self.0.to_jsval(cx, rval);
@@ -158,6 +163,7 @@ pub enum StringificationBehavior {
 }
 
 // https://heycam.github.io/webidl/#es-DOMString
+#[cfg(feature = "servo")]
 impl ToJSValConvertible for DOMString {
     unsafe fn to_jsval(&self, cx: *mut JSContext, rval: MutableHandleValue) {
         (**self).to_jsval(cx, rval);
@@ -165,6 +171,7 @@ impl ToJSValConvertible for DOMString {
 }
 
 // https://heycam.github.io/webidl/#es-DOMString
+#[cfg(feature = "servo")]
 impl FromJSValConvertible for DOMString {
     type Config = StringificationBehavior;
     unsafe fn from_jsval(cx: *mut JSContext,
@@ -188,6 +195,7 @@ impl FromJSValConvertible for DOMString {
 
 /// Convert the given `JSString` to a `DOMString`. Fails if the string does not
 /// contain valid UTF-16.
+#[cfg(feature = "servo")]
 pub unsafe fn jsstring_to_str(cx: *mut JSContext, s: *mut JSString) -> DOMString {
     let latin1 = JS_StringHasLatin1Chars(s);
     DOMString::from_string(if latin1 {
@@ -225,6 +233,7 @@ pub unsafe fn jsstring_to_str(cx: *mut JSContext, s: *mut JSString) -> DOMString
 }
 
 // http://heycam.github.io/webidl/#es-USVString
+#[cfg(feature = "servo")]
 impl FromJSValConvertible for USVString {
     type Config = ();
     unsafe fn from_jsval(cx: *mut JSContext, value: HandleValue, _: ())
@@ -249,6 +258,7 @@ impl FromJSValConvertible for USVString {
 }
 
 // http://heycam.github.io/webidl/#es-ByteString
+#[cfg(feature = "servo")]
 impl ToJSValConvertible for ByteString {
     unsafe fn to_jsval(&self, cx: *mut JSContext, rval: MutableHandleValue) {
         let jsstr = JS_NewStringCopyN(cx,
@@ -262,6 +272,7 @@ impl ToJSValConvertible for ByteString {
 }
 
 // http://heycam.github.io/webidl/#es-ByteString
+#[cfg(feature = "servo")]
 impl FromJSValConvertible for ByteString {
     type Config = ();
     unsafe fn from_jsval(cx: *mut JSContext,
@@ -299,6 +310,7 @@ impl FromJSValConvertible for ByteString {
 }
 
 
+#[cfg(feature = "servo")]
 impl ToJSValConvertible for Reflector {
     unsafe fn to_jsval(&self, cx: *mut JSContext, rval: MutableHandleValue) {
         let obj = self.get_jsobject().get();
@@ -321,6 +333,7 @@ pub fn is_dom_proxy(obj: *mut JSObject) -> bool {
 /// stored for non-proxy bindings.
 // We use slot 0 for holding the raw object.  This is safe for both
 // globals and non-globals.
+#[cfg(feature = "servo")]
 pub const DOM_OBJECT_SLOT: u32 = 0;
 
 /// Get the private pointer of a DOM object from a given reflector.
@@ -420,6 +433,7 @@ pub fn root_from_object<T>(obj: *mut JSObject) -> Result<DomRoot<T>, ()>
 
 /// Get a `*const T` for a DOM object accessible from a `HandleValue`.
 /// Caller is responsible for throwing a JS exception if needed in case of error.
+#[cfg(feature = "servo")]
 pub fn native_from_handlevalue<T>(v: HandleValue) -> Result<*const T, ()>
     where T: DomObject + IDLInterface
 {
@@ -431,6 +445,7 @@ pub fn native_from_handlevalue<T>(v: HandleValue) -> Result<*const T, ()>
 
 /// Get a `DomRoot<T>` for a DOM object accessible from a `HandleValue`.
 /// Caller is responsible for throwing a JS exception if needed in case of error.
+#[cfg(feature = "servo")]
 pub fn root_from_handlevalue<T>(v: HandleValue) -> Result<DomRoot<T>, ()>
     where T: DomObject + IDLInterface
 {
@@ -441,12 +456,14 @@ pub fn root_from_handlevalue<T>(v: HandleValue) -> Result<DomRoot<T>, ()>
 }
 
 /// Get a `DomRoot<T>` for a DOM object accessible from a `HandleObject`.
+#[cfg(feature = "servo")]
 pub fn root_from_handleobject<T>(obj: HandleObject) -> Result<DomRoot<T>, ()>
     where T: DomObject + IDLInterface
 {
     root_from_object(obj.get())
 }
 
+#[cfg(feature = "servo")]
 impl<T: DomObject> ToJSValConvertible for DomRoot<T> {
     unsafe fn to_jsval(&self, cx: *mut JSContext, rval: MutableHandleValue) {
         self.reflector().to_jsval(cx, rval);
@@ -456,6 +473,7 @@ impl<T: DomObject> ToJSValConvertible for DomRoot<T> {
 /// Returns whether `value` is an array-like object.
 /// Note: Currently only Arrays are supported.
 /// TODO: Expand this to support sequences and other array-like objects
+#[cfg(feature = "servo")]
 pub unsafe fn is_array_like(cx: *mut JSContext, value: HandleValue) -> bool {
     let mut result = false;
     assert!(JS_IsArrayObject(cx, value, &mut result));
@@ -463,6 +481,7 @@ pub unsafe fn is_array_like(cx: *mut JSContext, value: HandleValue) -> bool {
 }
 
 /// Get a property from a JS object.
+#[cfg(feature = "servo")]
 pub unsafe fn get_property_jsval(cx: *mut JSContext,
                                  object: HandleObject,
                                  name: &str,
@@ -482,6 +501,7 @@ pub unsafe fn get_property_jsval(cx: *mut JSContext,
 }
 
 /// Get a property from a JS object, and convert it to a Rust value.
+#[cfg(feature = "servo")]
 pub unsafe fn get_property<T>(cx: *mut JSContext,
                               object: HandleObject,
                               name: &str,

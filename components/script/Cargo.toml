@@ -15,7 +15,11 @@ path = "lib.rs"
 debugmozjs = ['mozjs/debugmozjs']
 unstable = ["servo_allocator/unstable"]
 unrooted_must_root_lint = ["script_plugins/unrooted_must_root_lint"]
+servo = ["devtools_traits", "domobject_derive", "metrics", "net_traits", "servo_allocator", "servo_geometry", "servo_rand", "webrender_api", "webvr_traits"]
+gecko = []
+
 default = ["unrooted_must_root_lint"]
+
 
 [build-dependencies]
 cmake = "0.1"
@@ -39,9 +43,9 @@ cookie = "0.10"
 chrono = "0.4"
 cssparser = "0.23.0"
 deny_public_fields = {path = "../deny_public_fields"}
-devtools_traits = {path = "../devtools_traits"}
+devtools_traits = {path = "../devtools_traits", optional = true}
 dom_struct = {path = "../dom_struct"}
-domobject_derive = {path = "../domobject_derive"}
+domobject_derive = {path = "../domobject_derive", optional = true}
 encoding_rs = "0.7"
 euclid = "0.16"
 fnv = "1.0"
@@ -56,15 +60,15 @@ jstraceable_derive = {path = "../jstraceable_derive"}
 lazy_static = "1"
 libc = "0.2"
 log = "0.3.5"
-malloc_size_of = { path = "../malloc_size_of" }
-malloc_size_of_derive = { path = "../malloc_size_of_derive" }
-metrics = {path = "../metrics"}
+malloc_size_of = { path = "../malloc_size_of"}
+malloc_size_of_derive = { path = "../malloc_size_of_derive"}
+metrics = {path = "../metrics", optional = true}
 mitochondria = "1.1.2"
 mime = "0.2.1"
 mime_guess = "1.8.0"
 mozjs = { version = "0.1.10", features = ["promises"]}
 msg = {path = "../msg"}
-net_traits = {path = "../net_traits"}
+net_traits = {path = "../net_traits", optional = true}
 num-traits = "0.1.32"
 offscreen_gl_context = { version = "0.14", features = ["serde"] }
 open = "1.1.1"
@@ -79,12 +83,12 @@ script_plugins = {path = "../script_plugins"}
 script_traits = {path = "../script_traits"}
 selectors = { path = "../selectors" }
 serde = "1.0"
-servo_allocator = {path = "../allocator"}
+servo_allocator = {path = "../allocator", optional = true}
 servo_arc = {path = "../servo_arc"}
 servo_atoms = {path = "../atoms"}
 servo_config = {path = "../config"}
-servo_geometry = {path = "../geometry" }
-servo_rand = {path = "../rand"}
+servo_geometry = {path = "../geometry", optional = true}
+servo_rand = {path = "../rand", optional = true}
 servo_url = {path = "../url"}
 smallvec = "0.6"
 style = {path = "../style", features = ["servo"]}
@@ -96,8 +100,8 @@ url = "1.6"
 utf-8 = "0.7"
 uuid = {version = "0.5", features = ["v4"]}
 xml5ever = {version = "0.12"}
-webrender_api = {git = "https://github.com/servo/webrender", features = ["ipc"]}
-webvr_traits = {path = "../webvr_traits"}
+webrender_api = {git = "https://github.com/servo/webrender", features = ["ipc"], optional = true}
+webvr_traits = {path = "../webvr_traits", optional = true}
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
 angle = {git = "https://github.com/servo/angle", branch = "servo"}

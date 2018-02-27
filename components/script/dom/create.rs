@@ -5,79 +5,79 @@
 use dom::bindings::error::{report_pending_exception, throw_dom_exception};
 use dom::bindings::reflector::DomObject;
 use dom::bindings::root::DomRoot;
-use dom::customelementregistry::{is_valid_custom_element_name, upgrade_element};
+#[cfg(feature = "servo")] use dom::customelementregistry::{is_valid_custom_element_name, upgrade_element};
 use dom::document::Document;
 use dom::element::{CustomElementCreationMode, CustomElementState, Element, ElementCreator};
 use dom::globalscope::GlobalScope;
-use dom::htmlanchorelement::HTMLAnchorElement;
-use dom::htmlareaelement::HTMLAreaElement;
-use dom::htmlaudioelement::HTMLAudioElement;
-use dom::htmlbaseelement::HTMLBaseElement;
-use dom::htmlbodyelement::HTMLBodyElement;
-use dom::htmlbrelement::HTMLBRElement;
-use dom::htmlbuttonelement::HTMLButtonElement;
-use dom::htmlcanvaselement::HTMLCanvasElement;
-use dom::htmldataelement::HTMLDataElement;
-use dom::htmldatalistelement::HTMLDataListElement;
-use dom::htmldetailselement::HTMLDetailsElement;
-use dom::htmldialogelement::HTMLDialogElement;
-use dom::htmldirectoryelement::HTMLDirectoryElement;
-use dom::htmldivelement::HTMLDivElement;
-use dom::htmldlistelement::HTMLDListElement;
-use dom::htmlelement::HTMLElement;
-use dom::htmlembedelement::HTMLEmbedElement;
-use dom::htmlfieldsetelement::HTMLFieldSetElement;
-use dom::htmlfontelement::HTMLFontElement;
-use dom::htmlformelement::HTMLFormElement;
-use dom::htmlframeelement::HTMLFrameElement;
-use dom::htmlframesetelement::HTMLFrameSetElement;
-use dom::htmlheadelement::HTMLHeadElement;
-use dom::htmlheadingelement::HTMLHeadingElement;
-use dom::htmlheadingelement::HeadingLevel;
-use dom::htmlhrelement::HTMLHRElement;
-use dom::htmlhtmlelement::HTMLHtmlElement;
-use dom::htmliframeelement::HTMLIFrameElement;
-use dom::htmlimageelement::HTMLImageElement;
-use dom::htmlinputelement::HTMLInputElement;
-use dom::htmllabelelement::HTMLLabelElement;
-use dom::htmllegendelement::HTMLLegendElement;
-use dom::htmllielement::HTMLLIElement;
-use dom::htmllinkelement::HTMLLinkElement;
-use dom::htmlmapelement::HTMLMapElement;
-use dom::htmlmetaelement::HTMLMetaElement;
-use dom::htmlmeterelement::HTMLMeterElement;
-use dom::htmlmodelement::HTMLModElement;
-use dom::htmlobjectelement::HTMLObjectElement;
-use dom::htmlolistelement::HTMLOListElement;
-use dom::htmloptgroupelement::HTMLOptGroupElement;
-use dom::htmloptionelement::HTMLOptionElement;
-use dom::htmloutputelement::HTMLOutputElement;
-use dom::htmlparagraphelement::HTMLParagraphElement;
-use dom::htmlparamelement::HTMLParamElement;
-use dom::htmlpreelement::HTMLPreElement;
-use dom::htmlprogresselement::HTMLProgressElement;
-use dom::htmlquoteelement::HTMLQuoteElement;
-use dom::htmlscriptelement::HTMLScriptElement;
-use dom::htmlselectelement::HTMLSelectElement;
-use dom::htmlsourceelement::HTMLSourceElement;
-use dom::htmlspanelement::HTMLSpanElement;
-use dom::htmlstyleelement::HTMLStyleElement;
-use dom::htmltablecaptionelement::HTMLTableCaptionElement;
-use dom::htmltablecolelement::HTMLTableColElement;
-use dom::htmltabledatacellelement::HTMLTableDataCellElement;
-use dom::htmltableelement::HTMLTableElement;
-use dom::htmltableheadercellelement::HTMLTableHeaderCellElement;
-use dom::htmltablerowelement::HTMLTableRowElement;
-use dom::htmltablesectionelement::HTMLTableSectionElement;
-use dom::htmltemplateelement::HTMLTemplateElement;
-use dom::htmltextareaelement::HTMLTextAreaElement;
-use dom::htmltimeelement::HTMLTimeElement;
-use dom::htmltitleelement::HTMLTitleElement;
-use dom::htmltrackelement::HTMLTrackElement;
-use dom::htmlulistelement::HTMLUListElement;
-use dom::htmlunknownelement::HTMLUnknownElement;
-use dom::htmlvideoelement::HTMLVideoElement;
-use dom::svgsvgelement::SVGSVGElement;
+#[cfg(feature = "servo")] use dom::htmlanchorelement::HTMLAnchorElement;
+#[cfg(feature = "servo")] use dom::htmlareaelement::HTMLAreaElement;
+#[cfg(feature = "servo")] use dom::htmlaudioelement::HTMLAudioElement;
+#[cfg(feature = "servo")] use dom::htmlbaseelement::HTMLBaseElement;
+#[cfg(feature = "servo")] use dom::htmlbodyelement::HTMLBodyElement;
+#[cfg(feature = "servo")] use dom::htmlbrelement::HTMLBRElement;
+#[cfg(feature = "servo")] use dom::htmlbuttonelement::HTMLButtonElement;
+#[cfg(feature = "servo")] use dom::htmlcanvaselement::HTMLCanvasElement;
+#[cfg(feature = "servo")] use dom::htmldataelement::HTMLDataElement;
+#[cfg(feature = "servo")] use dom::htmldatalistelement::HTMLDataListElement;
+#[cfg(feature = "servo")] use dom::htmldetailselement::HTMLDetailsElement;
+#[cfg(feature = "servo")] use dom::htmldialogelement::HTMLDialogElement;
+#[cfg(feature = "servo")] use dom::htmldirectoryelement::HTMLDirectoryElement;
+#[cfg(feature = "servo")] use dom::htmldivelement::HTMLDivElement;
+#[cfg(feature = "servo")] use dom::htmldlistelement::HTMLDListElement;
+#[cfg(feature = "servo")] use dom::htmlelement::HTMLElement;
+#[cfg(feature = "servo")] use dom::htmlembedelement::HTMLEmbedElement;
+#[cfg(feature = "servo")] use dom::htmlfieldsetelement::HTMLFieldSetElement;
+#[cfg(feature = "servo")] use dom::htmlfontelement::HTMLFontElement;
+#[cfg(feature = "servo")] use dom::htmlformelement::HTMLFormElement;
+#[cfg(feature = "servo")] use dom::htmlframeelement::HTMLFrameElement;
+#[cfg(feature = "servo")] use dom::htmlframesetelement::HTMLFrameSetElement;
+#[cfg(feature = "servo")] use dom::htmlheadelement::HTMLHeadElement;
+#[cfg(feature = "servo")] use dom::htmlheadingelement::HTMLHeadingElement;
+#[cfg(feature = "servo")] use dom::htmlheadingelement::HeadingLevel;
+#[cfg(feature = "servo")] use dom::htmlhrelement::HTMLHRElement;
+#[cfg(feature = "servo")] use dom::htmlhtmlelement::HTMLHtmlElement;
+#[cfg(feature = "servo")] use dom::htmliframeelement::HTMLIFrameElement;
+#[cfg(feature = "servo")] use dom::htmlimageelement::HTMLImageElement;
+#[cfg(feature = "servo")] use dom::htmlinputelement::HTMLInputElement;
+#[cfg(feature = "servo")] use dom::htmllabelelement::HTMLLabelElement;
+#[cfg(feature = "servo")] use dom::htmllegendelement::HTMLLegendElement;
+#[cfg(feature = "servo")] use dom::htmllielement::HTMLLIElement;
+#[cfg(feature = "servo")] use dom::htmllinkelement::HTMLLinkElement;
+#[cfg(feature = "servo")] use dom::htmlmapelement::HTMLMapElement;
+#[cfg(feature = "servo")] use dom::htmlmetaelement::HTMLMetaElement;
+#[cfg(feature = "servo")] use dom::htmlmeterelement::HTMLMeterElement;
+#[cfg(feature = "servo")] use dom::htmlmodelement::HTMLModElement;
+#[cfg(feature = "servo")] use dom::htmlobjectelement::HTMLObjectElement;
+#[cfg(feature = "servo")] use dom::htmlolistelement::HTMLOListElement;
+#[cfg(feature = "servo")] use dom::htmloptgroupelement::HTMLOptGroupElement;
+#[cfg(feature = "servo")] use dom::htmloptionelement::HTMLOptionElement;
+#[cfg(feature = "servo")] use dom::htmloutputelement::HTMLOutputElement;
+#[cfg(feature = "servo")] use dom::htmlparagraphelement::HTMLParagraphElement;
+#[cfg(feature = "servo")] use dom::htmlparamelement::HTMLParamElement;
+#[cfg(feature = "servo")] use dom::htmlpreelement::HTMLPreElement;
+#[cfg(feature = "servo")] use dom::htmlprogresselement::HTMLProgressElement;
+#[cfg(feature = "servo")] use dom::htmlquoteelement::HTMLQuoteElement;
+#[cfg(feature = "servo")] use dom::htmlscriptelement::HTMLScriptElement;
+#[cfg(feature = "servo")] use dom::htmlselectelement::HTMLSelectElement;
+#[cfg(feature = "servo")] use dom::htmlsourceelement::HTMLSourceElement;
+#[cfg(feature = "servo")] use dom::htmlspanelement::HTMLSpanElement;
+#[cfg(feature = "servo")] use dom::htmlstyleelement::HTMLStyleElement;
+#[cfg(feature = "servo")] use dom::htmltablecaptionelement::HTMLTableCaptionElement;
+#[cfg(feature = "servo")] use dom::htmltablecolelement::HTMLTableColElement;
+#[cfg(feature = "servo")] use dom::htmltabledatacellelement::HTMLTableDataCellElement;
+#[cfg(feature = "servo")] use dom::htmltableelement::HTMLTableElement;
+#[cfg(feature = "servo")] use dom::htmltableheadercellelement::HTMLTableHeaderCellElement;
+#[cfg(feature = "servo")] use dom::htmltablerowelement::HTMLTableRowElement;
+#[cfg(feature = "servo")] use dom::htmltablesectionelement::HTMLTableSectionElement;
+#[cfg(feature = "servo")] use dom::htmltemplateelement::HTMLTemplateElement;
+#[cfg(feature = "servo")] use dom::htmltextareaelement::HTMLTextAreaElement;
+#[cfg(feature = "servo")] use dom::htmltimeelement::HTMLTimeElement;
+#[cfg(feature = "servo")] use dom::htmltitleelement::HTMLTitleElement;
+#[cfg(feature = "servo")] use dom::htmltrackelement::HTMLTrackElement;
+#[cfg(feature = "servo")] use dom::htmlulistelement::HTMLUListElement;
+#[cfg(feature = "servo")] use dom::htmlunknownelement::HTMLUnknownElement;
+#[cfg(feature = "servo")] use dom::htmlvideoelement::HTMLVideoElement;
+#[cfg(feature = "servo")] use dom::svgsvgelement::SVGSVGElement;
 use html5ever::{LocalName, Prefix, QualName};
 use js::jsapi::JSAutoCompartment;
 use script_thread::ScriptThread;
@@ -112,6 +112,7 @@ fn create_svg_element(name: QualName,
 
 // https://dom.spec.whatwg.org/#concept-create-element
 #[allow(unsafe_code)]
+
 fn create_html_element(name: QualName,
                        prefix: Option<Prefix>,
                        is: Option<LocalName>,
@@ -183,13 +184,17 @@ fn create_html_element(name: QualName,
     let result = create_native_html_element(name.clone(), prefix, document, creator);
 
     // Step 7.3
-    if is_valid_custom_element_name(&*name.local) || is.is_some() {
-        result.set_custom_element_state(CustomElementState::Undefined);
+    #[cfg(feature = "servo")]
+    {
+        if is_valid_custom_element_name(&*name.local) || is.is_some() {
+            result.set_custom_element_state(CustomElementState::Undefined);
+        }
     }
 
     result
 }
 
+#[cfg(feature = "servo")] 
 pub fn create_native_html_element(
     name: QualName,
     prefix: Option<Prefix>,
@@ -366,8 +371,8 @@ pub fn create_element(name: QualName,
                       -> DomRoot<Element> {
     let prefix = name.prefix.clone();
     match name.ns {
-        ns!(html)   => create_html_element(name, prefix, is, document, creator, mode),
-        ns!(svg)    => create_svg_element(name, prefix, document),
+        #[cfg(feature = "servo")] ns!(html)   => create_html_element(name, prefix, is, document, creator, mode),
+        #[cfg(feature = "servo")] ns!(svg)    => create_svg_element(name, prefix, document),
         _           => Element::new(name.local, name.ns, prefix, document)
     }
 }

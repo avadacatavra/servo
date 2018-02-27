@@ -14,15 +14,15 @@ use dom::bindings::reflector::DomObject;
 use dom::bindings::root::Dom;
 use dom::client::Client;
 use dom::promise::Promise;
-use dom::serviceworkerregistration::ServiceWorkerRegistration;
+#[cfg(feature = "servo")] use dom::serviceworkerregistration::ServiceWorkerRegistration;
 use dom::urlhelper::UrlHelper;
 use script_thread::ScriptThread;
 use servo_url::ServoUrl;
 use std::cmp::PartialEq;
 use std::collections::HashMap;
 use std::rc::Rc;
-use task_source::TaskSource;
-use task_source::dom_manipulation::DOMManipulationTaskSource;
+#[cfg(feature = "servo")] use task_source::TaskSource;
+#[cfg(feature = "servo")] use task_source::dom_manipulation::DOMManipulationTaskSource;
 
 #[derive(Clone, Copy, Debug, JSTraceable, PartialEq)]
 pub enum JobType {

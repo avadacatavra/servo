@@ -17,12 +17,12 @@
 //! a page runs its course and the script thread returns to processing events in the main event
 //! loop.
 
-use bluetooth_traits::BluetoothRequest;
-use canvas_traits::webgl::WebGLPipeline;
-use devtools;
-use devtools_traits::{DevtoolScriptControlMsg, DevtoolsPageInfo};
-use devtools_traits::{ScriptToDevtoolsControlMsg, WorkerId};
-use devtools_traits::CSSError;
+#[cfg(feature = "servo")] use bluetooth_traits::BluetoothRequest;
+#[cfg(feature = "servo")] use canvas_traits::webgl::WebGLPipeline;
+#[cfg(feature = "servo")] use devtools;
+#[cfg(feature = "servo")] use devtools_traits::{DevtoolScriptControlMsg, DevtoolsPageInfo};
+#[cfg(feature = "servo")] use devtools_traits::{ScriptToDevtoolsControlMsg, WorkerId};
+#[cfg(feature = "servo")] use devtools_traits::CSSError;
 use document_loader::DocumentLoader;
 use dom::bindings::cell::DomRefCell;
 use dom::bindings::codegen::Bindings::CSSStyleDeclarationBinding::CSSStyleDeclarationMethods;
@@ -40,54 +40,54 @@ use dom::bindings::str::DOMString;
 use dom::bindings::structuredclone::StructuredCloneData;
 use dom::bindings::trace::JSTraceable;
 use dom::bindings::utils::WRAP_CALLBACKS;
-use dom::customelementregistry::{CallbackReaction, CustomElementDefinition, CustomElementReactionStack};
+#[cfg(feature = "servo")] use dom::customelementregistry::{CallbackReaction, CustomElementDefinition, CustomElementReactionStack};
 use dom::document::{Document, DocumentSource, FocusType, HasBrowsingContext, IsHTMLDocument, TouchEventResult};
 use dom::element::Element;
 use dom::event::{Event, EventBubbles, EventCancelable};
 use dom::globalscope::GlobalScope;
-use dom::htmlanchorelement::HTMLAnchorElement;
-use dom::htmliframeelement::{HTMLIFrameElement, NavigationType};
+#[cfg(feature = "servo")] use dom::htmlanchorelement::HTMLAnchorElement;
+#[cfg(feature = "servo")] use dom::htmliframeelement::{HTMLIFrameElement, NavigationType};
 use dom::mutationobserver::MutationObserver;
 use dom::node::{Node, NodeDamage, window_from_node, from_untrusted_node_address};
-use dom::performanceentry::PerformanceEntry;
-use dom::performancepainttiming::PerformancePaintTiming;
-use dom::serviceworker::TrustedServiceWorkerAddress;
-use dom::serviceworkerregistration::ServiceWorkerRegistration;
+#[cfg(feature = "servo")] use dom::performanceentry::PerformanceEntry;
+#[cfg(feature = "servo")] use dom::performancepainttiming::PerformancePaintTiming;
+#[cfg(feature = "servo")] use dom::serviceworker::TrustedServiceWorkerAddress;
+#[cfg(feature = "servo")] use dom::serviceworkerregistration::ServiceWorkerRegistration;
 use dom::servoparser::{ParserContext, ServoParser};
-use dom::transitionevent::TransitionEvent;
-use dom::uievent::UIEvent;
+#[cfg(feature = "servo")] use dom::transitionevent::TransitionEvent;
+#[cfg(feature = "servo")] use dom::uievent::UIEvent;
 use dom::window::{ReflowReason, Window};
 use dom::windowproxy::WindowProxy;
-use dom::worker::TrustedWorkerAddress;
-use dom::worklet::WorkletThreadPool;
-use dom::workletglobalscope::WorkletGlobalScopeInit;
+#[cfg(feature = "servo")] use dom::worker::TrustedWorkerAddress;
+#[cfg(feature = "servo")] use dom::worklet::WorkletThreadPool;
+#[cfg(feature = "servo")] use dom::workletglobalscope::WorkletGlobalScopeInit;
 use euclid::{Point2D, Vector2D, Rect};
-use fetch::FetchCanceller;
-use hyper::header::{ContentType, HttpDate, Headers, LastModified};
-use hyper::header::ReferrerPolicy as ReferrerPolicyHeader;
-use hyper::mime::{Mime, SubLevel, TopLevel};
-use hyper_serde::Serde;
-use ipc_channel::ipc::{self, IpcSender};
-use ipc_channel::router::ROUTER;
+#[cfg(feature = "servo")] use fetch::FetchCanceller;
+#[cfg(feature = "servo")] use hyper::header::{ContentType, HttpDate, Headers, LastModified};
+#[cfg(feature = "servo")] use hyper::header::ReferrerPolicy as ReferrerPolicyHeader;
+#[cfg(feature = "servo")] use hyper::mime::{Mime, SubLevel, TopLevel};
+#[cfg(feature = "servo")] use hyper_serde::Serde;
+#[cfg(feature = "servo")] use ipc_channel::ipc::{self, IpcSender};
+#[cfg(feature = "servo")] use ipc_channel::router::ROUTER;
 use js::glue::GetWindowProxyClass;
 use js::jsapi::{JSAutoCompartment, JSContext, JS_SetWrapObjectCallbacks};
 use js::jsapi::{JSTracer, SetWindowProxyClass};
 use js::jsval::UndefinedValue;
 use malloc_size_of::MallocSizeOfOps;
 use mem::malloc_size_of_including_self;
-use metrics::{MAX_TASK_NS, PaintTimeMetrics};
+#[cfg(feature = "servo")] use metrics::{MAX_TASK_NS, PaintTimeMetrics};
 use microtask::{MicrotaskQueue, Microtask};
 use msg::constellation_msg::{BrowsingContextId, FrameType, PipelineId, PipelineNamespace, TopLevelBrowsingContextId};
-use net_traits::{FetchMetadata, FetchResponseListener, FetchResponseMsg};
-use net_traits::{Metadata, NetworkError, ReferrerPolicy, ResourceThreads};
-use net_traits::image_cache::{ImageCache, PendingImageResponse};
-use net_traits::request::{CredentialsMode, Destination, RedirectMode, RequestInit};
-use net_traits::storage_thread::StorageType;
-use profile_traits::mem::{self, OpaqueSender, Report, ReportKind, ReportsChan};
-use profile_traits::time::{self, ProfilerCategory, profile};
+#[cfg(feature = "servo")] use net_traits::{FetchMetadata, FetchResponseListener, FetchResponseMsg};
+#[cfg(feature = "servo")] use net_traits::{Metadata, NetworkError, ReferrerPolicy, ResourceThreads};
+#[cfg(feature = "servo")] use net_traits::image_cache::{ImageCache, PendingImageResponse};
+#[cfg(feature = "servo")] use net_traits::request::{CredentialsMode, Destination, RedirectMode, RequestInit};
+#[cfg(feature = "servo")] use net_traits::storage_thread::StorageType;
+#[cfg(feature = "servo")] use profile_traits::mem::{self, OpaqueSender, Report, ReportKind, ReportsChan};
+#[cfg(feature = "servo")] use profile_traits::time::{self, ProfilerCategory, profile};
 use script_layout_interface::message::{self, Msg, NewLayoutThreadInfo, ReflowGoal};
-use script_runtime::{CommonScriptMsg, ScriptChan, ScriptThreadEventCategory};
-use script_runtime::{ScriptPort, get_reports, new_rt_and_cx, Runtime};
+#[cfg(feature = "servo")] use script_runtime::{CommonScriptMsg, ScriptChan, ScriptThreadEventCategory};
+#[cfg(feature = "servo")] use script_runtime::{ScriptPort, get_reports, new_rt_and_cx, Runtime};
 use script_traits::{CompositorEvent, ConstellationControlMsg};
 use script_traits::{DiscardBrowsingContext, DocumentActivity, EventResult};
 use script_traits::{InitialScriptState, JsEvalResult, LayoutMsg, LoadData};
@@ -99,7 +99,7 @@ use script_traits::{UpdatePipelineIdReason, WindowSizeData, WindowSizeType};
 use script_traits::CompositorEvent::{KeyEvent, MouseButtonEvent, MouseMoveEvent, ResizeEvent};
 use script_traits::CompositorEvent::{TouchEvent, TouchpadPressureEvent};
 use script_traits::webdriver_msg::WebDriverScriptCommand;
-use serviceworkerjob::{Job, JobQueue};
+#[cfg(feature = "servo")] use serviceworkerjob::{Job, JobQueue};
 use servo_atoms::Atom;
 use servo_config::opts;
 use servo_url::{ImmutableOrigin, MutableOrigin, ServoUrl};
@@ -115,18 +115,18 @@ use std::sync::Arc;
 use std::sync::mpsc::{Receiver, Select, Sender, channel};
 use std::thread;
 use style::thread_state::{self, ThreadState};
-use task_source::dom_manipulation::DOMManipulationTaskSource;
-use task_source::file_reading::FileReadingTaskSource;
-use task_source::history_traversal::HistoryTraversalTaskSource;
-use task_source::networking::NetworkingTaskSource;
-use task_source::performance_timeline::PerformanceTimelineTaskSource;
-use task_source::user_interaction::UserInteractionTaskSource;
+#[cfg(feature = "servo")] use task_source::dom_manipulation::DOMManipulationTaskSource;
+#[cfg(feature = "servo")] use task_source::file_reading::FileReadingTaskSource;
+#[cfg(feature = "servo")] use task_source::history_traversal::HistoryTraversalTaskSource;
+#[cfg(feature = "servo")] use task_source::networking::NetworkingTaskSource;
+#[cfg(feature = "servo")] use task_source::performance_timeline::PerformanceTimelineTaskSource;
+#[cfg(feature = "servo")] use task_source::user_interaction::UserInteractionTaskSource;
 use time::{get_time, precise_time_ns, Tm};
 use url::Position;
 use url::percent_encoding::percent_decode;
-use webdriver_handlers;
-use webrender_api::DocumentId;
-use webvr_traits::{WebVREvent, WebVRMsg};
+#[cfg(feature = "servo")] use webdriver_handlers;
+#[cfg(feature = "servo")] use webrender_api::DocumentId;
+#[cfg(feature = "servo")] use webvr_traits::{WebVREvent, WebVRMsg};
 
 pub type ImageCacheMsg = (PipelineId, PendingImageResponse);
 
@@ -219,6 +219,7 @@ enum MixedMessage {
 #[derive(Debug)]
 pub enum MainThreadScriptMsg {
     /// Common variants associated with the script messages
+    #[cfg(feature = "servo")] 
     Common(CommonScriptMsg),
     /// Notifies the script that a window associated with a particular pipeline
     /// should be closed (only dispatched to ScriptThread).
@@ -241,18 +242,21 @@ pub enum MainThreadScriptMsg {
     DispatchJobQueue { scope_url: ServoUrl },
 }
 
+#[cfg(feature = "servo")] 
 impl OpaqueSender<CommonScriptMsg> for Box<ScriptChan + Send> {
     fn send(&self, msg: CommonScriptMsg) {
         ScriptChan::send(&**self, msg).unwrap();
     }
 }
 
+#[cfg(feature = "servo")] 
 impl ScriptPort for Receiver<CommonScriptMsg> {
     fn recv(&self) -> Result<CommonScriptMsg, ()> {
         self.recv().map_err(|_| ())
     }
 }
 
+#[cfg(feature = "servo")] 
 impl ScriptPort for Receiver<MainThreadScriptMsg> {
     fn recv(&self) -> Result<CommonScriptMsg, ()> {
         match self.recv() {
@@ -263,12 +267,14 @@ impl ScriptPort for Receiver<MainThreadScriptMsg> {
     }
 }
 
+#[cfg(feature = "servo")] 
 impl ScriptPort for Receiver<(TrustedWorkerAddress, CommonScriptMsg)> {
     fn recv(&self) -> Result<CommonScriptMsg, ()> {
         self.recv().map(|(_, msg)| msg).map_err(|_| ())
     }
 }
 
+#[cfg(feature = "servo")] 
 impl ScriptPort for Receiver<(TrustedWorkerAddress, MainThreadScriptMsg)> {
     fn recv(&self) -> Result<CommonScriptMsg, ()> {
         match self.recv().map(|(_, msg)| msg) {
@@ -279,6 +285,7 @@ impl ScriptPort for Receiver<(TrustedWorkerAddress, MainThreadScriptMsg)> {
     }
 }
 
+#[cfg(feature = "servo")] 
 impl ScriptPort for Receiver<(TrustedServiceWorkerAddress, CommonScriptMsg)> {
     fn recv(&self) -> Result<CommonScriptMsg, ()> {
         self.recv().map(|(_, msg)| msg).map_err(|_| ())
@@ -287,8 +294,10 @@ impl ScriptPort for Receiver<(TrustedServiceWorkerAddress, CommonScriptMsg)> {
 
 /// Encapsulates internal communication of shared messages within the script thread.
 #[derive(JSTraceable)]
+#[cfg(feature = "servo")] 
 pub struct SendableMainThreadScriptChan(pub Sender<CommonScriptMsg>);
 
+#[cfg(feature = "servo")] 
 impl ScriptChan for SendableMainThreadScriptChan {
     fn send(&self, msg: CommonScriptMsg) -> Result<(), ()> {
         self.0.send(msg).map_err(|_| ())
@@ -303,6 +312,7 @@ impl ScriptChan for SendableMainThreadScriptChan {
 #[derive(JSTraceable)]
 pub struct MainThreadScriptChan(pub Sender<MainThreadScriptMsg>);
 
+#[cfg(feature = "servo")] 
 impl ScriptChan for MainThreadScriptChan {
     fn send(&self, msg: CommonScriptMsg) -> Result<(), ()> {
         self.0.send(MainThreadScriptMsg::Common(msg)).map_err(|_| ())
@@ -313,6 +323,7 @@ impl ScriptChan for MainThreadScriptChan {
     }
 }
 
+#[cfg(feature = "servo")] 
 impl OpaqueSender<CommonScriptMsg> for Sender<MainThreadScriptMsg> {
     fn send(&self, msg: CommonScriptMsg) {
         self.send(MainThreadScriptMsg::Common(msg)).unwrap()
@@ -403,6 +414,7 @@ pub struct ScriptThread {
     /// A map to store service worker registrations for a given origin
     registration_map: DomRefCell<HashMap<ServoUrl, Dom<ServiceWorkerRegistration>>>,
     /// A job queue for Service Workers keyed by their scope url
+    #[cfg(feature = "servo")] 
     job_queue_map: Rc<JobQueue>,
     /// Image cache for this script thread.
     image_cache: Arc<ImageCache>,
@@ -503,7 +515,7 @@ pub struct ScriptThread {
     transitioning_nodes: DomRefCell<Vec<Dom<Node>>>,
 
     /// <https://html.spec.whatwg.org/multipage/#custom-element-reactions-stack>
-    custom_element_reaction_stack: CustomElementReactionStack,
+    #[cfg(feature = "servo")] custom_element_reaction_stack: CustomElementReactionStack,
 
     /// The Webrender Document ID associated with this thread.
     webrender_document: DocumentId,
@@ -578,10 +590,11 @@ impl ScriptThreadFactory for ScriptThread {
             script_thread.pre_page_load(new_load, load_data);
 
             let reporter_name = format!("script-reporter-{}", id);
+            #[cfg(feature = "servo")] {
             mem_profiler_chan.run_with_memory_reporting(|| {
                 script_thread.start();
                 let _ = script_thread.content_process_shutdown_chan.send(());
-            }, reporter_name, script_chan, CommonScriptMsg::CollectReports);
+            }, reporter_name, script_chan, CommonScriptMsg::CollectReports);}
 
             // This must always be the very last operation performed before the thread completes
             failsafe.neuter();
@@ -666,6 +679,7 @@ impl ScriptThread {
         });
     }
 
+    #[cfg(feature = "servo")] 
     pub fn process_event(msg: CommonScriptMsg) {
         SCRIPT_THREAD_ROOT.with(|root| {
             if let Some(script_thread) = root.get() {
@@ -766,6 +780,7 @@ impl ScriptThread {
         })
     }
 
+    #[cfg(feature = "servo")] 
     pub fn enqueue_callback_reaction(element: &Element,
                                      reaction: CallbackReaction,
                                      definition: Option<Rc<CustomElementDefinition>>) {
@@ -777,6 +792,7 @@ impl ScriptThread {
         })
     }
 
+    #[cfg(feature = "servo")] 
     pub fn enqueue_upgrade_reaction(element: &Element, definition: Rc<CustomElementDefinition>) {
         SCRIPT_THREAD_ROOT.with(|root| {
             if let Some(script_thread) = root.get() {
@@ -827,6 +843,7 @@ impl ScriptThread {
             incomplete_loads: DomRefCell::new(vec!()),
             incomplete_parser_contexts: DomRefCell::new(vec!()),
             registration_map: DomRefCell::new(HashMap::new()),
+            #[cfg(feature = "servo")] 
             job_queue_map: Rc::new(JobQueue::new()),
 
             image_cache: state.image_cache.clone(),
@@ -884,6 +901,7 @@ impl ScriptThread {
 
             transitioning_nodes: Default::default(),
 
+            #[cfg(feature = "servo")] 
             custom_element_reaction_stack: CustomElementReactionStack::new(),
 
             webrender_document: state.webrender_document,
@@ -1122,6 +1140,7 @@ impl ScriptThread {
         true
     }
 
+    #[cfg(feature = "servo")] 
     fn categorize_msg(&self, msg: &MixedMessage) -> ScriptThreadEventCategory {
         match *msg {
             MixedMessage::FromConstellation(ref inner_msg) => {
@@ -1777,11 +1796,13 @@ impl ScriptThread {
         }
     }
 
+    #[cfg(feature = "servo")] 
     pub fn handle_get_registration(&self, scope_url: &ServoUrl) -> Option<DomRoot<ServiceWorkerRegistration>> {
         let maybe_registration_ref = self.registration_map.borrow();
         maybe_registration_ref.get(scope_url).map(|x| DomRoot::from_ref(&**x))
     }
 
+    #[cfg(feature = "servo")] 
     pub fn handle_serviceworker_registration(&self,
                                          scope: &ServoUrl,
                                          registration: &ServiceWorkerRegistration,

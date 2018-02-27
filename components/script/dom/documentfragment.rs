@@ -17,7 +17,7 @@ use dom::node::{Node, window_from_node};
 use dom::nodelist::NodeList;
 use dom::window::Window;
 use dom_struct::dom_struct;
-use servo_atoms::Atom;
+#[cfg(feature = "servo")] use servo_atoms::Atom;
 
 // https://dom.spec.whatwg.org/#documentfragment
 #[dom_struct]
@@ -54,6 +54,7 @@ impl DocumentFragmentMethods for DocumentFragment {
     }
 
     // https://dom.spec.whatwg.org/#dom-nonelementparentnode-getelementbyid
+    #[cfg(feature = "servo")]
     fn GetElementById(&self, id: DOMString) -> Option<DomRoot<Element>> {
         let node = self.upcast::<Node>();
         let id = Atom::from(id);

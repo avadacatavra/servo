@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use app_units::Au;
-use base64;
-use bluetooth_traits::BluetoothRequest;
-use canvas_traits::webgl::WebGLChan;
+#[cfg(feature = "servo")] use base64;
+#[cfg(feature = "servo")] use bluetooth_traits::BluetoothRequest;
+#[cfg(feature = "servo")] use canvas_traits::webgl::WebGLChan;
 use cssparser::{Parser, ParserInput};
-use devtools_traits::{ScriptToDevtoolsControlMsg, TimelineMarker, TimelineMarkerType};
+#[cfg(feature = "servo")] use devtools_traits::{ScriptToDevtoolsControlMsg, TimelineMarker, TimelineMarkerType};
 use dom::bindings::cell::DomRefCell;
 use dom::bindings::codegen::Bindings::DocumentBinding::{DocumentMethods, DocumentReadyState};
 use dom::bindings::codegen::Bindings::FunctionBinding::Function;
@@ -23,57 +23,57 @@ use dom::bindings::refcounted::Trusted;
 use dom::bindings::reflector::DomObject;
 use dom::bindings::root::{Dom, DomRoot, MutNullableDom};
 use dom::bindings::str::DOMString;
-use dom::bindings::structuredclone::StructuredCloneData;
+#[cfg(feature = "servo")] use dom::bindings::structuredclone::StructuredCloneData;
 use dom::bindings::trace::RootedTraceableBox;
 use dom::bindings::utils::{GlobalStaticData, WindowProxyHandler};
-use dom::bluetooth::BluetoothExtraPermissionData;
-use dom::crypto::Crypto;
+#[cfg(feature = "servo")] use dom::bluetooth::BluetoothExtraPermissionData;
+#[cfg(feature = "servo")] use dom::crypto::Crypto;
 use dom::cssstyledeclaration::{CSSModificationAccess, CSSStyleDeclaration, CSSStyleOwner};
-use dom::customelementregistry::CustomElementRegistry;
+#[cfg(feature = "servo")] use dom::customelementregistry::CustomElementRegistry;
 use dom::document::{AnimationFrameCallback, Document};
 use dom::element::Element;
 use dom::event::Event;
 use dom::globalscope::GlobalScope;
-use dom::history::History;
-use dom::htmliframeelement::build_mozbrowser_custom_event;
+#[cfg(feature = "servo")] use dom::history::History;
+#[cfg(feature = "servo")] use dom::htmliframeelement::build_mozbrowser_custom_event;
 use dom::location::Location;
-use dom::mediaquerylist::{MediaQueryList, WeakMediaQueryListVec};
-use dom::messageevent::MessageEvent;
-use dom::navigator::Navigator;
+#[cfg(feature = "servo")] use dom::mediaquerylist::{MediaQueryList, WeakMediaQueryListVec};
+#[cfg(feature = "servo")] use dom::messageevent::MessageEvent;
+#[cfg(feature = "servo")] use dom::navigator::Navigator;
 use dom::node::{Node, NodeDamage, document_from_node, from_untrusted_node_address};
-use dom::performance::Performance;
+#[cfg(feature = "servo")] use dom::performance::Performance;
 use dom::promise::Promise;
-use dom::screen::Screen;
-use dom::storage::Storage;
-use dom::testrunner::TestRunner;
+#[cfg(feature = "servo")] use dom::screen::Screen;
+#[cfg(feature = "servo")] use dom::storage::Storage;
+#[cfg(feature = "servo")] use dom::testrunner::TestRunner;
 use dom::windowproxy::WindowProxy;
-use dom::worklet::Worklet;
-use dom::workletglobalscope::WorkletGlobalScopeType;
+#[cfg(feature = "servo")] use dom::worklet::Worklet;
+#[cfg(feature = "servo")] use dom::workletglobalscope::WorkletGlobalScopeType;
 use dom_struct::dom_struct;
 use euclid::{Point2D, Vector2D, Rect, Size2D};
-use fetch;
-use ipc_channel::ipc::{self, IpcSender};
-use ipc_channel::router::ROUTER;
+#[cfg(feature = "servo")] use fetch;
+#[cfg(feature = "servo")] use ipc_channel::ipc::{self, IpcSender};
+#[cfg(feature = "servo")] use ipc_channel::router::ROUTER;
 use js::jsapi::{HandleObject, HandleValue, JSAutoCompartment, JSContext};
 use js::jsapi::{JS_GC, JS_GetRuntime};
 use js::jsval::UndefinedValue;
-use layout_image::fetch_image_for_layout;
+#[cfg(feature = "servo")] use layout_image::fetch_image_for_layout;
 use microtask::MicrotaskQueue;
 use msg::constellation_msg::{FrameType, PipelineId};
-use net_traits::{ResourceThreads, ReferrerPolicy};
-use net_traits::image_cache::{ImageCache, ImageResponder, ImageResponse};
-use net_traits::image_cache::{PendingImageId, PendingImageResponse};
-use net_traits::storage_thread::StorageType;
-use num_traits::ToPrimitive;
+#[cfg(feature = "servo")] use net_traits::{ResourceThreads, ReferrerPolicy};
+#[cfg(feature = "servo")] use net_traits::image_cache::{ImageCache, ImageResponder, ImageResponse};
+#[cfg(feature = "servo")] use net_traits::image_cache::{PendingImageId, PendingImageResponse};
+#[cfg(feature = "servo")] use net_traits::storage_thread::StorageType;
+#[cfg(feature = "servo")] use num_traits::ToPrimitive;
 use open;
-use profile_traits::mem::ProfilerChan as MemProfilerChan;
-use profile_traits::time::ProfilerChan as TimeProfilerChan;
+#[cfg(feature = "servo")] use profile_traits::mem::ProfilerChan as MemProfilerChan;
+#[cfg(feature = "servo")] use profile_traits::time::ProfilerChan as TimeProfilerChan;
 use script_layout_interface::{TrustedNodeAddress, PendingImageState};
 use script_layout_interface::message::{Msg, Reflow, ReflowGoal, ScriptReflow};
 use script_layout_interface::reporter::CSSErrorReporter;
 use script_layout_interface::rpc::{ContentBoxResponse, ContentBoxesResponse, LayoutRPC};
 use script_layout_interface::rpc::{NodeScrollRootIdResponse, ResolvedStyleResponse, TextIndexResponse};
-use script_runtime::{CommonScriptMsg, ScriptChan, ScriptPort, ScriptThreadEventCategory, Runtime};
+#[cfg(feature = "servo")] use script_runtime::{CommonScriptMsg, ScriptChan, ScriptPort, ScriptThreadEventCategory, Runtime};
 use script_thread::{ImageCacheMsg, MainThreadScriptChan, MainThreadScriptMsg};
 use script_thread::{ScriptThread, SendableMainThreadScriptChan};
 use script_traits::{ConstellationControlMsg, DocumentState, LoadData, MozBrowserEvent};
@@ -84,7 +84,7 @@ use selectors::attr::CaseSensitivity;
 use servo_arc;
 use servo_config::opts;
 use servo_config::prefs::PREFS;
-use servo_geometry::{f32_rect_to_au_rect, MaxRect};
+#[cfg(feature = "servo")] use servo_geometry::{f32_rect_to_au_rect, MaxRect};
 use servo_url::{Host, MutableOrigin, ImmutableOrigin, ServoUrl};
 use std::borrow::ToOwned;
 use std::cell::Cell;
@@ -106,22 +106,22 @@ use style::properties::{ComputedValues, PropertyId};
 use style::selector_parser::PseudoElement;
 use style::str::HTML_SPACE_CHARACTERS;
 use style::stylesheets::CssRuleType;
-use style_traits::ParsingMode;
-use task::TaskCanceller;
-use task_source::dom_manipulation::DOMManipulationTaskSource;
-use task_source::file_reading::FileReadingTaskSource;
-use task_source::history_traversal::HistoryTraversalTaskSource;
-use task_source::networking::NetworkingTaskSource;
-use task_source::performance_timeline::PerformanceTimelineTaskSource;
-use task_source::user_interaction::UserInteractionTaskSource;
+#[cfg(feature = "servo")] use style_traits::ParsingMode;
+#[cfg(feature = "servo")] use task::TaskCanceller;
+#[cfg(feature = "servo")] use task_source::dom_manipulation::DOMManipulationTaskSource;
+#[cfg(feature = "servo")] use task_source::file_reading::FileReadingTaskSource;
+#[cfg(feature = "servo")] use task_source::history_traversal::HistoryTraversalTaskSource;
+#[cfg(feature = "servo")] use task_source::networking::NetworkingTaskSource;
+#[cfg(feature = "servo")] use task_source::performance_timeline::PerformanceTimelineTaskSource;
+#[cfg(feature = "servo")] use task_source::user_interaction::UserInteractionTaskSource;
 use time;
-use timers::{IsInterval, TimerCallback};
+#[cfg(feature = "servo")] use timers::{IsInterval, TimerCallback};
 #[cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))]
-use tinyfiledialogs::{self, MessageBoxIcon};
+#[cfg(feature = "servo")] use tinyfiledialogs::{self, MessageBoxIcon};
 use url::Position;
-use webdriver_handlers::jsval_to_webdriver;
-use webrender_api::{ClipId, DocumentId};
-use webvr_traits::WebVRMsg;
+#[cfg(feature = "servo")] use webdriver_handlers::jsval_to_webdriver;
+#[cfg(feature = "servo")] use webrender_api::{ClipId, DocumentId};
+#[cfg(feature = "servo")] use webvr_traits::WebVRMsg;
 
 /// Current state of the window object
 #[derive(Clone, Copy, Debug, JSTraceable, MallocSizeOf, PartialEq)]
@@ -161,17 +161,17 @@ pub struct Window {
     #[ignore_malloc_size_of = "trait objects are hard"]
     script_chan: MainThreadScriptChan,
     #[ignore_malloc_size_of = "task sources are hard"]
-    dom_manipulation_task_source: DOMManipulationTaskSource,
+    #[cfg(feature = "servo")] dom_manipulation_task_source: DOMManipulationTaskSource,
     #[ignore_malloc_size_of = "task sources are hard"]
-    user_interaction_task_source: UserInteractionTaskSource,
+    #[cfg(feature = "servo")] user_interaction_task_source: UserInteractionTaskSource,
     #[ignore_malloc_size_of = "task sources are hard"]
-    networking_task_source: NetworkingTaskSource,
+    #[cfg(feature = "servo")] networking_task_source: NetworkingTaskSource,
     #[ignore_malloc_size_of = "task sources are hard"]
-    history_traversal_task_source: HistoryTraversalTaskSource,
+    #[cfg(feature = "servo")] history_traversal_task_source: HistoryTraversalTaskSource,
     #[ignore_malloc_size_of = "task sources are hard"]
-    file_reading_task_source: FileReadingTaskSource,
+    #[cfg(feature = "servo")] file_reading_task_source: FileReadingTaskSource,
     #[ignore_malloc_size_of = "task sources are hard"]
-    performance_timeline_task_source: PerformanceTimelineTaskSource,
+    #[cfg(feature = "servo")] performance_timeline_task_source: PerformanceTimelineTaskSource,
     navigator: MutNullableDom<Navigator>,
     #[ignore_malloc_size_of = "Arc"]
     image_cache: Arc<ImageCache>,
@@ -182,10 +182,10 @@ pub struct Window {
     location: MutNullableDom<Location>,
     history: MutNullableDom<History>,
     custom_element_registry: MutNullableDom<CustomElementRegistry>,
-    performance: MutNullableDom<Performance>,
-    navigation_start: Cell<u64>,
-    navigation_start_precise: Cell<u64>,
-    screen: MutNullableDom<Screen>,
+    #[cfg(feature = "servo")] performance: MutNullableDom<Performance>,
+    #[cfg(feature = "servo")] navigation_start: Cell<u64>,
+    #[cfg(feature = "servo")] navigation_start_precise: Cell<u64>,
+    #[cfg(feature = "servo")] screen: MutNullableDom<Screen>,
     session_storage: MutNullableDom<Storage>,
     local_storage: MutNullableDom<Storage>,
     status: DomRefCell<DOMString>,
@@ -403,6 +403,7 @@ impl Window {
         self.webvr_chan.clone()
     }
 
+    #[cfg(feature = "servo")] 
     fn new_paint_worklet(&self) -> DomRoot<Worklet> {
         debug!("Creating new paint worklet.");
         Worklet::new(self, WorkletGlobalScopeType::Paint)
@@ -722,6 +723,7 @@ impl WindowMethods for Window {
     window_event_handlers!();
 
     // https://developer.mozilla.org/en-US/docs/Web/API/Window/screen
+    #[cfg(feature = "servo")] 
     fn Screen(&self) -> DomRoot<Screen> {
         self.screen.or_init(|| Screen::new(self))
     }
@@ -750,6 +752,7 @@ impl WindowMethods for Window {
 
     #[allow(unsafe_code)]
     // https://html.spec.whatwg.org/multipage/#dom-window-postmessage
+    #[cfg(feature = "servo")]
     unsafe fn PostMessage(&self,
                    cx: *mut JSContext,
                    message: HandleValue,
@@ -993,6 +996,7 @@ impl WindowMethods for Window {
     }
 
     // check-tidy: no specs after this line
+    #[cfg(feature = "servo")] 
     fn OpenURLInDefaultBrowser(&self, href: DOMString) -> ErrorResult {
         let url = ServoUrl::parse(&href).map_err(|e| {
             Error::Type(format!("Couldn't parse URL: {}", e))
@@ -1280,9 +1284,10 @@ impl Window {
             let js_runtime = js_runtime.as_ref().unwrap();
             let node = unsafe { from_untrusted_node_address(js_runtime.rt(), image.node) };
 
+            #[cfg(feature = "servo")]  {
             if let PendingImageState::Unrequested(ref url) = image.state {
                 fetch_image_for_layout(url.clone(), &*node, id, self.image_cache.clone());
-            }
+            }}
 
             let mut images = self.pending_layout_images.borrow_mut();
             let nodes = images.entry(id).or_insert(vec![]);
@@ -1924,6 +1929,7 @@ fn debug_reflow_events(id: PipelineId, reflow_goal: &ReflowGoal, reason: &Reflow
 
 impl Window {
     // https://html.spec.whatwg.org/multipage/#dom-window-postmessage step 7.
+    #[cfg(feature = "servo")] 
     pub fn post_message(
         &self,
         target_origin: Option<ImmutableOrigin>,

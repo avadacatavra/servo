@@ -139,25 +139,26 @@ pub mod constant;
 pub mod conversions;
 pub mod error;
 pub mod guard;
-pub mod htmlconstructor;
+#[cfg(feature = "servo")] pub mod htmlconstructor;
 pub mod inheritance;
 pub mod interface;
-pub mod iterable;
-pub mod mozmap;
+#[cfg(feature = "servo")] pub mod iterable;
+#[cfg(feature = "servo")] pub mod mozmap;
 pub mod namespace;
 pub mod num;
-pub mod proxyhandler;
+#[cfg(feature = "servo")] pub mod proxyhandler;
 pub mod refcounted;
 pub mod reflector;
 pub mod root;
 pub mod settings_stack;
 pub mod str;
-pub mod structuredclone;
+#[cfg(feature = "servo")] pub mod structuredclone;
 pub mod trace;
 pub mod utils;
 pub mod weakref;
 pub mod xmlname;
 
+// TODO avada: need to conditionally disable codegen for webidl files that gecko doesn't want
 /// Generated JS-Rust bindings.
 #[allow(missing_docs, non_snake_case)]
 pub mod codegen {
