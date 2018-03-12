@@ -1,0 +1,13 @@
+prefix=/root/gstreamer
+exec_prefix=${prefix}
+libdir=${prefix}/lib/x86_64-linux-gnu
+includedir=${prefix}/include/gstreamer-1.0
+pluginsdir=${prefix}/lib/x86_64-linux-gnu/gstreamer-1.0
+
+Name: GStreamer bad audio library, uninstalled
+Description: Bad audio library for GStreamer elements, Not Installed
+Version: 1.14.1
+Requires: gstreamer-1.0 gstreamer-base-1.0
+
+Libs: -L${libdir} -lgstbadaudio-1.0
+Cflags: -I${includedir}

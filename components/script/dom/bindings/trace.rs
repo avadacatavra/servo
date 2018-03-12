@@ -49,6 +49,7 @@ use dom::bindings::utils::WindowProxyHandler;
 use dom::document::PendingRestyle;
 use dom::htmlimageelement::SourceSet;
 use dom::htmlmediaelement::MediaFrameRenderer;
+use dom::performanceresourcetiming::InitiatorType;
 use encoding_rs::{Decoder, Encoding};
 use euclid::{Transform2D, Transform3D, Point2D, Vector2D, Rect, TypedSize2D, TypedScale};
 use euclid::Length as EuclidLength;
@@ -68,7 +69,7 @@ use js::typedarray::TypedArray;
 use js::typedarray::TypedArrayElement;
 use metrics::{InteractiveMetrics, InteractiveWindow};
 use msg::constellation_msg::{BrowsingContextId, HistoryStateId, PipelineId, TopLevelBrowsingContextId};
-use net_traits::{Metadata, NetworkError, ReferrerPolicy, ResourceThreads};
+use net_traits::{Metadata, NetworkError, ReferrerPolicy, ResourceFetchTiming, ResourceThreads};
 use net_traits::filemanager_thread::RelativePos;
 use net_traits::image::base::{Image, ImageMetadata};
 use net_traits::image_cache::{ImageCache, PendingImageId};
@@ -460,6 +461,9 @@ unsafe_no_jsmanaged_fields!(AnalysisEngine, DistanceModel, PanningModel, ParamTy
 unsafe_no_jsmanaged_fields!(Player<Error=ServoMediaError>);
 unsafe_no_jsmanaged_fields!(Mutex<MediaFrameRenderer>);
 unsafe_no_jsmanaged_fields!(RenderApiSender);
+unsafe_no_jsmanaged_fields!(ParamType);
+unsafe_no_jsmanaged_fields!(ResourceFetchTiming);
+unsafe_no_jsmanaged_fields!(InitiatorType);
 
 unsafe impl<'a> JSTraceable for &'a str {
     #[inline]
