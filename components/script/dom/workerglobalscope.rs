@@ -358,7 +358,6 @@ impl WorkerGlobalScopeMethods for WorkerGlobalScope {
             let global_scope = self.upcast::<GlobalScope>();
             Performance::new(
                 global_scope,
-                0, /* navigation start is not used in workers */
                 self.navigation_start_precise,
             )
         })

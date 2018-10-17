@@ -914,8 +914,8 @@ impl MallocSizeOf for url::Host {
 malloc_size_of_is_0!(webrender_api::BorderRadius);
 #[cfg(feature = "webrender_api")]
 malloc_size_of_is_0!(webrender_api::BorderStyle);
-#[cfg(feature = "webrender_api")]
-malloc_size_of_is_0!(webrender_api::BorderWidths);
+// #[cfg(feature = "webrender_api")]
+// malloc_size_of_is_0!(webrender_api::BorderWidths);
 #[cfg(feature = "webrender_api")]
 malloc_size_of_is_0!(webrender_api::BoxShadowClipMode);
 #[cfg(feature = "webrender_api")]

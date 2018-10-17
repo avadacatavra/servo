@@ -29,7 +29,6 @@ use dom::htmlsourceelement::HTMLSourceElement;
 use dom::htmlvideoelement::HTMLVideoElement;
 use dom::mediaerror::MediaError;
 use dom::node::{document_from_node, window_from_node, Node, NodeDamage, UnbindContext};
-use dom::node::{window_from_node, document_from_node, Node, UnbindContext};
 use dom::performanceresourcetiming::InitiatorType;
 use dom::promise::Promise;
 use dom::virtualmethods::VirtualMethods;

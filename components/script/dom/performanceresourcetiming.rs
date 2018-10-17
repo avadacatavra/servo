@@ -235,4 +235,21 @@ impl PerformanceResourceTimingMethods for PerformanceResourceTiming {
         Finite::wrap(self.response_end)
     }
 
+    // https://w3c.github.io/resource-timing/#dom-performanceresourcetiming-transfersize
+    fn TransferSize(&self) -> u64 {
+        //TODO
+        0
+    }
+
+    // https://w3c.github.io/resource-timing/#dom-performanceresourcetiming-encodedbodysize
+    fn EncodedBodySize(&self) -> u64 {
+        //TODO
+        0
+    }
+
+    // https://w3c.github.io/resource-timing/#dom-performanceresourcetiming-decodedbodysize
+    fn DecodedBodySize(&self) -> u64 {
+        //TODO
+        0
+    }
 }
